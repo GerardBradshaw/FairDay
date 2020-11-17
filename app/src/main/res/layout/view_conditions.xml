@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="horizontal"
+    tools:background="@android:color/holo_red_dark">
+
+    <TextView
+        tools:text="⛅️"
+        android:id="@+id/condition_text_view"
+        style="@style/ConditionStyle" />
+
+    <TextView
+        android:layout_marginLeft="8dp"
+        tools:text="Cloudy and sunny"
+        android:id="@+id/description_text_view"
+        style="@style/ConditionStyle" />
+
+</LinearLayout>
