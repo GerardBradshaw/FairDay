@@ -60,9 +60,9 @@ class WeatherFile {
     @SerializedName("feels_like")
     var feelsLike: Float? = null
 
-    var pressure: Int? = null
+    var pressure: Float? = null
 
-    var humidity: Int? = null
+    var humidity: Float? = null
 
     @SerializedName("temp_min")
     var tempMin: Float? = null
@@ -80,29 +80,29 @@ class WeatherFile {
   class Wind {
     var speed: Float? = null
 
-    var deg: Int? = null
+    var deg: Float? = null
 
     var gust: Float? = null
   }
 
   class Clouds {
-    var all: Int? = null
+    var all: Float? = null
   }
 
   class Rain {
     @SerializedName("1h")
-    var mmLastHour: Int? = null
+    var mmLastHour: Float? = null
 
     @SerializedName("3h")
-    var mmLastThreeHours: Int? = null
+    var mmLastThreeHours: Float? = null
   }
 
   class Snow {
     @SerializedName("1h")
-    var mmLastHour: Int? = null
+    var mmLastHour: Float? = null
 
     @SerializedName("3h")
-    var mmLastThreeHours: Int? = null
+    var mmLastThreeHours: Float? = null
   }
 
   class Sys {

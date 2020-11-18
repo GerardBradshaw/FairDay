@@ -22,8 +22,14 @@ class ConditionsView : FrameLayout {
     descriptionTextView = findViewById(R.id.description_text_view)
   }
 
-  fun setConditions(condition: String, description: String) {
-    conditionTextView.text = condition
-    descriptionTextView.text = description
+  fun setConditions(condition: String?, description: String?) {
+    if (condition != null && description != null) {
+      visibility = View.VISIBLE
+      conditionTextView.text = condition
+      descriptionTextView.text = description
+    }
+    else {
+      visibility = View.INVISIBLE
+    }
   }
 }

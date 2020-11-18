@@ -9,20 +9,12 @@
     android:orientation="vertical"
     tools:context=".ui.MainActivity">
 
-    <Space
-        android:layout_width="0dp"
-        android:layout_height="36dp"/>
-
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager"
-        android:background="@color/colorPrimary"
         android:layout_weight="1"
         android:layout_width="match_parent"
         android:layout_height="0dp"/>
 
-    <!-- OPEN WEATHER CREDIT -->
-    <com.gerardbradshaw.whetherweather.views.OpenWeatherCreditView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+
 
 </LinearLayout>

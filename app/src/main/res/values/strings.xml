@@ -6,12 +6,14 @@
     <string name="degree_symbol">°</string>
     <string name="max">"H: "</string>
     <string name="min">"L: "</string>
-    <string name="invalid_location">Invalid location</string>
+    <string name="invalid_location">Invalid locationData</string>
     <string name="cloud_emoji">☁️</string>
     <string name="add">Add</string>
     <string name="locations">Locations</string>
     <string name="open_weather_logo">Open Weather logo</string>
     <string name="weather_credit">Data provided by openweathermap.org</string>
-    <string name="location_rationale_message">\ needs to know your location to determine the weather where you are. We will only have access to your approximate location (within a city block), which is never stored or transmitted outside of your device.</string>
-    <string name="location_rationale_title">Please grant location access</string>
+    <string name="location_rationale_message">\ needs to know your locationData to determine the weather where you are. We will only have access to your approximate locationData (within a city block), which is never stored or transmitted outside of your device.</string>
+    <string name="location_rationale_title">Please grant locationData access</string>
+    <string name="location_rationale_negative">Not now</string>
+    <string name="location_rationale_positive">Ok</string>
 </resources>
