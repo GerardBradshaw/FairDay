@@ -42,7 +42,7 @@ class LocationListAdapter(context: Context) :
 
     holder.weatherView.setLocation(data?.location)
     holder.weatherView.setTemperatures(data?.temp, data?.min, data?.max)
-    holder.weatherView.setConditions(data?.condition, data?.description)
+    holder.weatherView.setConditions(data?.condition, data?.description, data?.conditionIconId)
   }
 
   override fun getItemCount(): Int {
@@ -52,12 +52,7 @@ class LocationListAdapter(context: Context) :
   class LocationViewHolder(itemView: View, val adapter: LocationListAdapter) :
     RecyclerView.ViewHolder(itemView) {
 
-    val weatherView: WeatherView
-
-    init {
-      weatherView = itemView.findViewById(R.id.list_item_weather_view)
-    }
-
+    val weatherView: WeatherView = itemView.findViewById(R.id.list_item_weather_view)
   }
 
   companion object {

@@ -7,13 +7,12 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/condition_image"
+        android:id="@+id/condition_image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:adjustViewBounds="true"
         android:scaleType="centerCrop"
-        android:src="@drawable/clouds"
-        tools:src="@android:color/holo_red_dark"/>
+        android:src="@drawable/img_clear_day" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -59,11 +58,5 @@
             android:layout_height="wrap_content"/>
 
     </LinearLayout>
-
-    <!-- OPEN WEATHER CREDIT -->
-    <com.gerardbradshaw.whetherweather.views.OpenWeatherCreditView
-        android:layout_gravity="bottom"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
 
 </FrameLayout>

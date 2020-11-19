@@ -39,8 +39,8 @@ class MainActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
 
-    supportActionBar?.hide()
-//    supportActionBar?.setDisplayShowTitleEnabled(false)
+//    supportActionBar?.hide()
+    supportActionBar?.setDisplayShowTitleEnabled(false)
 
     viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
   }
 
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    Log.d(TAG, "onOptionsItemSelected: ${item.itemId} clicked")
+    Toast.makeText(this, "Not implemented", Toast.LENGTH_SHORT).show()
     return super.onOptionsItemSelected(item)
   }
 
@@ -108,8 +108,8 @@ class MainActivity : AppCompatActivity() {
     Log.d(TAG, "initViewPager: al g")
 
     // TEST LOCATIONS - TODO remove
-    //val testLocations = arrayOf("San Francisco", "London", "New York")
-    //for (locationName in testLocations) getWeatherFor(locationName)
+    val testLocations = arrayOf("San Francisco", "London", "New York")
+    for (locationName in testLocations) getWeatherFor(locationName)
   }
 
   private fun getWeatherFor(name: String) {
@@ -143,7 +143,8 @@ class MainActivity : AppCompatActivity() {
             location = weatherData.location ?: "Unknown location",
             time = weatherData.timeUpdated ?: 0, // TODO update this to current time
             condition = weatherData.condition ?: "",
-            description = weatherData.description ?: "",
+            conditionIconId = weatherData.conditionIconId ?: "", // TODO update this to an error value
+            description = weatherData.description ?: "", // TODO update this to an error value
             temp = weatherData.temp ?: Int.MAX_VALUE, // TODO update this to an error value
             min = weatherData.min ?: Int.MIN_VALUE, // TODO update this to an error value
             max = weatherData.max ?: Int.MAX_VALUE // TODO update this to an error value

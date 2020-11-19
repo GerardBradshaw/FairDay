@@ -2,18 +2,29 @@
     <string name="app_name">Whether Weather</string>
     <string name="message_waiting">Waiting...</string>
     <string name="message_no_data">No data</string>
-    <string name="hyphen">-</string>
-    <string name="degree_symbol">°</string>
+
+    <string name="invalid_location">Invalid locationData</string>
     <string name="max">"H: "</string>
     <string name="min">"L: "</string>
-    <string name="invalid_location">Invalid locationData</string>
-    <string name="cloud_emoji">☁️</string>
+
+    <string name="symbol_hyphen">-</string>
+    <string name="symbol_degree">°</string>
+    <string name="symbol_cloud">☁️</string>
+
     <string name="add">Add</string>
     <string name="locations">Locations</string>
+
     <string name="open_weather_logo">Open Weather logo</string>
     <string name="weather_credit">Data provided by openweathermap.org</string>
+
     <string name="location_rationale_message">\ needs to know your locationData to determine the weather where you are. We will only have access to your approximate locationData (within a city block), which is never stored or transmitted outside of your device.</string>
     <string name="location_rationale_title">Please grant locationData access</string>
     <string name="location_rationale_negative">Not now</string>
     <string name="location_rationale_positive">Ok</string>
+
+    <string name="condition_url_prefix">https://openweathermap.org/img/wn/</string>
+    <string name="condition_url_suffix">\@2x.png</string>
+
+    <string name="condition_content_desc_prefix">\"Graphic of \"</string>
+    <string name="condition_content_desc_suffix">\" conditions\"</string>
 </resources>

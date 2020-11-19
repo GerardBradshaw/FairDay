@@ -7,6 +7,9 @@ class WeatherData(weatherFile: WeatherFile) {
   /** Group of weather parameters (e.g. Rain, Snow, Extreme, etc.). */
   val condition = weatherFile.weather?.get(0)?.main
 
+  /** Weather icon ID */
+  val conditionIconId = weatherFile.weather?.get(0)?.icon
+
   /** Weather condition within the group. */
   val description = weatherFile.weather?.get(0)?.description
 
