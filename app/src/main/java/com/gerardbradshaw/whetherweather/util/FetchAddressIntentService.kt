@@ -58,7 +58,7 @@ class FetchAddressIntentService : IntentService("FetchAddress") {
       val address = addresses[0]
       val postalCode = address.postalCode
 
-      Log.i(TAG, "onHandleIntent: address found")
+      Log.d(TAG, "onHandleIntent: address found")
       deliverResultToReceiver(Constants.SUCCESS_RESULT, postalCode)
     }
   }
