@@ -17,14 +17,15 @@
     <string name="open_weather_logo">Open Weather logo</string>
     <string name="weather_credit">Data provided by openweathermap.org</string>
 
-    <string name="location_rationale_message">\ needs to know your locationData to determine the weather where you are. We will only have access to your approximate locationData (within a city block), which is never stored or transmitted outside of your device.</string>
-    <string name="location_rationale_title">Please grant locationData access</string>
-    <string name="location_rationale_negative">Not now</string>
-    <string name="location_rationale_positive">Ok</string>
+    <string name="location_rationale_message">\ needs to know your location to determine the weather where you are. We will only have access to your approximate location (within a city block), which is never stored or transmitted outside of your device.</string>
+    <string name="location_rationale_title">Please grant location access</string>
+    <string name="not_now">Not now</string>
+    <string name="ok">OK</string>
 
     <string name="condition_url_prefix">https://openweathermap.org/img/wn/</string>
     <string name="condition_url_suffix">\@2x.png</string>
 
     <string name="condition_content_desc_prefix">\"Graphic of \"</string>
     <string name="condition_content_desc_suffix">\" conditions\"</string>
+    <string name="message_location_error">Unable to determine location</string>
 </resources>

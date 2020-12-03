@@ -78,6 +78,9 @@ dependencies {
     testImplementation "junit:junit:$rootProject.junit_version"
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
 
+    // Location Services
+    implementation "com.google.android.gms:play-services-location:$rootProject.location_services_version"
+
     // MVVM
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$rootProject.mvvm_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$rootProject.mvvm_version"
