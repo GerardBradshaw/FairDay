@@ -9,12 +9,10 @@ import android.location.Geocoder
 import android.location.Location
 import android.os.*
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.Toast
-import androidx.annotation.RequiresPermission
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.gerardbradshaw.whetherweather.BuildConfig
 import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.util.Constants
 import com.gerardbradshaw.whetherweather.util.FetchAddressIntentService
@@ -25,8 +23,8 @@ import com.google.android.gms.location.*
 import java.util.*
 
 abstract class AbstractLocationActivity(
-  val locationUpdateInterval: Long,
-  val shortestLocationUpdateInterval: Long
+  private val locationUpdateIntervalInMs: Long,
+  private val shortestLocationUpdateIntervalInMs: Long
   ) : AppCompatActivity() {
 
   private lateinit var addressResultReceiver: AddressResultReceiver
@@ -42,7 +40,7 @@ abstract class AbstractLocationActivity(
   protected var lastUpdateTime: Long? = null
   protected var currentPostcode: String? = null
 
-  protected var shouldLoadTestLocations = true
+  private lateinit var requestPermission: ActivityResultLauncher<String?>
 
 
 
@@ -58,59 +56,50 @@ abstract class AbstractLocationActivity(
     fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
     settingsClient = LocationServices.getSettingsClient(this)
 
-    isRequestingLocationUpdates = true
+    requestPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+      when (it) {
+        true -> {
+          Log.d(TAG, "onRequestPermissionsResult: user granted permission")
+          requestLocationUpdates()
+        }
+        false -> Log.d(TAG, "onRequestPermissionsResult: user denied permission")
+        else -> Log.d(TAG, "onRequestPermissionsResult: user ignored permission")
+      }
+    }
 
     createLocationCallback()
     createLocationRequest()
     buildLocationSettingsRequest()
   }
 
-  private fun createLocationCallback() {
-    locationCallback = object : LocationCallback() {
-      override fun onLocationResult(locationResult: LocationResult?) {
-        super.onLocationResult(locationResult)
-        currentLocation = locationResult?.lastLocation
-        lastUpdateTime = Calendar.getInstance().timeInMillis
-
-        if (!Geocoder.isPresent()) {
-          toastLocationError("toastCurrentLocation: Geocoder unavailable")
-          return
-        }
-
-        isAddressRequested = true
-        if (isAddressRequested) startIntentService()
-      }
-    }
-  }
-
-  private fun createLocationRequest() {
-    locationRequest = LocationRequest()
-      .setInterval(locationUpdateInterval)
-      .setFastestInterval(shortestLocationUpdateInterval)
-      .setPriority(LocationRequest.PRIORITY_LOW_POWER)
-  }
-
-  private fun buildLocationSettingsRequest() {
-    locationSettingsRequest = LocationSettingsRequest
-      .Builder()
-      .addLocationRequest(locationRequest)
-      .build()
-  }
-
+  /**
+   * Updates fields based on data stored [savedInstanceState]
+   */
   private fun updateValuesFromBundle(savedInstanceState: Bundle?) {
     savedInstanceState ?: return
-
     Log.d(TAG, "updateValuesFromBundle: loading data from bundle")
 
-    KEY_ADDRESS_REQUESTED.let {
+    KEY_REQUESTING_LOCATION_UPDATES.let {
       if (savedInstanceState.keySet().contains(it)) {
-        isAddressRequested = savedInstanceState.getBoolean(it)
+        isRequestingLocationUpdates = savedInstanceState.getBoolean((it))
       }
     }
 
     KEY_LOCATION.let {
       if (savedInstanceState.keySet().contains(it)) {
         currentLocation = savedInstanceState.getParcelable(it)
+      }
+    }
+
+    KEY_LAST_UPDATED_TIME.let {
+      if (savedInstanceState.keySet().contains(it)) {
+        lastUpdateTime = savedInstanceState.getLong(it)
+      }
+    }
+
+    KEY_ADDRESS_REQUESTED.let {
+      if (savedInstanceState.keySet().contains(it)) {
+        isAddressRequested = savedInstanceState.getBoolean(it)
       }
     }
 
@@ -121,41 +110,71 @@ abstract class AbstractLocationActivity(
       }
     }
 
-    KEY_REQUESTING_LOCATION_UPDATES.let {
-      if (savedInstanceState.keySet().contains(it)) {
-        isRequestingLocationUpdates = savedInstanceState.getBoolean((it))
-      }
-    }
-
-    KEY_LAST_UPDATED_TIME.let {
-      if (savedInstanceState.keySet().contains(it)) {
-        lastUpdateTime = savedInstanceState.getLong(it)
-      }
-    }
-
     onCurrentLocationUpdate()
   }
 
-  @SuppressLint("MissingPermission")
+  /**
+   * Creates a callback for receiving location events.
+   */
+  private fun createLocationCallback() {
+    locationCallback = object : LocationCallback() {
+      override fun onLocationResult(locationResult: LocationResult?) {
+        super.onLocationResult(locationResult)
+
+        currentLocation = locationResult?.lastLocation
+        lastUpdateTime = currentLocation?.time
+
+        val cal = Calendar.getInstance().also { it.timeInMillis = lastUpdateTime ?: 0 }
+        val date = "${cal.get(Calendar.YEAR)}.${cal.get(Calendar.MONTH) + 1}.${cal.get(Calendar.DAY_OF_MONTH)}"
+        val time = "${cal.get(Calendar.HOUR_OF_DAY)}:${cal.get(Calendar.MINUTE)}"
+        Log.d(TAG, "onLocationResult: location updated $date, $time")
+
+        if (!Geocoder.isPresent()) {
+          toastLocationError("toastCurrentLocation: Geocoder unavailable")
+          return
+        } else {
+          if (currentLocation != null) {
+            isAddressRequested = true
+            startIntentService()
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Sets up the location request.
+   */
+  private fun createLocationRequest() {
+    locationRequest = LocationRequest()
+      .setInterval(locationUpdateIntervalInMs)
+      .setFastestInterval(shortestLocationUpdateIntervalInMs)
+      .setPriority(LocationRequest.PRIORITY_LOW_POWER)
+  }
+
+  /**
+   * Uses a {@link com.google.android.gms.location.LocationSettingsRequest.Builder} to build
+   * a {@link com.google.android.gms.location.LocationSettingsRequest} that is used for checking
+   * if a device has the needed location settings.
+   */
+  private fun buildLocationSettingsRequest() {
+    locationSettingsRequest = LocationSettingsRequest
+      .Builder()
+      .addLocationRequest(locationRequest)
+      .build()
+  }
+
   override fun onResume() {
     super.onResume()
 
-    val isPermissionGranted = PermissionUtil
-      .isPermissionGranted(LOCATION_PERMISSION_NAME, this)
+    if (isRequestingLocationUpdates) {
+      val isPermissionGranted = PermissionUtil.checkIsGranted(LOCATION_PERMISSION_NAME, this)
 
-    if (isRequestingLocationUpdates && isPermissionGranted) startLocationUpdates()
-    else if (!isPermissionGranted) {
-      PermissionUtil
-        .RequestBuilder(LOCATION_PERMISSION_NAME, this)
-        .setPermissionRationaleDialogText(
-          getString(R.string.app_name) + getString(R.string.location_rationale_message),
-          getString(R.string.location_rationale_title),
-          getString(R.string.ok),
-          getString(R.string.not_now))
-        .buildAndRequest()
+      if (isPermissionGranted) startLocationUpdates()
+      else requestPermissionsAndStartLocationUpdates()
+
+      onCurrentLocationUpdate()
     }
-
-    onCurrentLocationUpdate()
   }
 
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -165,7 +184,7 @@ abstract class AbstractLocationActivity(
           Activity.RESULT_OK -> return // Nothing to do - startLocationUpdates() called in onResume
           Activity.RESULT_CANCELED -> {
             toastLocationError("onActivityResult: User denied location permission")
-            stopLocationUpdates()
+            stopRequestingLocationUpdates()
             onCurrentLocationUpdate()
           }
           else -> super.onActivityResult(requestCode, resultCode, data)
@@ -181,7 +200,7 @@ abstract class AbstractLocationActivity(
 
   override fun onPause() {
     super.onPause()
-    stopLocationUpdates()
+    stopRequestingLocationUpdates()
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
@@ -195,7 +214,10 @@ abstract class AbstractLocationActivity(
     }
   }
 
-  private fun stopLocationUpdates() {
+  /**
+   * Removes location updates from the FusedLocationApi.
+   */
+  private fun stopRequestingLocationUpdates() {
     if (!isRequestingLocationUpdates) {
       Log.d(TAG, "stopLocationUpdates: updates never requested. Nothing to stop!")
       return
@@ -207,6 +229,7 @@ abstract class AbstractLocationActivity(
         isRequestingLocationUpdates = false
       }
 
+    Log.d(TAG, "stopLocationUpdates: updates stopped")
   }
 
 
@@ -219,24 +242,55 @@ abstract class AbstractLocationActivity(
 
   // ------------------------ PERMISSIONS ------------------------
 
-  override fun onRequestPermissionsResult(
-    requestCode: Int,
-    permissions: Array<out String>,
-    grantResults: IntArray
-  ) {
-    if (requestCode == PermissionUtil.PERMISSION_REQUEST_CODE) {
-      PermissionUtil.onRequestPermissionResultHelper(requestCode, grantResults, ::startLocationUpdates)
-    }
-    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+  private fun requestPermissionsAndStartLocationUpdates() {
+    PermissionUtil
+      .RequestBuilder(LOCATION_PERMISSION_NAME, this)
+      .setRationaleDialogTitle(getString(R.string.location_rationale_title))
+      .setRationaleDialogMessage(getString(R.string.app_name) + getString(R.string.location_rationale_message))
+      .setActivityResultLauncher(requestPermission)
+      .setOnPermissionGranted { requestLocationUpdates() }
+      .buildAndRequest()
   }
+
+//  /**
+//   * Callback received when a permissions request has been completed.
+//   */
+//  override fun onRequestPermissionsResult(
+//    requestCode: Int,
+//    permissions: Array<out String>,
+//    grantResults: IntArray
+//  ) {
+//
+//    if (requestCode == PermissionUtil.PERMISSION_REQUEST_CODE) {
+//      PermissionUtil.onRequestPermissionResultHelper(
+//        requestCode,
+//        grantResults,
+//        ::startLocationUpdates)
+//    }
+//
+//    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//  }
 
 
 
   // ------------------------ LOCATION & ADDRESS ------------------------
 
-  @RequiresPermission(LOCATION_PERMISSION_NAME)
-  private fun startLocationUpdates() {
+  fun startLocationUpdates() {
+    val isPermissionGranted = PermissionUtil.checkIsGranted(LOCATION_PERMISSION_NAME, this)
+
+    if (isPermissionGranted) requestLocationUpdates()
+    else requestPermissionsAndStartLocationUpdates()
+  }
+
+  fun stopLocationUpdates() {
+    if (isRequestingLocationUpdates) stopRequestingLocationUpdates()
+  }
+
+  @SuppressLint("MissingPermission") // permission is checked in onCreate()
+  protected fun requestLocationUpdates() {
     Log.d(TAG, "startLocationUpdates: starting location updates")
+
+    isRequestingLocationUpdates = true
 
     settingsClient.checkLocationSettings(locationSettingsRequest)
       .addOnSuccessListener(this) {
@@ -262,7 +316,7 @@ abstract class AbstractLocationActivity(
 
           LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
             toastLocationError("checkSettingsClient: location settings change unavailable")
-            stopLocationUpdates()
+            stopRequestingLocationUpdates()
           }
         }
       }
@@ -291,7 +345,7 @@ abstract class AbstractLocationActivity(
   // ------------------------ UTIL ------------------------
 
   protected fun showToast(msg: String) {
-    Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
   }
 
   protected fun toastLocationError(logMsg: String? = null) {
@@ -305,11 +359,11 @@ abstract class AbstractLocationActivity(
 
     private const val REQUEST_CODE_CHECK_SETTINGS = 101
 
-    private const val KEY_ADDRESS_REQUESTED = "address-request-pending"
-    private const val KEY_LOCATION = "location-parcelable"
-    private const val KEY_ADDRESS = "location-address"
     private const val KEY_REQUESTING_LOCATION_UPDATES = "requesting-location-updates"
+    private const val KEY_LOCATION = "location-parcelable"
     private const val KEY_LAST_UPDATED_TIME = "last-updated-time"
+    private const val KEY_ADDRESS_REQUESTED = "address-request-pending"
+    private const val KEY_ADDRESS = "location-address"
 
     const val RESULT_SUCCESS = 0
     const val RESULT_FAILURE = 1

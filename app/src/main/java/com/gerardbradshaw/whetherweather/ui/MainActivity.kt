@@ -4,6 +4,7 @@ import android.os.*
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -19,9 +20,14 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.util.concurrent.TimeUnit
 
-class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTERVAL_FASTEST_IN_MS){
+class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTERVAL_FASTEST_IN_MS) {
   private lateinit var viewModel: MainViewModel
   private lateinit var viewPager: ViewPager2
+
+  private var shouldLoadTestLocations = false
+
+  private var isRequestingUpdates = false
+
 
 
   // ------------------------ INIT ------------------------
@@ -42,7 +48,17 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
   }
 
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    showToast("Not implemented")
+    isRequestingUpdates = !isRequestingUpdates
+
+    if (isRequestingUpdates) {
+      stopLocationUpdates()
+      showToast("Updates stopped")
+    }
+    else {
+      showToast("Updates started")
+      startLocationUpdates()
+    }
+
     return super.onOptionsItemSelected(item)
   }
 
@@ -51,7 +67,7 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
   // ------------------------ UI ------------------------
 
   override fun onCurrentLocationUpdate() {
-    Log.d(TAG, "onCurrentLocationUpdate: location updated. Current location = $currentLocation, current postcode = $currentPostcode")
+    Log.d(TAG, "onCurrentLocationUpdate: location updated. Postcode = $currentPostcode")
     if (currentLocation != null || currentPostcode != null) updateLocationUi()
   }
 
@@ -141,8 +157,8 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
   companion object {
     private const val TAG = "MainActivity"
 
-    private val UPDATE_INTERVAL_IN_MS = TimeUnit.MINUTES.toMillis(30)
-    private val UPDATE_INTERVAL_FASTEST_IN_MS = TimeUnit.MINUTES.toMillis(5)
+    private val UPDATE_INTERVAL_IN_MS = TimeUnit.SECONDS.toMillis(5)
+    private val UPDATE_INTERVAL_FASTEST_IN_MS = TimeUnit.SECONDS.toMillis(1)
 
     private const val API_KEY_OPEN_WEATHER = BuildConfig.OPEN_WEATHER_APP_KEY
   }
