@@ -10,6 +10,7 @@ import android.os.ResultReceiver
 import android.util.Log
 import java.io.IOException
 import java.lang.IllegalArgumentException
+import java.lang.IndexOutOfBoundsException
 import java.util.*
 
 class FetchAddressIntentService : IntentService("FetchAddress") {
@@ -17,54 +18,43 @@ class FetchAddressIntentService : IntentService("FetchAddress") {
   private var receiver: ResultReceiver? = null
 
   override fun onHandleIntent(intent: Intent?) {
-    var errorMessage = ""
-
     receiver = intent?.getParcelableExtra(Constants.RECEIVER)
+
+    var address: Address? = null
+    var resultCode = Constants.FAILURE_RESULT
 
     if (intent == null || receiver == null) {
       Log.d(TAG, "onHandleIntent: No receiver. There is nowhere to send the results")
-    }
-
-    val location = intent!!.getParcelableExtra<Location>(Constants.LOCATION_DATA_EXTRA)
-
-    if (location == null) {
-      errorMessage = "No location data provided"
-      Log.d(TAG, "onHandleIntent: $errorMessage")
-      deliverResultToReceiver(Constants.FAILURE_RESULT, errorMessage)
-      return
-    }
-
-    val geocoder = Geocoder(this, Locale.getDefault())
-
-    var addresses: List<Address> = emptyList()
-
-    try {
-      addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
-    } catch (ioException: IOException) {
-      errorMessage = "The service is not available"
-      Log.e(TAG, "onHandleIntent: $errorMessage", ioException)
-    } catch (illegalArgumentException: IllegalArgumentException) {
-      errorMessage = "Invalid lat or long used"
-      Log.e(TAG, "onHandleIntent: $errorMessage", illegalArgumentException)
-    }
-
-    if (addresses.isEmpty()) {
-      if (errorMessage.isEmpty()) {
-        errorMessage = "No address found"
-        Log.e(TAG, "onHandleIntent: $errorMessage")
-      }
-      deliverResultToReceiver(Constants.FAILURE_RESULT, errorMessage)
     } else {
-      val address = addresses[0]
-      val postalCode = address.postalCode
+      val location = intent.getParcelableExtra<Location>(Constants.LOCATION_DATA_EXTRA)
 
-      Log.d(TAG, "onHandleIntent: address found")
-      deliverResultToReceiver(Constants.SUCCESS_RESULT, postalCode)
+      if (location == null) Log.d(TAG, "onHandleIntent: No location data provided")
+      else {
+        try {
+          address = Geocoder(this, Locale.getDefault())
+            .getFromLocation(location.latitude, location.longitude, 1)
+            .get(0)
+
+          resultCode = Constants.SUCCESS_RESULT
+          Log.d(TAG, "onHandleIntent: address found")
+
+        } catch (ioException: IOException) {
+          Log.e(TAG, "onHandleIntent: service unavailable", ioException)
+
+        } catch (illegalArgumentException: IllegalArgumentException) {
+          Log.e(TAG, "onHandleIntent: Invalid lat or long", illegalArgumentException)
+
+        } catch (indexException: IndexOutOfBoundsException) {
+          Log.e(TAG, "onHandleIntent: no address found")
+        }
+      }
     }
+
+    deliverResultToReceiver(resultCode, address)
   }
 
-  private fun deliverResultToReceiver(resultCode: Int, message: String) {
-    val bundle = Bundle().apply { putString(Constants.RESULT_DATA_KEY, message) }
+  private fun deliverResultToReceiver(resultCode: Int, address: Address?) {
+    val bundle = Bundle().apply { putParcelable(Constants.RESULT_DATA_KEY, address) }
     receiver?.send(resultCode, bundle)
   }
 

@@ -22,6 +22,12 @@ class LocationListAdapter(context: Context) :
       notifyDataSetChanged()
     }
 
+  var currentLocation: LocationData? = null
+    set(value) {
+      field = value
+      notifyDataSetChanged()
+    }
+
   private val inflater = LayoutInflater.from(context)
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocationViewHolder {
@@ -30,12 +36,17 @@ class LocationListAdapter(context: Context) :
   }
 
   override fun onBindViewHolder(holder: LocationViewHolder, position: Int) {
-    if (position >= dataSet?.size ?: 0) {
+    if (position >= itemCount) {
       Log.d(TAG, "onBindViewHolder: invalid position index")
       return
     }
 
-    val data = dataSet?.get(position)
+    val data =
+      if (currentLocation != null) {
+        if (position == 0) currentLocation
+        else dataSet?.get(position - 1)
+
+      } else dataSet?.get(position)
 
     if (data == null) Log.d(TAG, "onBindViewHolder: Binding null data")
     else Log.d(TAG, "onBindViewHolder: Binding ${data.location}")
@@ -46,7 +57,7 @@ class LocationListAdapter(context: Context) :
   }
 
   override fun getItemCount(): Int {
-    return dataSet?.size ?: 0
+    return dataSet?.size ?: 0 + if (currentLocation != null) 1 else 0
   }
 
   class LocationViewHolder(itemView: View, val adapter: LocationListAdapter) :

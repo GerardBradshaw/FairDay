@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.IntentSender
+import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.os.*
@@ -38,7 +39,7 @@ abstract class AbstractLocationActivity(
   private var isRequestingLocationUpdates = false
   private var isAddressRequested = false
   protected var lastUpdateTime: Long? = null
-  protected var currentPostcode: String? = null
+  protected var currentAddress: Address? = null
 
   private lateinit var requestPermission: ActivityResultLauncher<String?>
 
@@ -105,8 +106,7 @@ abstract class AbstractLocationActivity(
 
     KEY_ADDRESS.let {
       if (savedInstanceState.keySet().contains(it)) {
-        currentPostcode = savedInstanceState.getString(it)
-        Log.d(TAG, "updateValuesFromBundle: location from savedInstanceState = $currentPostcode")
+        currentAddress = savedInstanceState.getParcelable(it)
       }
     }
 
@@ -207,7 +207,7 @@ abstract class AbstractLocationActivity(
     with(outState) {
       putBoolean(KEY_ADDRESS_REQUESTED, isAddressRequested)
       putParcelable(KEY_LOCATION, currentLocation)
-      putString(KEY_ADDRESS, currentPostcode)
+      putParcelable(KEY_ADDRESS, currentAddress)
       putBoolean(KEY_REQUESTING_LOCATION_UPDATES, isRequestingLocationUpdates)
       if (lastUpdateTime != null) putLong(KEY_LAST_UPDATED_TIME, lastUpdateTime!!)
       super.onSaveInstanceState(this)
@@ -254,7 +254,7 @@ abstract class AbstractLocationActivity(
 
 
 
-  // ------------------------ LOCATION & ADDRESS ------------------------
+  // ------------------------ LOCATION ------------------------
 
   fun startLocationUpdates() {
     val isPermissionGranted = PermissionUtil.isGranted(LOCATION_PERMISSION_NAME, this)
@@ -303,6 +303,10 @@ abstract class AbstractLocationActivity(
       }
   }
 
+
+
+  // ------------------------ ADDRESS ------------------------
+
   private fun startIntentService() {
     val intent = Intent(this, FetchAddressIntentService::class.java).apply {
       putExtra(Constants.RECEIVER, addressResultReceiver)
@@ -313,7 +317,7 @@ abstract class AbstractLocationActivity(
 
   private inner class AddressResultReceiver(handler: Handler) : ResultReceiver(handler) {
     override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
-      currentPostcode = resultData?.getString(Constants.RESULT_DATA_KEY)
+      currentAddress = resultData?.getParcelable(Constants.RESULT_DATA_KEY)
       onCurrentLocationUpdate()
 
       if (resultCode == Constants.SUCCESS_RESULT) Log.d(TAG, "onReceiveResult: Address found")

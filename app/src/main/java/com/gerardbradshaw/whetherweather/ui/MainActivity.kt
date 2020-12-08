@@ -1,11 +1,11 @@
 package com.gerardbradshaw.whetherweather.ui
 
+import android.location.Address
 import android.location.Location
 import android.os.*
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -19,7 +19,6 @@ import com.gerardbradshaw.whetherweather.util.WeatherData
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.HashMap
 
@@ -27,11 +26,9 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
   private lateinit var viewModel: MainViewModel
   private lateinit var viewPager: ViewPager2
 
-  private var shouldLoadTestLocations = false
+  private var shouldLoadTestLocations = true
 
   private var isRequestingUpdates = false
-
-//  private lateinit var textView: TextView
 
 
 
@@ -74,24 +71,16 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
   // ------------------------ UI ------------------------
 
   override fun onCurrentLocationUpdate() {
-    Log.d(TAG, "onCurrentLocationUpdate: location updated. Postcode = $currentPostcode")
-    if (currentLocation != null) {
-      requestWeatherFor(currentLocation!!)
-//      val lastUpdateTime = currentLocation?.time
-//
-//      val cal = Calendar.getInstance().also { it.timeInMillis = lastUpdateTime ?: 0 }
-//      val date = "${cal.get(Calendar.YEAR)}.${cal.get(Calendar.MONTH) + 1}.${cal.get(Calendar.DAY_OF_MONTH)}"
-//      val time = "${cal.get(Calendar.HOUR_OF_DAY)}:${cal.get(Calendar.MINUTE)}:${cal.get(Calendar.SECOND)}"
-//
-//      val text = "ZIP: $currentPostcode\nUpdate time: $date, $time"
-//
-//      textView.text = text
+    Log.d(TAG, "onCurrentLocationUpdate: updated ZIP = ${currentAddress?.postalCode}")
+
+    if (currentAddress != null) {
+      requestWeatherFor(currentAddress!!)
     }
   }
 
   private fun showLocationAlertDialog() {
     AlertDialog.Builder(this)
-      .setMessage("Lat: ${currentLocation?.latitude}\nLong: ${currentLocation?.longitude}\nAddress: $currentPostcode\n")
+      .setMessage("Lat: ${currentLocation?.latitude}\nLong: ${currentLocation?.longitude}\nAddress: $currentAddress\n")
       .setTitle("Location information")
       .create()
       .show()
@@ -125,6 +114,18 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
     makeOpenWeatherCall(params)
   }
 
+  private fun requestWeatherFor(address: Address) {
+    val zipCode = address.postalCode
+    val countryCode = address.countryCode
+    val zip = "$zipCode,$countryCode"
+
+    val params = HashMap<String, String>()
+    params["zip"] = zip
+    params["appId"] = API_KEY_OPEN_WEATHER
+
+    makeOpenWeatherCall(params)
+  }
+
   private fun requestWeatherFor(name: String) {
     val params = HashMap<String, String>()
     params["q"] = name
@@ -132,7 +133,6 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
 
     makeOpenWeatherCall(params)
   }
-
 
   private fun makeOpenWeatherCall(params: HashMap<String, String>) {
     val openWeatherApi = (application as BaseApplication).openWeatherApi
@@ -175,11 +175,20 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
     })
   }
 
-  fun onWeatherRequestResponse(responseCode: Int, locationData: LocationData?) {
-    if (responseCode == RESULT_SUCCESS) {
-      if (locationData != null) viewModel.insertLocationData(locationData)
-      else Log.d(TAG, "onWeatherRequestResponse: no location data")
+  fun onWeatherRequestResponse(
+    responseCode: Int,
+    locationData: LocationData?,
+    isCurrentLocation: Boolean = false
+  ) {
+    if (responseCode == RESULT_SUCCESS && locationData != null) {
+      if (!isCurrentLocation) viewModel.insertLocationData(locationData)
+      else {
+        val adapter = viewPager.adapter as LocationListAdapter?
+        adapter?.currentLocation = locationData
+        adapter?.notifyDataSetChanged()
+      }
     }
+    else Log.d(TAG, "onWeatherRequestResponse: no location data")
   }
 
 
