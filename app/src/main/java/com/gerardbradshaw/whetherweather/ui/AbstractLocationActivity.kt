@@ -168,7 +168,7 @@ abstract class AbstractLocationActivity(
     super.onResume()
 
     if (isRequestingLocationUpdates) {
-      val isPermissionGranted = PermissionUtil.checkIsGranted(LOCATION_PERMISSION_NAME, this)
+      val isPermissionGranted = PermissionUtil.isGranted(LOCATION_PERMISSION_NAME, this)
 
       if (isPermissionGranted) startLocationUpdates()
       else requestPermissionsAndStartLocationUpdates()
@@ -252,31 +252,12 @@ abstract class AbstractLocationActivity(
       .buildAndRequest()
   }
 
-//  /**
-//   * Callback received when a permissions request has been completed.
-//   */
-//  override fun onRequestPermissionsResult(
-//    requestCode: Int,
-//    permissions: Array<out String>,
-//    grantResults: IntArray
-//  ) {
-//
-//    if (requestCode == PermissionUtil.PERMISSION_REQUEST_CODE) {
-//      PermissionUtil.onRequestPermissionResultHelper(
-//        requestCode,
-//        grantResults,
-//        ::startLocationUpdates)
-//    }
-//
-//    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-//  }
-
 
 
   // ------------------------ LOCATION & ADDRESS ------------------------
 
   fun startLocationUpdates() {
-    val isPermissionGranted = PermissionUtil.checkIsGranted(LOCATION_PERMISSION_NAME, this)
+    val isPermissionGranted = PermissionUtil.isGranted(LOCATION_PERMISSION_NAME, this)
 
     if (isPermissionGranted) requestLocationUpdates()
     else requestPermissionsAndStartLocationUpdates()

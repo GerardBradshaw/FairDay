@@ -9,6 +9,18 @@
     android:orientation="vertical"
     tools:context=".ui.MainActivity">
 
+<!--    <Space-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="96dp"/>-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/temp_info_view"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:padding="12dp"-->
+<!--        android:background="@android:color/white"-->
+<!--        tools:text="Location is cold"/>-->
+
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager"
         android:layout_weight="1"

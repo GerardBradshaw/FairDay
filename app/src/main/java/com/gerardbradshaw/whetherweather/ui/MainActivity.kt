@@ -1,10 +1,11 @@
 package com.gerardbradshaw.whetherweather.ui
 
+import android.location.Location
 import android.os.*
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import androidx.activity.result.ActivityResultLauncher
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -18,7 +19,9 @@ import com.gerardbradshaw.whetherweather.util.WeatherData
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.HashMap
 
 class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTERVAL_FASTEST_IN_MS) {
   private lateinit var viewModel: MainViewModel
@@ -27,6 +30,8 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
   private var shouldLoadTestLocations = false
 
   private var isRequestingUpdates = false
+
+//  private lateinit var textView: TextView
 
 
 
@@ -40,6 +45,8 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
     viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
     initViewPager()
+
+//    textView = findViewById(R.id.temp_info_view)
   }
 
   override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -68,10 +75,21 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
 
   override fun onCurrentLocationUpdate() {
     Log.d(TAG, "onCurrentLocationUpdate: location updated. Postcode = $currentPostcode")
-    if (currentLocation != null || currentPostcode != null) updateLocationUi()
+    if (currentLocation != null) {
+      requestWeatherFor(currentLocation!!)
+//      val lastUpdateTime = currentLocation?.time
+//
+//      val cal = Calendar.getInstance().also { it.timeInMillis = lastUpdateTime ?: 0 }
+//      val date = "${cal.get(Calendar.YEAR)}.${cal.get(Calendar.MONTH) + 1}.${cal.get(Calendar.DAY_OF_MONTH)}"
+//      val time = "${cal.get(Calendar.HOUR_OF_DAY)}:${cal.get(Calendar.MINUTE)}:${cal.get(Calendar.SECOND)}"
+//
+//      val text = "ZIP: $currentPostcode\nUpdate time: $date, $time"
+//
+//      textView.text = text
+    }
   }
 
-  private fun updateLocationUi() {
+  private fun showLocationAlertDialog() {
     AlertDialog.Builder(this)
       .setMessage("Lat: ${currentLocation?.latitude}\nLong: ${currentLocation?.longitude}\nAddress: $currentPostcode\n")
       .setTitle("Location information")
@@ -98,11 +116,25 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
     }
   }
 
+  private fun requestWeatherFor(location: Location) {
+    val params = HashMap<String, String>()
+    params["lat"] = location.latitude.toString()
+    params["lon"] = location.longitude.toString()
+    params["appId"] = API_KEY_OPEN_WEATHER
+
+    makeOpenWeatherCall(params)
+  }
+
   private fun requestWeatherFor(name: String) {
     val params = HashMap<String, String>()
     params["q"] = name
     params["appId"] = API_KEY_OPEN_WEATHER
 
+    makeOpenWeatherCall(params)
+  }
+
+
+  private fun makeOpenWeatherCall(params: HashMap<String, String>) {
     val openWeatherApi = (application as BaseApplication).openWeatherApi
 
     val call = openWeatherApi.getWeather(params)
@@ -157,8 +189,8 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
   companion object {
     private const val TAG = "MainActivity"
 
-    private val UPDATE_INTERVAL_IN_MS = TimeUnit.SECONDS.toMillis(5)
-    private val UPDATE_INTERVAL_FASTEST_IN_MS = TimeUnit.SECONDS.toMillis(1)
+    private val UPDATE_INTERVAL_IN_MS = TimeUnit.MINUTES.toMillis(30)
+    private val UPDATE_INTERVAL_FASTEST_IN_MS = TimeUnit.MINUTES.toMillis(5)
 
     private const val API_KEY_OPEN_WEATHER = BuildConfig.OPEN_WEATHER_APP_KEY
   }
