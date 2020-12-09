@@ -1,4 +1,4 @@
-package com.gerardbradshaw.whetherweather.views
+package com.gerardbradshaw.whetherweather.views.weatherviewsub
 
 import android.content.Context
 import android.util.AttributeSet
@@ -7,7 +7,7 @@ import android.widget.FrameLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gerardbradshaw.whetherweather.R
-import com.gerardbradshaw.whetherweather.util.ForecastData
+import com.gerardbradshaw.whetherweather.models.ForecastData
 
 class ForecastView : FrameLayout {
   constructor(context: Context) : super(context)

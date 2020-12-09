@@ -24,12 +24,12 @@ class WeatherFile {
   var snow: Snow? = null
 
   @SerializedName("dt")
-  var updateTime: Int? = null
+  var updateTime: Long? = null
 
   var sys: Sys? = null
 
   @SerializedName("timezone")
-  var gmtOffset: Int? = null
+  var gmtOffset: Long? = null
 
   var id: Int? = null
 
@@ -114,8 +114,8 @@ class WeatherFile {
 
     var country: String? = null
 
-    var sunrise: Int? = null
+    var sunrise: Long? = null
 
-    var sunset: Int? = null
+    var sunset: Long? = null
   }
 }

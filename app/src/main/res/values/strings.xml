@@ -28,4 +28,5 @@
     <string name="condition_content_desc_prefix">\"Graphic of \"</string>
     <string name="condition_content_desc_suffix">\" conditions\"</string>
     <string name="message_location_error">Unable to determine location</string>
+    <string name="cd_location_pin_icon">Pin indicating current location</string>
 </resources>

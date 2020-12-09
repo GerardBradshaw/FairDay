@@ -2,14 +2,20 @@ package com.gerardbradshaw.whetherweather.views
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.TransitionOptions
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.gerardbradshaw.whetherweather.R
+import com.gerardbradshaw.whetherweather.room.LocationData
+import com.gerardbradshaw.whetherweather.views.weatherviewsub.ConditionsView
+import com.gerardbradshaw.whetherweather.views.weatherviewsub.SmallDetailView
+import com.gerardbradshaw.whetherweather.views.weatherviewsub.TemperatureView
+import java.util.*
+import kotlin.math.roundToInt
 
 class WeatherView : FrameLayout {
   constructor(context: Context) : super(context)
@@ -18,27 +24,63 @@ class WeatherView : FrameLayout {
 
   private val conditionImageView: ImageView
   private val locationTextView: TextView
+  private val locationPinIcon: ImageView
   private val conditionsView: ConditionsView
   private val temperatureView: TemperatureView
+
+  private val sunriseView: SmallDetailView
+  private val sunsetView: SmallDetailView
+  private val cloudinessView: SmallDetailView
+  private val humidityView: SmallDetailView
+  private val windSpeedView: SmallDetailView
+  private val windDirectionView: SmallDetailView
+  private val rainLastHourView: SmallDetailView
+  private val rainLastThreeHourView: SmallDetailView
+  private val lastUpdateTime: TextView
 
   init {
     val root = View.inflate(context, R.layout.view_weather, this)
 
     conditionImageView = root.findViewById(R.id.condition_image_view)
     locationTextView = root.findViewById(R.id.location_text_view)
+    locationPinIcon = root.findViewById(R.id.location_pin_icon)
     temperatureView = root.findViewById(R.id.temperature_view)
     conditionsView = root.findViewById(R.id.conditions_view)
+    sunriseView = root.findViewById(R.id.sunrise_detail_view)
+    sunsetView = root.findViewById(R.id.sunset_detail_view)
+    cloudinessView = root.findViewById(R.id.cloudiness_detail_view)
+    humidityView = root.findViewById(R.id.humidity_detail_view)
+    windSpeedView = root.findViewById(R.id.wind_speed_detail_view)
+    windDirectionView = root.findViewById(R.id.wind_direction_detail_view)
+    rainLastHourView = root.findViewById(R.id.rain_last_hour_detail_view)
+    rainLastThreeHourView = root.findViewById(R.id.rain_last_three_hour_detail_view)
+    lastUpdateTime = root.findViewById(R.id.last_update_time_text_view)
   }
 
-  fun setLocation(location: String?) {
+  fun setLocation(location: LocationData?, isCurrentLocation: Boolean = false) {
+    if (location != null) {
+      setName(location.locationName, isCurrentLocation)
+      setTemperatures(location.currentTemp, location.minTemp, location.maxTemp)
+      setConditions(location.condition, location.description, location.conditionIconId)
+      //setForecast()
+      setSmallDetails(location)
+      setLastUpdateTime(location.timeUpdated)
+    } else Log.d(TAG, "setLocation: location is null")
+  }
+
+  private fun setName(location: String?, isCurrentLocation: Boolean = false) {
     locationTextView.text = location ?: "Unknown location"
+
+    locationPinIcon.visibility =
+      if (isCurrentLocation) View.VISIBLE
+      else View.GONE
   }
 
-  fun setTemperatures(current: Int?, min: Int?, max: Int?) {
+  private fun setTemperatures(current: Int?, min: Int?, max: Int?) {
     temperatureView.setTemps(current, min, max)
   }
 
-  fun setConditions(condition: String?, description: String?, conditionIconId: String?) {
+  private fun setConditions(condition: String?, description: String?, conditionIconId: String?) {
     val imageResId = getConditionImageUri(conditionIconId)
 
     Glide
@@ -48,6 +90,26 @@ class WeatherView : FrameLayout {
       .into(conditionImageView)
 
     conditionsView.setConditions(condition, description, conditionIconId)
+  }
+
+  private fun setForecast() {
+    TODO()
+  }
+
+  private fun setSmallDetails(location: LocationData) {
+    sunriseView.setInfo("Sunrise", getTimeString(location.sunrise, location.gmtOffset))
+    sunsetView.setInfo("Sunset", getTimeString(location.sunset, location.gmtOffset))
+    cloudinessView.setInfo("Cloudiness", "${location.cloudiness.roundToInt()}%")
+    humidityView.setInfo("Humidity", "${location.humidity.roundToInt()}%")
+    windSpeedView.setInfo("Wind speed", "${location.windSpeed.roundToInt()} m/s")
+    windDirectionView.setInfo("Wind direction", meteorologicalToCardinal(location.windDirection))
+    rainLastHourView.setInfo("Rain last hr", "${location.rainLastHour} mm")
+    rainLastThreeHourView.setInfo("Rain last 3 hrs", "${location.rainLastThreeHours} mm")
+  }
+
+  private fun setLastUpdateTime(time: Long) {
+    val lastUpdatedTimeText = "Last updated ${getTimeString(time, null)}"
+    lastUpdateTime.text = lastUpdatedTimeText
   }
 
   private fun getConditionImageUri(conditionIconId: String?): Int {
@@ -66,5 +128,47 @@ class WeatherView : FrameLayout {
       50 -> if (isDay) R.drawable.img_clear_day else R.drawable.img_clear_night
       else -> if (isDay) R.drawable.img_mist_day else R.drawable.img_mist_night
     }
+  }
+
+  private fun getTimeString(time: Long, gmtOffset: Long?): String {
+    val cal = Calendar.getInstance()
+    val localGmtOffset = cal.timeZone.getOffset(cal.timeInMillis)
+
+    cal.timeInMillis = time + if (gmtOffset != null) gmtOffset - localGmtOffset else 0
+
+    val minute = cal.get(Calendar.MINUTE)
+    val minuteString = if (minute < 10) "0$minute" else "$minute"
+
+    val amPm = if (cal.get(Calendar.AM_PM) == 0) "am" else "pm"
+
+    return "${cal.get(Calendar.HOUR)}:$minuteString $amPm"
+  }
+
+  private fun meteorologicalToCardinal(m: Float): String {
+    return when {
+      m < 0 -> "-"
+      m <= 11.25f -> "N"
+      m <= 33.75 -> "NNE"
+      m <= 56.25 -> "NE"
+      m <= 78.75 -> "ENE"
+      m <= 101.25 -> "E"
+      m <= 123.75 -> "ESE"
+      m <= 146.25 -> "SE"
+      m <= 168.75 -> "SSE"
+      m <= 191.25 -> "S"
+      m <= 213.75 -> "SSW"
+      m <= 236.25 -> "SW"
+      m <= 258.75 -> "WSW"
+      m <= 281.25 -> "W"
+      m <= 303.75 -> "WNW"
+      m <= 326.25 -> "NW"
+      m <= 348.75 -> "NNW"
+      m <= 360 -> "N"
+      else -> "-"
+    }
+  }
+
+  companion object {
+    private const val TAG = "WeatherView"
   }
 }

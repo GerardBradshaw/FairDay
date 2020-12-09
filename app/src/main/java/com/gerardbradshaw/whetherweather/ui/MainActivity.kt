@@ -15,7 +15,7 @@ import com.gerardbradshaw.whetherweather.BuildConfig
 import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.retrofit.WeatherFile
 import com.gerardbradshaw.whetherweather.room.LocationData
-import com.gerardbradshaw.whetherweather.util.WeatherData
+import com.gerardbradshaw.whetherweather.models.WeatherData
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -74,7 +74,7 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
     Log.d(TAG, "onCurrentLocationUpdate: updated ZIP = ${currentAddress?.postalCode}")
 
     if (currentAddress != null) {
-      requestWeatherFor(currentAddress!!)
+      requestWeatherFor(currentAddress!!, true)
     }
   }
 
@@ -96,7 +96,7 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
     viewPager.adapter = adapter
 
     viewModel.locationDataSet.observe(this, Observer { locations ->
-      adapter.dataSet = locations
+      adapter.locations = locations
     })
 
     if (shouldLoadTestLocations) {
@@ -105,16 +105,16 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
     }
   }
 
-  private fun requestWeatherFor(location: Location) {
+  private fun requestWeatherFor(location: Location, isCurrentLocation: Boolean = false) {
     val params = HashMap<String, String>()
     params["lat"] = location.latitude.toString()
     params["lon"] = location.longitude.toString()
     params["appId"] = API_KEY_OPEN_WEATHER
 
-    makeOpenWeatherCall(params)
+    makeOpenWeatherCall(params, isCurrentLocation)
   }
 
-  private fun requestWeatherFor(address: Address) {
+  private fun requestWeatherFor(address: Address, isCurrentLocation: Boolean = false) {
     val zipCode = address.postalCode
     val countryCode = address.countryCode
     val zip = "$zipCode,$countryCode"
@@ -123,18 +123,18 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
     params["zip"] = zip
     params["appId"] = API_KEY_OPEN_WEATHER
 
-    makeOpenWeatherCall(params)
+    makeOpenWeatherCall(params, isCurrentLocation)
   }
 
-  private fun requestWeatherFor(name: String) {
+  private fun requestWeatherFor(name: String, isCurrentLocation: Boolean = false) {
     val params = HashMap<String, String>()
     params["q"] = name
     params["appId"] = API_KEY_OPEN_WEATHER
 
-    makeOpenWeatherCall(params)
+    makeOpenWeatherCall(params, isCurrentLocation)
   }
 
-  private fun makeOpenWeatherCall(params: HashMap<String, String>) {
+  private fun makeOpenWeatherCall(params: HashMap<String, String>, isCurrentLocation: Boolean) {
     val openWeatherApi = (application as BaseApplication).openWeatherApi
 
     val call = openWeatherApi.getWeather(params)
@@ -157,20 +157,9 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
           return onWeatherRequestResponse(RESULT_FAILURE, null)
         }
 
-        val weatherData = WeatherData(weatherFile)
+        val locationData = LocationData.getLocationFromWeatherData(WeatherData(weatherFile))
 
-        val locationData = LocationData(
-          location = weatherData.location ?: "Unknown location",
-          time = weatherData.timeUpdated ?: 0, // TODO update this to current time
-          condition = weatherData.condition ?: "",
-          conditionIconId = weatherData.conditionIconId ?: "", // TODO update this to an error value
-          description = weatherData.description ?: "", // TODO update this to an error value
-          temp = weatherData.temp ?: Int.MAX_VALUE, // TODO update this to an error value
-          min = weatherData.min ?: Int.MIN_VALUE, // TODO update this to an error value
-          max = weatherData.max ?: Int.MAX_VALUE // TODO update this to an error value
-        )
-
-        onWeatherRequestResponse(RESULT_SUCCESS, locationData)
+        onWeatherRequestResponse(RESULT_SUCCESS, locationData, isCurrentLocation)
       }
     })
   }
