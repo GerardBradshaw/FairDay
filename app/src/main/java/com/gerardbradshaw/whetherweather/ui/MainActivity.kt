@@ -6,16 +6,20 @@ import android.os.*
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.gerardbradshaw.whetherweather.BaseApplication
 import com.gerardbradshaw.whetherweather.BuildConfig
 import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.retrofit.WeatherFile
-import com.gerardbradshaw.whetherweather.room.LocationData
+import com.gerardbradshaw.whetherweather.room.LocationEntity
 import com.gerardbradshaw.whetherweather.models.WeatherData
+import com.gerardbradshaw.whetherweather.util.ConditionImageUtil
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -25,9 +29,9 @@ import kotlin.collections.HashMap
 class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTERVAL_FASTEST_IN_MS) {
   private lateinit var viewModel: MainViewModel
   private lateinit var viewPager: ViewPager2
+  private lateinit var conditionImageView: ImageView
 
   private var shouldLoadTestLocations = true
-
   private var isRequestingUpdates = false
 
 
@@ -41,9 +45,9 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
     supportActionBar?.setDisplayShowTitleEnabled(false)
     viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
-    initViewPager()
+    conditionImageView = findViewById(R.id.condition_image_view)
 
-//    textView = findViewById(R.id.temp_info_view)
+    initViewPager()
   }
 
   override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -95,9 +99,11 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
     val adapter = LocationListAdapter(this)
     viewPager.adapter = adapter
 
-    viewModel.locationDataSet.observe(this, Observer { locations ->
-      adapter.locations = locations
-    })
+    val savedLocations = viewModel.locationDataSet
+
+    for (entity in savedLocations) {
+      requestWeatherFor(entity.lat, entity.lon)
+    }
 
     if (shouldLoadTestLocations) {
       val testLocations = arrayOf("San Francisco", "London", "New York")
@@ -106,9 +112,16 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
   }
 
   private fun requestWeatherFor(location: Location, isCurrentLocation: Boolean = false) {
+    requestWeatherFor(
+      location.latitude.toFloat(),
+      location.longitude.toFloat(),
+      isCurrentLocation)
+  }
+
+  private fun requestWeatherFor(lat: Float, lon: Float, isCurrentLocation: Boolean = false) {
     val params = HashMap<String, String>()
-    params["lat"] = location.latitude.toString()
-    params["lon"] = location.longitude.toString()
+    params["lat"] = lat.toString()
+    params["lon"] = lon.toString()
     params["appId"] = API_KEY_OPEN_WEATHER
 
     makeOpenWeatherCall(params, isCurrentLocation)
@@ -157,24 +170,45 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
           return onWeatherRequestResponse(RESULT_FAILURE, null)
         }
 
-        val locationData = LocationData.getLocationFromWeatherData(WeatherData(weatherFile))
+        val weatherData = WeatherData(weatherFile)
 
-        onWeatherRequestResponse(RESULT_SUCCESS, locationData, isCurrentLocation)
+        onWeatherRequestResponse(RESULT_SUCCESS, weatherFile, isCurrentLocation)
       }
     })
   }
 
   fun onWeatherRequestResponse(
     responseCode: Int,
-    locationData: LocationData?,
+    weatherFile: WeatherFile?,
     isCurrentLocation: Boolean = false
   ) {
-    if (responseCode == RESULT_SUCCESS && locationData != null) {
-      if (!isCurrentLocation) viewModel.insertLocationData(locationData)
+    if (responseCode == RESULT_SUCCESS && weatherFile != null) {
+      val adapter = viewPager.adapter as LocationListAdapter
+      val weatherData = WeatherData(weatherFile)
+
+      viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+        override fun onPageSelected(position: Int) {
+          super.onPageSelected(position)
+
+          val id = adapter.getConditionIdForPosition(position)
+          val imageResId = ConditionImageUtil.getConditionImageUri(id)
+
+          Glide
+            .with(this@MainActivity)
+            .asBitmap()
+            .load(imageResId)
+            .transition(BitmapTransitionOptions.withCrossFade())
+            .into(conditionImageView)
+        }
+      })
+
+      if (isCurrentLocation) {
+        adapter.setCurrentLocation(weatherData)
+      }
       else {
-        val adapter = viewPager.adapter as LocationListAdapter?
-        adapter?.currentLocation = locationData
-        adapter?.notifyDataSetChanged()
+        val locationEntity = LocationEntity.getEntityFromWeatherData(weatherData)
+        viewModel.insertWeatherData(locationEntity)
+        adapter.addLocations(weatherData)
       }
     }
     else Log.d(TAG, "onWeatherRequestResponse: no location data")

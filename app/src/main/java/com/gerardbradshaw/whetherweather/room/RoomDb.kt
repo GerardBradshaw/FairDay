@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.*
 
 @Database(
-  entities = arrayOf(LocationData::class),
+  entities = [LocationEntity::class],
   version = 1,
   exportSchema = false
 )

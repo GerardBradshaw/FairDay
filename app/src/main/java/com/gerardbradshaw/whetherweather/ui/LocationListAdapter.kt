@@ -7,32 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.gerardbradshaw.whetherweather.R
-import com.gerardbradshaw.whetherweather.room.LocationData
+import com.gerardbradshaw.whetherweather.models.WeatherData
 import com.gerardbradshaw.whetherweather.views.WeatherView
 
 class LocationListAdapter(context: Context) :
   RecyclerView.Adapter<LocationListAdapter.LocationViewHolder>() {
 
-  var locations: List<LocationData>? = null
-    set(value) {
-      field = value
-      notifyDataSetChanged()
-    }
-
-  var currentLocation: LocationData? = null
-    set(value) {
-      val prevValue = field
-      field = value
-
-      when {
-        value == null && prevValue == null -> return
-        value == null && prevValue != null -> notifyItemRemoved(0)
-        value != null && prevValue != null -> notifyItemChanged(0)
-        value != null && prevValue == null -> notifyItemInserted(0)
-        else -> notifyDataSetChanged()
-      }
-    }
-
+  private var weatherDataMap = LinkedHashMap<String, WeatherData>()
+  private var currentLocationKey: String? = null
   private val inflater = LayoutInflater.from(context)
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocationViewHolder {
@@ -41,28 +23,59 @@ class LocationListAdapter(context: Context) :
   }
 
   override fun onBindViewHolder(holder: LocationViewHolder, position: Int) {
-    if (position >= itemCount) {
-      Log.d(TAG, "onBindViewHolder: invalid position index")
-      return
+    val isCurrentLocation = position == 0 && currentLocationKey != null
+
+    try {
+      val data = weatherDataMap.values.elementAt(position)
+      holder.weatherView.setLocation(data, isCurrentLocation)
+
+    } catch (ioobException: IndexOutOfBoundsException) {
+      Log.d(TAG, "onBindViewHolder: index out of bounds for i = $position")
     }
-
-    val isCurrentLocation = position == 0 && currentLocation != null
-
-    val data =
-      when {
-        isCurrentLocation -> currentLocation
-        currentLocation != null -> locations?.get(position - 1)
-        else -> locations?.get(position)
-      }
-
-    if (data == null) Log.d(TAG, "onBindViewHolder: Binding null data")
-    else Log.d(TAG, "onBindViewHolder: Binding ${data.locationName} at position $position")
-
-    holder.weatherView.setLocation(data)
   }
 
   override fun getItemCount(): Int {
-    return locations?.size ?: 0 + if (currentLocation != null) 1 else 0
+    return weatherDataMap.size
+  }
+
+  fun addLocations(vararg locations: WeatherData) {
+    for (location in locations) {
+      val name = location.locationName ?: "Unknown location"
+      if (!weatherDataMap.containsKey(name)) weatherDataMap[name] = location
+    }
+    notifyDataSetChanged()
+  }
+
+  fun setCurrentLocation(location: WeatherData) {
+    val currentLocationName = location.locationName ?: "Unknown location"
+
+    val newMap = LinkedHashMap<String, WeatherData>()
+    newMap[currentLocationName] = location
+
+    for (entry in weatherDataMap.entries) {
+      if (entry.key != currentLocationName) newMap[entry.key] = entry.value
+    }
+
+    weatherDataMap = newMap
+    currentLocationKey = currentLocationName
+    notifyDataSetChanged()
+  }
+
+  fun removeCurrentLocation() {
+    if (currentLocationKey != null) {
+      weatherDataMap.remove(currentLocationKey)
+      currentLocationKey = null
+      notifyDataSetChanged()
+    }
+  }
+
+  fun getConditionIdForPosition(position: Int): String? {
+    return try {
+      weatherDataMap.values.elementAt(position).conditionIconId
+    } catch (ioobException: java.lang.IndexOutOfBoundsException) {
+      Log.d(TAG, "getConditionIdForPosition: invalid position $position")
+      null
+    }
   }
 
   class LocationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
