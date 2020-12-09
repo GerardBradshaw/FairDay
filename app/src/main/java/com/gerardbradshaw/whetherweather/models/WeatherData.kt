@@ -1,4 +1,4 @@
-package com.gerardbradshaw.whetherweather.util
+package com.gerardbradshaw.whetherweather.models
 
 import com.gerardbradshaw.whetherweather.retrofit.WeatherFile
 
@@ -14,13 +14,13 @@ class WeatherData(weatherFile: WeatherFile) {
   val description = weatherFile.weather?.get(0)?.description
 
   /** Temperature in Celsius. */
-  val temp = weatherFile.main?.temp?.minus(273.15)?.toInt()
+  val currentTemp = weatherFile.main?.temp?.minus(273.15)?.toInt()
 
   /** Minimum temperature in Celsius. */
-  val min = weatherFile.main?.tempMin?.minus(273.15)?.toInt()
+  val minTemp = weatherFile.main?.tempMin?.minus(273.15)?.toInt()
 
   /** Maximum temperature in Celsius. */
-  val max = weatherFile.main?.tempMax?.minus(273.15)?.toInt()
+  val maxTemp = weatherFile.main?.tempMax?.minus(273.15)?.toInt()
 
   /** Humidity %. */
   val humidity = weatherFile.main?.humidity
@@ -41,19 +41,19 @@ class WeatherData(weatherFile: WeatherFile) {
   val rainLastThreeHours = weatherFile.rain?.mmLastThreeHours
 
   /** Time data was last updated. */
-  val timeUpdated: Int? = weatherFile.updateTime
+  val timeUpdated: Long? = weatherFile.updateTime?.times(1000)
+
+  /** GMT offset */
+  val gmtOffset: Long? = weatherFile.gmtOffset?.times(1000)
 
   /** Sunrise time UTC */
-  val gmtOffset: Int? = weatherFile.gmtOffset
-
-  /** Sunrise time UTC */
-  val sunrise: Int? = weatherFile.sys?.sunrise
+  val sunrise: Long? = weatherFile.sys?.sunrise?.times(1000)
 
   /** Sunset time UTC */
-  val sunset: Int? = weatherFile.sys?.sunset
+  val sunset: Long? = weatherFile.sys?.sunset?.times(1000)
 
   /** Location name. */
-  val location = weatherFile.name
+  val locationName = weatherFile.name
 
   val latitude: Float? = weatherFile.coordinates?.lat
 

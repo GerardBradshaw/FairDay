@@ -1,36 +1,39 @@
 package com.gerardbradshaw.whetherweather.ui
 
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
+import android.location.Address
+import android.location.Location
+import android.os.*
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
+import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.gerardbradshaw.whetherweather.BaseApplication
 import com.gerardbradshaw.whetherweather.BuildConfig
 import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.retrofit.WeatherFile
-import com.gerardbradshaw.whetherweather.room.LocationData
-import com.gerardbradshaw.whetherweather.util.WeatherData
+import com.gerardbradshaw.whetherweather.room.LocationEntity
+import com.gerardbradshaw.whetherweather.models.WeatherData
+import com.gerardbradshaw.whetherweather.util.ConditionImageUtil
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.concurrent.TimeUnit
+import kotlin.collections.HashMap
 
-class MainActivity : AppCompatActivity() {
-  private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
+class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTERVAL_FASTEST_IN_MS) {
   private lateinit var viewModel: MainViewModel
   private lateinit var viewPager: ViewPager2
-  private var currentLocation: String? = null
+  private lateinit var conditionImageView: ImageView
+
+  private var shouldLoadTestLocations = true
+  private var isRequestingUpdates = false
+
 
 
   // ------------------------ INIT ------------------------
@@ -39,12 +42,11 @@ class MainActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
 
-//    supportActionBar?.hide()
     supportActionBar?.setDisplayShowTitleEnabled(false)
-
     viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
-    initPermissions()
+    conditionImageView = findViewById(R.id.condition_image_view)
+
     initViewPager()
   }
 
@@ -54,110 +56,174 @@ class MainActivity : AppCompatActivity() {
   }
 
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    Toast.makeText(this, "Not implemented", Toast.LENGTH_SHORT).show()
+    isRequestingUpdates = !isRequestingUpdates
+
+    if (isRequestingUpdates) {
+      stopLocationUpdates()
+      showToast("Updates stopped")
+    }
+    else {
+      showToast("Updates started")
+      startLocationUpdates()
+    }
+
     return super.onOptionsItemSelected(item)
   }
 
-  // -------- Permissions --------
 
-  private fun initPermissions() {
-    requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()
-    ) { isPermissionGranted: Boolean ->
-      currentLocation =
-        if (isPermissionGranted) "San Francisco" // TODO change to actual current location
-        else null
-    }
-    requestLocationAccess()
-  }
 
-  private fun requestLocationAccess() {
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-      val permissionName = Manifest.permission.ACCESS_COARSE_LOCATION
-      val permissionStatus = ContextCompat.checkSelfPermission(this, permissionName)
-      val shouldShowRationale = ActivityCompat.shouldShowRequestPermissionRationale(this, permissionName)
+  // ------------------------ UI ------------------------
 
-      if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
-        if (shouldShowRationale) showLocationPermissionRationale(permissionName)
-        else requestPermissionLauncher.launch(permissionName)
-      }
+  override fun onCurrentLocationUpdate() {
+    Log.d(TAG, "onCurrentLocationUpdate: updated ZIP = ${currentAddress?.postalCode}")
+
+    if (currentAddress != null) {
+      requestWeatherFor(currentAddress!!, true)
     }
   }
 
-  private fun showLocationPermissionRationale(permissionName: String) {
+  private fun showLocationAlertDialog() {
     AlertDialog.Builder(this)
-      .setMessage(getString(R.string.app_name) + getString(R.string.location_rationale_message))
-      .setTitle(getString(R.string.location_rationale_title))
-      .setPositiveButton(getString(R.string.location_rationale_positive)) { _, _ -> requestPermissionLauncher.launch(permissionName) }
-      .setNegativeButton(getString(R.string.location_rationale_negative)) { _, _ -> }
+      .setMessage("Lat: ${currentLocation?.latitude}\nLong: ${currentLocation?.longitude}\nAddress: $currentAddress\n")
+      .setTitle("Location information")
       .create()
       .show()
   }
 
-  // -------- ViewPager --------
+
+
+  // ------------------------ VIEW PAGER ------------------------
 
   private fun initViewPager() {
     viewPager = findViewById(R.id.view_pager)
     val adapter = LocationListAdapter(this)
     viewPager.adapter = adapter
 
-    viewModel.locationDataSet.observe(this, Observer { locations ->
-      adapter.dataSet = locations
-      Toast.makeText(this, "Updated", Toast.LENGTH_SHORT)
-    })
+    val savedLocations = viewModel.locationDataSet
 
-    Log.d(TAG, "initViewPager: al g")
+    for (entity in savedLocations) {
+      requestWeatherFor(entity.lat, entity.lon)
+    }
 
-    // TEST LOCATIONS - TODO remove
-    val testLocations = arrayOf("San Francisco", "London", "New York")
-    for (locationName in testLocations) getWeatherFor(locationName)
+    if (shouldLoadTestLocations) {
+      val testLocations = arrayOf("San Francisco", "London", "New York")
+      for (locationName in testLocations) requestWeatherFor(locationName)
+    }
   }
 
-  private fun getWeatherFor(name: String) {
+  private fun requestWeatherFor(location: Location, isCurrentLocation: Boolean = false) {
+    requestWeatherFor(
+      location.latitude.toFloat(),
+      location.longitude.toFloat(),
+      isCurrentLocation)
+  }
+
+  private fun requestWeatherFor(lat: Float, lon: Float, isCurrentLocation: Boolean = false) {
+    val params = HashMap<String, String>()
+    params["lat"] = lat.toString()
+    params["lon"] = lon.toString()
+    params["appId"] = API_KEY_OPEN_WEATHER
+
+    makeOpenWeatherCall(params, isCurrentLocation)
+  }
+
+  private fun requestWeatherFor(address: Address, isCurrentLocation: Boolean = false) {
+    val zipCode = address.postalCode
+    val countryCode = address.countryCode
+    val zip = "$zipCode,$countryCode"
+
+    val params = HashMap<String, String>()
+    params["zip"] = zip
+    params["appId"] = API_KEY_OPEN_WEATHER
+
+    makeOpenWeatherCall(params, isCurrentLocation)
+  }
+
+  private fun requestWeatherFor(name: String, isCurrentLocation: Boolean = false) {
     val params = HashMap<String, String>()
     params["q"] = name
-    params["appId"] = OPEN_WEATHER_APP_KEY
+    params["appId"] = API_KEY_OPEN_WEATHER
 
+    makeOpenWeatherCall(params, isCurrentLocation)
+  }
+
+  private fun makeOpenWeatherCall(params: HashMap<String, String>, isCurrentLocation: Boolean) {
     val openWeatherApi = (application as BaseApplication).openWeatherApi
 
     val call = openWeatherApi.getWeather(params)
 
     call.enqueue(object : Callback<WeatherFile> {
       override fun onFailure(call: Call<WeatherFile>, t: Throwable) {
-        Toast.makeText(applicationContext, t.message, Toast.LENGTH_LONG).show()
+        toastLocationError("onFailure: failed to call openweather.org")
       }
 
       override fun onResponse(call: Call<WeatherFile>, response: Response<WeatherFile>) {
         if (!response.isSuccessful) {
-          val msg = "Code: ${response.code()}"
-          Toast.makeText(applicationContext, msg, Toast.LENGTH_LONG).show()
-          return
+          Log.d(TAG, "onResponse: weather request unsuccessful")
+          return onWeatherRequestResponse(RESULT_FAILURE, null)
         }
 
         val weatherFile = response.body()
 
-        if (weatherFile == null) Toast.makeText(applicationContext, getString(R.string.message_no_data), Toast.LENGTH_LONG).show()
-        else {
-          val weatherData = WeatherData(weatherFile)
-
-          val locationData = LocationData(
-            location = weatherData.location ?: "Unknown location",
-            time = weatherData.timeUpdated ?: 0, // TODO update this to current time
-            condition = weatherData.condition ?: "",
-            conditionIconId = weatherData.conditionIconId ?: "", // TODO update this to an error value
-            description = weatherData.description ?: "", // TODO update this to an error value
-            temp = weatherData.temp ?: Int.MAX_VALUE, // TODO update this to an error value
-            min = weatherData.min ?: Int.MIN_VALUE, // TODO update this to an error value
-            max = weatherData.max ?: Int.MAX_VALUE // TODO update this to an error value
-          )
-
-          viewModel.insertLocationData(locationData)
+        if (weatherFile == null) {
+          Log.d(TAG, "onResponse: weather request file is empty!")
+          return onWeatherRequestResponse(RESULT_FAILURE, null)
         }
+
+        val weatherData = WeatherData(weatherFile)
+
+        onWeatherRequestResponse(RESULT_SUCCESS, weatherFile, isCurrentLocation)
       }
     })
   }
 
+  fun onWeatherRequestResponse(
+    responseCode: Int,
+    weatherFile: WeatherFile?,
+    isCurrentLocation: Boolean = false
+  ) {
+    if (responseCode == RESULT_SUCCESS && weatherFile != null) {
+      val adapter = viewPager.adapter as LocationListAdapter
+      val weatherData = WeatherData(weatherFile)
+
+      viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+        override fun onPageSelected(position: Int) {
+          super.onPageSelected(position)
+
+          val id = adapter.getConditionIdForPosition(position)
+          val imageResId = ConditionImageUtil.getConditionImageUri(id)
+
+          Glide
+            .with(this@MainActivity)
+            .asBitmap()
+            .load(imageResId)
+            .transition(BitmapTransitionOptions.withCrossFade())
+            .into(conditionImageView)
+        }
+      })
+
+      if (isCurrentLocation) {
+        adapter.setCurrentLocation(weatherData)
+      }
+      else {
+        val locationEntity = LocationEntity.getEntityFromWeatherData(weatherData)
+        viewModel.insertWeatherData(locationEntity)
+        adapter.addLocations(weatherData)
+      }
+    }
+    else Log.d(TAG, "onWeatherRequestResponse: no location data")
+  }
+
+
+
+  // ------------------------ UTIL ------------------------
+
   companion object {
-    private const val OPEN_WEATHER_APP_KEY = BuildConfig.OPEN_WEATHER_APP_KEY
     private const val TAG = "MainActivity"
+
+    private val UPDATE_INTERVAL_IN_MS = TimeUnit.MINUTES.toMillis(30)
+    private val UPDATE_INTERVAL_FASTEST_IN_MS = TimeUnit.MINUTES.toMillis(5)
+
+    private const val API_KEY_OPEN_WEATHER = BuildConfig.OPEN_WEATHER_APP_KEY
   }
 }

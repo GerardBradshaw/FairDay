@@ -20,6 +20,11 @@
 <!--            android:foregroundServiceType="locationData"-->
 <!--            android:exported="false">-->
 <!--        </service>-->
+
+        <service
+            android:name=".util.FetchAddressIntentService"
+            android:exported="false">
+        </service>
         
         <activity android:name=".ui.MainActivity">
             <intent-filter>

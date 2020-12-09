@@ -1,4 +1,4 @@
-package com.gerardbradshaw.whetherweather.views
+package com.gerardbradshaw.whetherweather.views.weatherviewsub
 
 import android.content.Context
 import android.util.AttributeSet
