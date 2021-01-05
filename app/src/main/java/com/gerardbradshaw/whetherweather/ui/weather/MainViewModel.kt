@@ -1,4 +1,4 @@
-package com.gerardbradshaw.whetherweather.ui
+package com.gerardbradshaw.whetherweather.ui.weather
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

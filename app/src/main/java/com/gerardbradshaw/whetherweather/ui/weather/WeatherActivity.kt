@@ -1,4 +1,4 @@
-package com.gerardbradshaw.whetherweather.ui
+package com.gerardbradshaw.whetherweather.ui.weather
 
 import android.location.Address
 import android.location.Location
@@ -12,7 +12,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.gerardbradshaw.whetherweather.BaseApplication
 import com.gerardbradshaw.whetherweather.BuildConfig
 import com.gerardbradshaw.whetherweather.R
@@ -26,7 +25,7 @@ import retrofit2.Response
 import java.util.concurrent.TimeUnit
 import kotlin.collections.HashMap
 
-class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTERVAL_FASTEST_IN_MS) {
+class WeatherActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTERVAL_FASTEST_IN_MS) {
   private lateinit var viewModel: MainViewModel
   private lateinit var viewPager: ViewPager2
   private lateinit var conditionImageView: ImageView
@@ -40,7 +39,7 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_main)
+    setContentView(R.layout.activity_weather)
 
     supportActionBar?.setDisplayShowTitleEnabled(false)
     viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
@@ -194,7 +193,7 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
           val imageResId = ConditionImageUtil.getConditionImageUri(id)
 
           Glide
-            .with(this@MainActivity)
+            .with(this@WeatherActivity)
             .asBitmap()
             .load(imageResId)
             .transition(BitmapTransitionOptions.withCrossFade())
@@ -219,7 +218,7 @@ class MainActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
   // ------------------------ UTIL ------------------------
 
   companion object {
-    private const val TAG = "MainActivity"
+    private const val TAG = "WeatherActivity"
 
     private val UPDATE_INTERVAL_IN_MS = TimeUnit.MINUTES.toMillis(30)
     private val UPDATE_INTERVAL_FASTEST_IN_MS = TimeUnit.MINUTES.toMillis(5)

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.gerardbradshaw.whetherweather">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.gerardbradshaw.whetherweather" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -13,20 +12,23 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme.ActionBar.Transparent">
-
-<!--        <service-->
-<!--            android:name="com.gerardbradshaw.whetherweather.util.LocationWeatherService"-->
-<!--            android:foregroundServiceType="locationData"-->
-<!--            android:exported="false">-->
-<!--        </service>-->
-
+        android:theme="@style/AppTheme.ActionBar.Transparent" >
+        <activity
+            android:name=".ui.locations.LocationsActivity"
+            android:label="@string/title_activity_locations"
+            android:theme="@style/AppTheme.ActionBar.Transparent.NoActionBar" >
+        </activity>
+        <!-- <service -->
+        <!-- android:name="com.gerardbradshaw.whetherweather.util.LocationWeatherService" -->
+        <!-- android:foregroundServiceType="locationData" -->
+        <!-- android:exported="false"> -->
+        <!-- </service> -->
         <service
             android:name=".util.FetchAddressIntentService"
-            android:exported="false">
+            android:exported="false" >
         </service>
-        
-        <activity android:name=".ui.MainActivity">
+
+        <activity android:name=".ui.weather.WeatherActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

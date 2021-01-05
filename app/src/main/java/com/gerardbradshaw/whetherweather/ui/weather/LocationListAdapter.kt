@@ -1,4 +1,4 @@
-package com.gerardbradshaw.whetherweather.ui
+package com.gerardbradshaw.whetherweather.ui.weather
 
 import android.content.Context
 import android.util.Log
