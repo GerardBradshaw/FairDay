@@ -1,2 +1,3 @@
+include ':weatherinfoview'
 include ':app'
 rootProject.name = "Whether Weather"

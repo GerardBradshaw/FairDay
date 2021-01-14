@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_locations"
+        android:id="@+id/action_saved_locations"
         android:orderInCategory="100"
         android:title="@string/locations"
         app:showAsAction="ifRoom"
