@@ -1,0 +1,41 @@
+<resources>
+    <style name="LocationStyle" parent="BasicWhiteTextWithShadowStyle">
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Display1</item>
+    </style>
+
+    <style name="TemperatureStyle" parent="BasicWhiteTextWithShadowStyle">
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Display4</item>
+        <item name="android:fontFamily">@font/font_open_sans_regular</item>
+    </style>
+
+    <style name="TemperatureBoundStyle" parent="BasicWhiteTextWithShadowStyle">
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Caption</item>
+    </style>
+
+    <style name="TemperatureBoundContainerStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">24dp</item>
+        <item name="android:layout_marginLeft">12dp</item>
+        <item name="android:layout_marginRight">12dp</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="BasicWhiteLineStyle">
+        <item name="android:background">@android:color/white</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_margin">12dp</item>
+    </style>
+
+    <style name="SmallDetailStyle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+
+    <style name="ConditionStyle" parent="BasicWhiteTextWithShadowStyle">
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Caption</item>
+    </style>
+
+</resources>

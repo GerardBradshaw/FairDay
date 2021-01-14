@@ -1,19 +1,18 @@
 package com.gerardbradshaw.whetherweather.room
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Dao
 interface LocationDataDao {
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
-  fun insertLocation(locationData: LocationEntity)
+  fun insertLocation(location: LocationEntity)
 
   @Delete
-  fun deleteLocation(vararg locationData: LocationEntity)
+  fun deleteLocation(vararg location: LocationEntity)
 
   @Update
-  fun updateLocation(locationData: LocationEntity)
+  fun updateLocation(location: LocationEntity)
 
   @Query("select * from weather_table")
   fun getLocationDataSet(): List<LocationEntity>

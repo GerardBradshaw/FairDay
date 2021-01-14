@@ -45,15 +45,15 @@ class Repository(application: Application) {
 
   // ------------------------ INSERT ------------------------
 
-  fun insertLocationData(locationData: LocationEntity) {
+  fun insertLocationData(location: LocationEntity) {
     CoroutineScope(Dispatchers.Main).launch {
-      saveLocationToDb(locationData)
+      saveLocationToDb(location)
     }
   }
 
-  private suspend fun saveLocationToDb(locationData: LocationEntity) {
+  private suspend fun saveLocationToDb(location: LocationEntity) {
     withContext(Dispatchers.IO) {
-      locationDataDao.insertLocation(locationData)
+      locationDataDao.insertLocation(location)
     }
   }
 
@@ -61,15 +61,15 @@ class Repository(application: Application) {
 
   // ------------------------ DELETE ------------------------
 
-  fun deleteLocationData(locationData: LocationEntity) {
+  fun deleteLocationData(location: LocationEntity) {
     CoroutineScope(Dispatchers.Main).launch {
-      deleteLocationFromDb(locationData)
+      deleteLocationFromDb(location)
     }
   }
 
-  private suspend fun deleteLocationFromDb(locationData: LocationEntity) {
+  private suspend fun deleteLocationFromDb(location: LocationEntity) {
     withContext(Dispatchers.IO) {
-      locationDataDao.deleteLocation(locationData)
+      locationDataDao.deleteLocation(location)
     }
   }
 }
