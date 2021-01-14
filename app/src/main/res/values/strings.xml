@@ -39,4 +39,7 @@
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="enter_city_or_zip">Enter City or ZIP</string>
+    <string name="saved_locations">Saved locations</string>
+    <string name="add_new_location_button">Add new location button</string>
+    <string name="press_to_add_a_new_location">Press + to add a new location</string>
 </resources>

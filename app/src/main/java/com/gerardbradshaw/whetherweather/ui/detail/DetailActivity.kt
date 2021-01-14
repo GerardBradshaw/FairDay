@@ -1,5 +1,6 @@
 package com.gerardbradshaw.whetherweather.ui.detail
 
+import android.content.Intent
 import android.location.Address
 import android.location.Location
 import android.os.*
@@ -17,11 +18,13 @@ import com.gerardbradshaw.whetherweather.BuildConfig
 import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.retrofit.WeatherFile
 import com.gerardbradshaw.whetherweather.room.LocationEntity
+import com.gerardbradshaw.whetherweather.ui.savedlocations.SavedLocationsActivity
 import com.gerardbradshaw.whetherweather.util.ConditionImageUtil
 import com.gerardbradshaw.whetherweather.util.WeatherDataUtil
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.lang.Exception
 import java.util.concurrent.TimeUnit
 import kotlin.collections.HashMap
 
@@ -30,8 +33,8 @@ class DetailActivity : AbstractDetailActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
   private lateinit var viewPager: ViewPager2
   private lateinit var conditionImageView: ImageView
 
-  private var shouldLoadTestLocations = true
-  private var isRequestingUpdates = false
+  private var shouldLoadTestLocations = false
+//  private var isRequestingUpdates = false
 
 
 
@@ -50,23 +53,32 @@ class DetailActivity : AbstractDetailActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
   }
 
   override fun onCreateOptionsMenu(menu: Menu): Boolean {
-    menuInflater.inflate(R.menu.menu_action_bar_locations_activity, menu)
+    menuInflater.inflate(R.menu.menu_action_bar_detail_activity, menu)
     return super.onCreateOptionsMenu(menu)
   }
 
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    isRequestingUpdates = !isRequestingUpdates
-
-    if (isRequestingUpdates) {
-      stopLocationUpdates()
-      showToast("Updates stopped")
+    return when (item.itemId) {
+      R.id.action_saved_locations -> {
+        startActivity(Intent(this, SavedLocationsActivity::class.java))
+        true
+      }
+      
+      R.id.action_add -> {
+        showToast("Not implemented")
+        false
+      }
+      
+      else -> super.onOptionsItemSelected(item)
     }
-    else {
-      showToast("Updates started")
-      startLocationUpdates()
-    }
-
-    return super.onOptionsItemSelected(item)
+//    if (isRequestingUpdates) {
+//      stopLocationUpdates()
+//      showToast("Updates stopped")
+//    }
+//    else {
+//      showToast("Updates started")
+//      startLocationUpdates()
+//    }
   }
 
 
