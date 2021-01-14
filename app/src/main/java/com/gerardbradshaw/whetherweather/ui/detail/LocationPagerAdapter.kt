@@ -1,4 +1,4 @@
-package com.gerardbradshaw.whetherweather.ui.info
+package com.gerardbradshaw.whetherweather.ui.detail
 
 import android.content.Context
 import android.util.Log
@@ -10,15 +10,15 @@ import com.gerardbradshaw.weatherinfoview.datamodels.WeatherData
 import com.gerardbradshaw.weatherinfoview.WeatherInfoView
 import com.gerardbradshaw.whetherweather.R
 
-class LocationListAdapter(context: Context) :
-  RecyclerView.Adapter<LocationListAdapter.LocationViewHolder>() {
+class LocationPagerAdapter(context: Context) :
+  RecyclerView.Adapter<LocationPagerAdapter.LocationViewHolder>() {
 
   private var weatherDataMap = LinkedHashMap<String, WeatherData>()
   private var currentLocationKey: String? = null
   private val inflater = LayoutInflater.from(context)
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocationViewHolder {
-    val itemView = inflater.inflate(R.layout.list_item_weather_view, parent, false)
+    val itemView = inflater.inflate(R.layout.list_item_location_pager, parent, false)
     return LocationViewHolder(itemView)
   }
 

@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.ActionBar.Transparent" >
         <activity
-            android:name=".ui.locations.LocationsActivity"
+            android:name=".ui.savedlocations.SavedLocationsActivity"
             android:label="@string/title_activity_locations"
             android:theme="@style/AppTheme.ActionBar.Transparent.NoActionBar" >
         </activity>
@@ -28,7 +28,7 @@
             android:exported="false" >
         </service>
 
-        <activity android:name=".ui.info.InfoActivity" >
+        <activity android:name=".ui.detail.DetailActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

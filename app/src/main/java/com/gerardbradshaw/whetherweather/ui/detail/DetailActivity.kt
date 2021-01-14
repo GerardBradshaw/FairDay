@@ -1,4 +1,4 @@
-package com.gerardbradshaw.whetherweather.ui.info
+package com.gerardbradshaw.whetherweather.ui.detail
 
 import android.location.Address
 import android.location.Location
@@ -17,7 +17,6 @@ import com.gerardbradshaw.whetherweather.BuildConfig
 import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.retrofit.WeatherFile
 import com.gerardbradshaw.whetherweather.room.LocationEntity
-import com.gerardbradshaw.whetherweather.ui.locations.AbstractLocationActivity
 import com.gerardbradshaw.whetherweather.util.ConditionImageUtil
 import com.gerardbradshaw.whetherweather.util.WeatherDataUtil
 import retrofit2.Call
@@ -26,8 +25,8 @@ import retrofit2.Response
 import java.util.concurrent.TimeUnit
 import kotlin.collections.HashMap
 
-class InfoActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTERVAL_FASTEST_IN_MS) {
-  private lateinit var viewModel: InfoViewModel
+class DetailActivity : AbstractDetailActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTERVAL_FASTEST_IN_MS) {
+  private lateinit var viewModel: DetailViewModel
   private lateinit var viewPager: ViewPager2
   private lateinit var conditionImageView: ImageView
 
@@ -40,10 +39,10 @@ class InfoActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_info)
+    setContentView(R.layout.activity_detail)
 
     supportActionBar?.setDisplayShowTitleEnabled(false)
-    viewModel = ViewModelProvider(this).get(InfoViewModel::class.java)
+    viewModel = ViewModelProvider(this).get(DetailViewModel::class.java)
 
     conditionImageView = findViewById(R.id.condition_image_view)
 
@@ -87,7 +86,7 @@ class InfoActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
 
   private fun initViewPager() {
     viewPager = findViewById(R.id.view_pager)
-    val adapter = LocationListAdapter(this)
+    val adapter = LocationPagerAdapter(this)
     viewPager.adapter = adapter
 
     val savedLocations = viewModel.locationDataSet
@@ -172,7 +171,7 @@ class InfoActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
     isCurrentLocation: Boolean = false
   ) {
     if (responseCode == RESULT_SUCCESS && weatherFile != null) {
-      val adapter = viewPager.adapter as LocationListAdapter
+      val adapter = viewPager.adapter as LocationPagerAdapter
       val weatherData = WeatherDataUtil.getWeatherDataFromWeatherFile(weatherFile)
 
       viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -183,7 +182,7 @@ class InfoActivity : AbstractLocationActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
           val imageResId = ConditionImageUtil.getConditionImageUri(id)
 
           Glide
-            .with(this@InfoActivity)
+            .with(this@DetailActivity)
             .asBitmap()
             .load(imageResId)
             .transition(BitmapTransitionOptions.withCrossFade())

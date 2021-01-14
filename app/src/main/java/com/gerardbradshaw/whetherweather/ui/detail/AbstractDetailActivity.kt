@@ -1,4 +1,4 @@
-package com.gerardbradshaw.whetherweather.ui.locations
+package com.gerardbradshaw.whetherweather.ui.detail
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -23,7 +23,7 @@ import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import java.util.*
 
-abstract class AbstractLocationActivity(
+abstract class AbstractDetailActivity(
   private val locationUpdateIntervalInMs: Long,
   private val shortestLocationUpdateIntervalInMs: Long
   ) : AppCompatActivity() {
