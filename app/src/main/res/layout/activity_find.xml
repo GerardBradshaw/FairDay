@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/img_clear_day"
+    tools:context=".ui.find.FindActivity">
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="12dp" />
+
+    <EditText
+        style="@style/BasicWhiteTextWithShadowStyle"
+        android:id="@+id/find_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:hint="@string/string_search_locations"
+        android:inputType="textPostalAddress"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/find_results_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

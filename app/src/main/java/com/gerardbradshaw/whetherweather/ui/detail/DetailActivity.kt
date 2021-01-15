@@ -18,6 +18,7 @@ import com.gerardbradshaw.whetherweather.BuildConfig
 import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.retrofit.WeatherFile
 import com.gerardbradshaw.whetherweather.room.LocationEntity
+import com.gerardbradshaw.whetherweather.ui.find.FindActivity
 import com.gerardbradshaw.whetherweather.ui.savedlocations.SavedLocationsActivity
 import com.gerardbradshaw.whetherweather.util.ConditionImageUtil
 import com.gerardbradshaw.whetherweather.util.WeatherDataUtil
@@ -65,8 +66,8 @@ class DetailActivity : AbstractDetailActivity(UPDATE_INTERVAL_IN_MS, UPDATE_INTE
       }
       
       R.id.action_add -> {
-        showToast("Not implemented")
-        false
+        startActivity(Intent(this, FindActivity::class.java))
+        true
       }
       
       else -> super.onOptionsItemSelected(item)

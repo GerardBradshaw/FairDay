@@ -245,8 +245,8 @@ abstract class AbstractDetailActivity(
   private fun requestPermissionsAndStartLocationUpdates() {
     PermissionUtil
       .RequestBuilder(LOCATION_PERMISSION_NAME, this)
-      .setRationaleDialogTitle(getString(R.string.location_rationale_title))
-      .setRationaleDialogMessage(getString(R.string.app_name) + getString(R.string.location_rationale_message))
+      .setRationaleDialogTitle(getString(R.string.message_location_rationale_title))
+      .setRationaleDialogMessage(getString(R.string.app_name) + getString(R.string.message_location_rationale_body))
       .setActivityResultLauncher(requestPermission)
       .setOnPermissionGranted { requestLocationUpdates() }
       .buildAndRequest()
@@ -334,7 +334,7 @@ abstract class AbstractDetailActivity(
   }
 
   protected fun toastLocationError(logMsg: String? = null) {
-    showToast(getString(R.string.message_location_error))
+    showToast(getString(R.string.string_unable_to_determine_location))
     if (logMsg != null) Log.e(TAG, logMsg)
   }
 
