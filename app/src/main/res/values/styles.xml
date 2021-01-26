@@ -14,16 +14,6 @@
         <item name="colorPrimary">@android:color/transparent</item>
     </style>
 
-    <style name="BasicWhiteTextWithShadowStyle">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:shadowColor">#474747</item>
-        <item name="android:shadowDx">3</item>
-        <item name="android:shadowDy">3</item>
-        <item name="android:shadowRadius">2</item>
-    </style>
-
     <style name="LocationStyle" parent="BasicWhiteTextWithShadowStyle">
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Display1</item>
     </style>
@@ -53,7 +43,7 @@
         <item name="android:layout_margin">12dp</item>
     </style>
 
-    <style name="SmallDetailStyle">
+    <style name="SmallDetailStyle" parent="BasicWhiteTextWithShadowStyle">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_weight">1</item>

@@ -1,6 +1,7 @@
 package com.gerardbradshaw.whetherweather.room
 
 import android.app.Application
+import androidx.lifecycle.LiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,18 +43,22 @@ class Repository(application: Application) {
     this.locations = locations
   }
 
+  fun getLiveLocations(): LiveData<List<LocationEntity>> {
+    return locationDataDao.getLiveLocations()
+  }
+
 
   // ------------------------ INSERT ------------------------
 
-  fun insertLocationData(locationData: LocationEntity) {
+  fun saveLocation(location: LocationEntity) {
     CoroutineScope(Dispatchers.Main).launch {
-      saveLocationToDb(locationData)
+      saveLocationToDb(location)
     }
   }
 
-  private suspend fun saveLocationToDb(locationData: LocationEntity) {
+  private suspend fun saveLocationToDb(location: LocationEntity) {
     withContext(Dispatchers.IO) {
-      locationDataDao.insertLocation(locationData)
+      locationDataDao.insertLocation(location)
     }
   }
 
@@ -61,15 +66,15 @@ class Repository(application: Application) {
 
   // ------------------------ DELETE ------------------------
 
-  fun deleteLocationData(locationData: LocationEntity) {
+  fun deleteLocationData(location: LocationEntity) {
     CoroutineScope(Dispatchers.Main).launch {
-      deleteLocationFromDb(locationData)
+      deleteLocationFromDb(location)
     }
   }
 
-  private suspend fun deleteLocationFromDb(locationData: LocationEntity) {
+  private suspend fun deleteLocationFromDb(location: LocationEntity) {
     withContext(Dispatchers.IO) {
-      locationDataDao.deleteLocation(locationData)
+      locationDataDao.deleteLocation(location)
     }
   }
 }

@@ -16,9 +16,11 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        // Please ensure you have a valid APP KEY for openweather.org to use this app
+        // Please ensure you have a valid APP KEY for openweather.org and API KEY for Google Maps
+        // (Places API) to use this app.
         // A valid key will need to be entered.
         buildConfigField("String", "OPEN_WEATHER_APP_KEY", OPEN_WEATHER_APP_KEY)
+        buildConfigField("String", "GOOGLE_MAPS_API_KEY", GOOGLE_MAPS_API_KEY)
     }
 
     buildTypes {
@@ -39,6 +41,9 @@ android {
 }
 
 dependencies {
+    // Projects
+    implementation project(':weatherinfoview')
+
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.3.2'
@@ -91,6 +96,9 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$rootProject.navigation_version"
     implementation "androidx.navigation:navigation-ui-ktx:$rootProject.navigation_version"
     androidTestImplementation "androidx.navigation:navigation-testing:$rootProject.navigation_version"
+
+    // Places (GMP)
+    implementation "com.google.android.libraries.places:places:$rootProject.places_version"
 
     // RecyclerView
     implementation "androidx.recyclerview:recyclerview:$rootProject.recycler_view_version"
