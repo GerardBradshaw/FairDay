@@ -1,4 +1,4 @@
-package com.gerardbradshaw.whetherweather.util
+package com.gerardbradshaw.whetherweather.util.weather
 
 import com.gerardbradshaw.weatherinfoview.datamodels.WeatherData
 import com.gerardbradshaw.whetherweather.retrofit.WeatherFile

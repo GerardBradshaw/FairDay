@@ -52,12 +52,16 @@ class WeatherInfoView : FrameLayout {
 
   fun setLocation(location: WeatherData?, isCurrentLocation: Boolean = false) {
     if (location != null) {
-      setName(location.locationName, isCurrentLocation)
+      setName(location.name, isCurrentLocation)
       setTemperatures(location.currentTemp, location.minTemp, location.maxTemp)
       setConditions(location.condition, location.description, location.conditionIconId)
       setOtherInfo(location)
       setLastUpdateTime(location.timeUpdated)
-    } else Log.d(TAG, "setLocation: location is null")
+    } else Log.d(TAG, "setLocation: ERROR: location is null")
+  }
+
+  fun setLocationName(name: String, isCurrentLocation: Boolean) {
+    setName(name, isCurrentLocation)
   }
 
   private fun setName(location: String?, isCurrentLocation: Boolean = false) {
