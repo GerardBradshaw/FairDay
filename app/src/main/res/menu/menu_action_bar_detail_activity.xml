@@ -4,16 +4,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_locations"
+        android:id="@+id/action_saved_locations"
         android:orderInCategory="100"
-        android:title="@string/locations"
+        android:title="@string/string_locations"
         app:showAsAction="ifRoom"
         android:icon="@drawable/ic_list" />
 
     <item
         android:id="@+id/action_add"
         android:orderInCategory="200"
-        android:title="@string/add"
+        android:title="@string/string_add"
         app:showAsAction="ifRoom"
         android:icon="@drawable/ic_add" />
 

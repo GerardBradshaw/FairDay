@@ -6,15 +6,18 @@ import androidx.room.*
 @Dao
 interface LocationDataDao {
 
-  @Insert(onConflict = OnConflictStrategy.REPLACE)
-  fun insertLocationData(locationData: LocationData)
+  @Insert(onConflict = OnConflictStrategy.IGNORE)
+  fun insertLocation(location: LocationEntity)
 
   @Delete
-  fun deleteLocation(vararg locationData: LocationData)
+  fun deleteLocation(vararg location: LocationEntity)
 
   @Update
-  fun updateLocation(locationData: LocationData)
+  fun updateLocation(location: LocationEntity)
 
   @Query("select * from weather_table")
-  fun getLocationDataSet(): LiveData<List<LocationData>>
+  fun getLocationDataSet(): List<LocationEntity>
+
+  @Query("select * from weather_table")
+  fun getLiveLocations(): LiveData<List<LocationEntity>>
 }
