@@ -14,10 +14,11 @@
     <string name="string_next">Next</string>
     <string name="string_previous">Previous</string>
     <string name="string_enter_city_or_zip">Enter City or ZIP</string>
-    <string name="string_saved_locations">Saved locations</string>
+    <string name="string_saved_locations">Saved Locations</string>
     <string name="string_press_plus_to_add_a_new_location">Press + to add a new location</string>
     <string name="string_data_provided_by_openweathermap_dot_org">Data provided by openweathermap.org</string>
     <string name="string_search_locations">Search locations</string>
+    <string name="string_loading">Loading…</string>
 
     <!-- CONTENT DESCRIPTIONS -->
     <string name="cd_open_weather_logo">Open Weather logo</string>
@@ -33,5 +34,4 @@
     <!-- CONDITION ICON URL -->
     <string name="condition_url_prefix">https://openweathermap.org/img/wn/</string>
     <string name="condition_url_suffix">\@2x.png</string>
-    <string name="string_loading">Loading...</string>
 </resources>

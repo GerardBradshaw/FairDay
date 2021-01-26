@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gerardbradshaw.whetherweather.R
+import com.gerardbradshaw.whetherweather.ui.detail.DetailActivity
 import com.gerardbradshaw.whetherweather.ui.detail.DetailViewModel
 import com.gerardbradshaw.whetherweather.ui.find.FindActivity
 
@@ -56,6 +57,15 @@ class SavedLocationsActivity : AppCompatActivity() {
     recyclerView.adapter = adapter
     recyclerView.layoutManager = LinearLayoutManager(this)
 
+    adapter.setLocationClickedListener(object : LocationListAdapter.LocationClickedListener {
+      override fun onLocationClicked(position: Int) {
+        val returnIntent = Intent()
+        returnIntent.putExtra(DetailActivity.EXTRA_PAGER_POSITION, position)
+        setResult(RESULT_OK, returnIntent)
+        finish()
+      }
+    })
+
     viewModel.getAllLocations().observe(this) {
       showEmptyListMessage(it.isEmpty())
       adapter.setLocations(it)
@@ -66,12 +76,7 @@ class SavedLocationsActivity : AppCompatActivity() {
   // ------------------------ UI ------------------------
 
   private fun showEmptyListMessage(boolean: Boolean) {
-    if (boolean) {
-      messageView.visibility = View.VISIBLE
-      recyclerView.visibility = View.GONE
-    } else {
-      messageView.visibility = View.GONE
-      recyclerView.visibility = View.VISIBLE
-    }
+    messageView.visibility = if (boolean) View.VISIBLE else View.GONE
+    recyclerView.visibility = if (boolean) View.GONE else View.VISIBLE
   }
 }
