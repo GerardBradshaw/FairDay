@@ -13,7 +13,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.ActionBar.Transparent">
-        <activity android:name=".ui.find.FindActivity"></activity>
+        <activity android:name=".ui.add.AddActivity"></activity>
         <activity
             android:name=".ui.savedlocations.SavedLocationsActivity"
             android:label="@string/title_activity_locations"
