@@ -1,4 +1,4 @@
-package com.gerardbradshaw.whetherweather.util
+package com.gerardbradshaw.whetherweather.util.conditions
 
 import com.gerardbradshaw.whetherweather.R
 

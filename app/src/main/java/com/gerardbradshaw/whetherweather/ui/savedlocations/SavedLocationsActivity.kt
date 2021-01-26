@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -19,23 +18,28 @@ class SavedLocationsActivity : AppCompatActivity() {
   private lateinit var messageView: TextView
   private lateinit var recyclerView: RecyclerView
   
-  
-  
-  // ------------------------ INIT ------------------------
+
+  // ------------------------ ACTIVITY LIFECYCLE ------------------------
   
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_saved_locations)
-    
+    initActivity()
+  }
+
+
+  // ------------------------ INIT ------------------------
+
+  private fun initActivity() {
     supportActionBar?.hide()
     viewModel = ViewModelProvider(this).get(DetailViewModel::class.java)
-    
-    locateViews()
+
+    initViews()
     initFab()
     initRecycler()
   }
-  
-  private fun locateViews() {
+
+  private fun initViews() {
     messageView = findViewById(R.id.saved_locations_message)
     recyclerView = findViewById(R.id.saved_locations_recycler)
   }
@@ -47,16 +51,21 @@ class SavedLocationsActivity : AppCompatActivity() {
   }
   
   private fun initRecycler() {
-    val savedLocations = viewModel.locationDataSet
-    showNoLocationsMessage(savedLocations.isEmpty())
-    
-    val adapter = LocationsListAdapter(this)
-    adapter.setLocations(savedLocations)
+    showEmptyListMessage(true)
+    val adapter = LocationListAdapter(this)
     recyclerView.adapter = adapter
     recyclerView.layoutManager = LinearLayoutManager(this)
+
+    viewModel.getAllLocations().observe(this) {
+      showEmptyListMessage(it.isEmpty())
+      adapter.setLocations(it)
+    }
   }
-  
-  private fun showNoLocationsMessage(boolean: Boolean) {
+
+
+  // ------------------------ UI ------------------------
+
+  private fun showEmptyListMessage(boolean: Boolean) {
     if (boolean) {
       messageView.visibility = View.VISIBLE
       recyclerView.visibility = View.GONE

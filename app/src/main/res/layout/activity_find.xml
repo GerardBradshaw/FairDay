@@ -6,25 +6,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/img_clear_day"
     tools:context=".ui.find.FindActivity">
 
     <Space
         android:layout_width="match_parent"
-        android:layout_height="12dp" />
+        android:layout_height="24dp" />
 
-    <EditText
-        style="@style/BasicWhiteTextWithShadowStyle"
-        android:id="@+id/find_edit_text"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/autocomplete_fragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        android:hint="@string/string_search_locations"
-        android:inputType="textPostalAddress"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/find_results_recycler"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"/>
 
 </LinearLayout>

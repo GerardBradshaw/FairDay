@@ -1,4 +1,4 @@
-package com.gerardbradshaw.whetherweather.util
+package com.gerardbradshaw.whetherweather.util.location
 
 import android.app.Service
 import android.content.Intent

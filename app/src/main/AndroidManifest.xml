@@ -18,12 +18,12 @@
             android:name=".ui.savedlocations.SavedLocationsActivity"
             android:label="@string/title_activity_locations"
             android:theme="@style/AppTheme.ActionBar.Transparent.NoActionBar"></activity> <!-- <service -->
-        <!-- android:name="com.gerardbradshaw.whetherweather.util.LocationWeatherService" -->
+        <!-- android:name="com.gerardbradshaw.whetherweather.util.location.LocationWeatherService" -->
         <!-- android:foregroundServiceType="locationData" -->
         <!-- android:exported="false"> -->
         <!-- </service> -->
         <service
-            android:name=".util.FetchAddressIntentService"
+            android:name=".util.address.FetchAddressIntentService"
             android:exported="false"></service>
 
         <activity android:name=".ui.detail.DetailActivity">

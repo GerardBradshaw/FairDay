@@ -1,4 +1,4 @@
-package com.gerardbradshaw.whetherweather.util
+package com.gerardbradshaw.whetherweather.util.permissions
 
 import android.content.Context
 import android.content.pm.PackageManager
@@ -93,7 +93,7 @@ abstract class PermissionUtil {
 
     private fun showSystemPermissionsRequest() {
       if (requestPermission == null) {
-        Log.d(TAG, "showSystemPermissionsRequest: activity result launcher is null. Did " +
+        Log.d(TAG, "showSystemPermissionsRequest: ERROR: activity result launcher is null. Did " +
             "you forget to call setActivityResultLauncher() in the RequestBuilder?")
       }
       requestPermission?.launch(permission)
@@ -103,7 +103,7 @@ abstract class PermissionUtil {
 
 
   companion object {
-    private const val TAG = "PermissionUtil"
+    private const val TAG = "GGG PermissionUtil"
 
     @JvmStatic
     fun isGranted(permission: String, context: Context): Boolean {
