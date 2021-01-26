@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
@@ -17,6 +18,7 @@ import com.gerardbradshaw.whetherweather.BaseApplication
 import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.room.LocationEntity
 import com.gerardbradshaw.whetherweather.ui.find.FindActivity
+import com.gerardbradshaw.whetherweather.ui.savedlocations.LocationListAdapter.Companion.EXTRA_POSITION
 import com.gerardbradshaw.whetherweather.ui.savedlocations.SavedLocationsActivity
 import com.gerardbradshaw.whetherweather.util.*
 import com.gerardbradshaw.whetherweather.util.conditions.ConditionImageUtil
@@ -38,6 +40,35 @@ class DetailActivity :
   private lateinit var weatherUtil: WeatherUtil
 
   private var isFirstLaunch = true
+
+
+  // ------------------------ INTENTS ------------------------
+
+  private val movePagerToNew =
+      registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        val intent = it.data
+        when {
+          intent == null -> Log.d(TAG, "onOptionsItemSelected: data was null")
+
+          intent.hasExtra(EXTRA_PAGER_POSITION) -> {
+            val position = intent.getIntExtra(EXTRA_PAGER_POSITION, 0)
+            viewPager.setCurrentItem(position, false)
+          }
+        }
+      }
+
+  private val movePagerToSelected =
+      registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        val intent = it.data
+        when {
+          intent == null -> Log.d(TAG, "onOptionsItemSelected: data was null")
+
+          intent.hasExtra(EXTRA_PAGER_POSITION) -> {
+            val position = intent.getIntExtra(EXTRA_PAGER_POSITION, 0)
+            viewPager.setCurrentItem(position, false)
+          }
+        }
+      }
 
 
   // ------------------------ ACTIVITY LIFECYCLE ------------------------
@@ -69,7 +100,6 @@ class DetailActivity :
     } else {
       super.onActivityResult(requestCode, resultCode, data)
     }
-    // TODO change onActivityResult to the new design pattern
   }
 
 
@@ -104,6 +134,9 @@ class DetailActivity :
         weatherUtil.requestWeatherFor(entity, false)
       }
     }
+
+    val position = intent.getIntExtra(EXTRA_POSITION, 0)
+    viewPager.setCurrentItem(position, false)
   }
 
   override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -114,12 +147,14 @@ class DetailActivity :
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
     return when (item.itemId) {
       R.id.action_saved_locations -> {
-        startActivity(Intent(this, SavedLocationsActivity::class.java))
+        val intent = Intent(this, SavedLocationsActivity::class.java)
+        movePagerToSelected.launch(intent)
         true
       }
 
       R.id.action_add -> {
-        startActivity(Intent(this, FindActivity::class.java))
+        val intent = Intent(this, FindActivity::class.java)
+        movePagerToNew.launch(intent)
         true
       }
 
@@ -184,5 +219,6 @@ class DetailActivity :
   companion object {
     private const val TAG = "GGG WeatherActivity"
     private const val TAG_CURRENT_LOCATION = "com.gerardbradshaw.whetherweather.TAG_CURRENT_LOCATION"
+    const val EXTRA_PAGER_POSITION = "detail_pager_adapter_position"
   }
 }
