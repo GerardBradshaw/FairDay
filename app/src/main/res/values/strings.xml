@@ -1,45 +1,37 @@
 <resources>
+    <!-- APP & ACTIVITIES -->
     <string name="app_name">Whether Weather</string>
-    <string name="message_waiting">Waiting…</string>
-    <string name="message_no_data">No data</string>
+    <string name="title_activity_locations">LocationsActivity</string>
 
-    <string name="invalid_location">Invalid locationData</string>
-    <string name="max">"H: "</string>
-    <string name="min">"L: "</string>
+    <!-- STRINGS -->
+    <string name="string_waiting">Waiting…</string>
+    <string name="string_no_data">No data</string>
+    <string name="string_add">Add</string>
+    <string name="string_locations">Locations</string>
+    <string name="string_not_now">Not now</string>
+    <string name="string_ok">OK</string>
+    <string name="string_unable_to_determine_location">Unable to determine location</string>
+    <string name="string_next">Next</string>
+    <string name="string_previous">Previous</string>
+    <string name="string_enter_city_or_zip">Enter City or ZIP</string>
+    <string name="string_saved_locations">Saved locations</string>
+    <string name="string_press_plus_to_add_a_new_location">Press + to add a new location</string>
+    <string name="string_data_provided_by_openweathermap_dot_org">Data provided by openweathermap.org</string>
+    <string name="string_search_locations">Search locations</string>
 
-    <string name="symbol_hyphen">-</string>
-    <string name="symbol_degree">°</string>
-    <string name="symbol_cloud">☁️</string>
+    <!-- CONTENT DESCRIPTIONS -->
+    <string name="cd_open_weather_logo">Open Weather logo</string>
+    <string name="cd_condition_prefix">\"Graphic of \"</string>
+    <string name="cd_condition_suffix">\" conditions\"</string>
+    <string name="cd_location_pin_icon">Pin indicating current location</string>
+    <string name="cd_add_new_location_button">Add new location button</string>
 
-    <string name="add">Add</string>
-    <string name="locations">Locations</string>
+    <!-- LOCATION PERMISSION MESSAGES -->
+    <string name="message_location_rationale_title">Please grant location access</string>
+    <string name="message_location_rationale_body">\ needs to know your location to determine the weather where you are. We will only have access to your approximate location (within a city block), which is never stored or transmitted outside of your device.</string>
 
-    <string name="open_weather_logo">Open Weather logo</string>
-    <string name="weather_credit">Data provided by openweathermap.org</string>
-
-    <string name="location_rationale_message">\ needs to know your location to determine the weather where you are. We will only have access to your approximate location (within a city block), which is never stored or transmitted outside of your device.</string>
-    <string name="location_rationale_title">Please grant location access</string>
-    <string name="not_now">Not now</string>
-    <string name="ok">OK</string>
-
+    <!-- CONDITION ICON URL -->
     <string name="condition_url_prefix">https://openweathermap.org/img/wn/</string>
     <string name="condition_url_suffix">\@2x.png</string>
-
-    <string name="condition_content_desc_prefix">\"Graphic of \"</string>
-    <string name="condition_content_desc_suffix">\" conditions\"</string>
-    <string name="message_location_error">Unable to determine location</string>
-    <string name="cd_location_pin_icon">Pin indicating current location</string>
-    <string name="title_activity_locations">LocationsActivity</string>
-    <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
-
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
-    <string name="enter_city_or_zip">Enter City or ZIP</string>
-    <string name="saved_locations">Saved locations</string>
-    <string name="add_new_location_button">Add new location button</string>
-    <string name="press_to_add_a_new_location">Press + to add a new location</string>
+    <string name="string_loading">Loading...</string>
 </resources>

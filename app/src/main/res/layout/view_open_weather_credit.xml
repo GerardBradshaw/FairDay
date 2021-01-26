@@ -14,13 +14,13 @@
         android:adjustViewBounds="true"
         android:paddingHorizontal="12dp"
         android:src="@drawable/open_weather_logo"
-        android:contentDescription="@string/open_weather_logo" />
+        android:contentDescription="@string/cd_open_weather_logo" />
 
     <TextView
         style="@style/BasicWhiteTextWithShadowStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/weather_credit"
+        android:text="@string/string_data_provided_by_openweathermap_dot_org"
         android:textSize="@dimen/text_size_weather_credit"
         android:textStyle="italic"/>
 

@@ -1,6 +1,7 @@
 package com.gerardbradshaw.whetherweather.room
 
 import android.app.Application
+import androidx.lifecycle.LiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,10 +43,14 @@ class Repository(application: Application) {
     this.locations = locations
   }
 
+  fun getLiveLocations(): LiveData<List<LocationEntity>> {
+    return locationDataDao.getLiveLocations()
+  }
+
 
   // ------------------------ INSERT ------------------------
 
-  fun insertLocationData(location: LocationEntity) {
+  fun saveLocation(location: LocationEntity) {
     CoroutineScope(Dispatchers.Main).launch {
       saveLocationToDb(location)
     }

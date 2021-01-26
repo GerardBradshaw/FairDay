@@ -71,7 +71,7 @@ class WeatherData(
     val sunset: Long?
 
     /** Location name. */
-    val locationName: String?
+    val name: String?
 
     val latitude: Float?
     val longitude: Float?
@@ -93,7 +93,7 @@ class WeatherData(
         this.gmtOffset = gmtOffset
         this.sunrise = sunrise
         this.sunset = sunset
-        this.locationName = locationName
+        this.name = locationName
         this.latitude = latitude
         this.longitude = longitude
     }

@@ -1,17 +1,19 @@
 package com.gerardbradshaw.whetherweather.util
 
 object Constants {
-  const val SUCCESS_RESULT = 0
+  const val RESULT_SUCCESS = 0
 
-  const val FAILURE_RESULT = 1
+  const val RESULT_FAILURE = 1
 
-  const val PERMISSIONS_ERROR_RESULT = 2
+  const val RESULT_ERROR = 2
 
   private const val PACKAGE_NAME = "com.gerardbradshaw.wheatherweather"
 
   const val RECEIVER = "$PACKAGE_NAME.RECEIVER"
 
-  const val RESULT_DATA_KEY = "$PACKAGE_NAME.RESULT_DATA_KEY"
+  const val KEY_RESULT_DATA = "$PACKAGE_NAME.RESULT_DATA_KEY"
 
-  const val LOCATION_DATA_EXTRA = "$PACKAGE_NAME.LOCATION_DATA_EXTRA"
+  const val EXTRA_LOCATION_ID = "location_id"
+
+  const val EXTRA_LOCATION_DATA = "$PACKAGE_NAME.LOCATION_DATA_EXTRA"
 }
