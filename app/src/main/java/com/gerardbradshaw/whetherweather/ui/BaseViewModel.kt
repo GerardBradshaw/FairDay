@@ -1,4 +1,4 @@
-package com.gerardbradshaw.whetherweather.ui.detail
+package com.gerardbradshaw.whetherweather.ui
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -7,7 +7,7 @@ import com.gerardbradshaw.whetherweather.BaseApplication
 import com.gerardbradshaw.whetherweather.room.LocationEntity
 import com.gerardbradshaw.whetherweather.room.Repository
 
-class DetailViewModel(application: Application) : AndroidViewModel(application) {
+class BaseViewModel(application: Application) : AndroidViewModel(application) {
 
   private val repository: Repository = (application as BaseApplication).getRepository()
 

@@ -9,6 +9,7 @@ import android.view.MenuItem
 import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.size
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
@@ -17,7 +18,8 @@ import com.gerardbradshaw.weatherinfoview.datamodels.WeatherData
 import com.gerardbradshaw.whetherweather.BaseApplication
 import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.room.LocationEntity
-import com.gerardbradshaw.whetherweather.ui.find.FindActivity
+import com.gerardbradshaw.whetherweather.ui.BaseViewModel
+import com.gerardbradshaw.whetherweather.ui.add.AddActivity
 import com.gerardbradshaw.whetherweather.ui.savedlocations.LocationListAdapter.Companion.EXTRA_POSITION
 import com.gerardbradshaw.whetherweather.ui.savedlocations.SavedLocationsActivity
 import com.gerardbradshaw.whetherweather.util.*
@@ -31,7 +33,7 @@ class DetailActivity :
     GpsUtil.LocationUpdateListener,
     WeatherUtil.WeatherDetailsListener {
 
-  private lateinit var viewModel: DetailViewModel
+  private lateinit var viewModel: BaseViewModel
   private lateinit var viewPager: ViewPager2
   private lateinit var backgroundImage: ImageView
   private lateinit var pagerAdapter: DetailPagerAdapter
@@ -42,36 +44,26 @@ class DetailActivity :
   private var isFirstLaunch = true
 
 
-  // ------------------------ INTENTS ------------------------
+  // ------------------------ ACTIVITY EVENTS ------------------------
 
-  private val movePagerToNew =
+  private val movePagerToPosition =
       registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         val intent = it.data
         when {
-          intent == null -> Log.d(TAG, "onOptionsItemSelected: data was null")
+          intent == null -> Log.d(TAG, "movePagerToPosition: no intent received from last activity.")
 
           intent.hasExtra(EXTRA_PAGER_POSITION) -> {
             val position = intent.getIntExtra(EXTRA_PAGER_POSITION, 0)
-            viewPager.setCurrentItem(position, false)
+            val maxPosition = viewPager.adapter?.itemCount?.minus(1) ?: -1
+
+            when (position) {
+              Int.MAX_VALUE -> viewPager.setCurrentItem(maxPosition, true)
+              in 0..maxPosition -> viewPager.setCurrentItem(position, false)
+              else -> Log.d(TAG, "movePagerToPosition: ERROR: given position is invalid")
+            }
           }
         }
       }
-
-  private val movePagerToSelected =
-      registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        val intent = it.data
-        when {
-          intent == null -> Log.d(TAG, "onOptionsItemSelected: data was null")
-
-          intent.hasExtra(EXTRA_PAGER_POSITION) -> {
-            val position = intent.getIntExtra(EXTRA_PAGER_POSITION, 0)
-            viewPager.setCurrentItem(position, false)
-          }
-        }
-      }
-
-
-  // ------------------------ ACTIVITY LIFECYCLE ------------------------
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -107,7 +99,7 @@ class DetailActivity :
 
   private fun initActivity(savedInstanceState: Bundle?) {
     supportActionBar?.setDisplayShowTitleEnabled(false)
-    viewModel = ViewModelProvider(this).get(DetailViewModel::class.java)
+    viewModel = ViewModelProvider(this).get(BaseViewModel::class.java)
 
     backgroundImage = findViewById(R.id.background_image_view)
     weatherUtil = (application as BaseApplication).getWeatherUtil(this)
@@ -148,13 +140,13 @@ class DetailActivity :
     return when (item.itemId) {
       R.id.action_saved_locations -> {
         val intent = Intent(this, SavedLocationsActivity::class.java)
-        movePagerToSelected.launch(intent)
+        movePagerToPosition.launch(intent)
         true
       }
 
       R.id.action_add -> {
-        val intent = Intent(this, FindActivity::class.java)
-        movePagerToNew.launch(intent)
+        val intent = Intent(this, AddActivity::class.java)
+        movePagerToPosition.launch(intent)
         true
       }
 

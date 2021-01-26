@@ -11,11 +11,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.ui.detail.DetailActivity
-import com.gerardbradshaw.whetherweather.ui.detail.DetailViewModel
-import com.gerardbradshaw.whetherweather.ui.find.FindActivity
+import com.gerardbradshaw.whetherweather.ui.BaseViewModel
+import com.gerardbradshaw.whetherweather.ui.add.AddActivity
 
 class SavedLocationsActivity : AppCompatActivity() {
-  private lateinit var viewModel: DetailViewModel
+  private lateinit var viewModel: BaseViewModel
   private lateinit var messageView: TextView
   private lateinit var recyclerView: RecyclerView
   
@@ -33,7 +33,7 @@ class SavedLocationsActivity : AppCompatActivity() {
 
   private fun initActivity() {
     supportActionBar?.hide()
-    viewModel = ViewModelProvider(this).get(DetailViewModel::class.java)
+    viewModel = ViewModelProvider(this).get(BaseViewModel::class.java)
 
     initViews()
     initFab()
@@ -47,7 +47,7 @@ class SavedLocationsActivity : AppCompatActivity() {
   
   private fun initFab() {
     findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
-      startActivity(Intent(this, FindActivity::class.java))
+      startActivity(Intent(this, AddActivity::class.java))
     }
   }
   
