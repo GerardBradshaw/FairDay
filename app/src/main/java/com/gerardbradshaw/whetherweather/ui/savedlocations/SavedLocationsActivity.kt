@@ -10,11 +10,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gerardbradshaw.whetherweather.R
-import com.gerardbradshaw.whetherweather.ui.detail.DetailViewModel
-import com.gerardbradshaw.whetherweather.ui.find.FindActivity
+import com.gerardbradshaw.whetherweather.ui.detail.DetailActivity
+import com.gerardbradshaw.whetherweather.ui.BaseViewModel
+import com.gerardbradshaw.whetherweather.ui.add.AddActivity
 
 class SavedLocationsActivity : AppCompatActivity() {
-  private lateinit var viewModel: DetailViewModel
+  private lateinit var viewModel: BaseViewModel
   private lateinit var messageView: TextView
   private lateinit var recyclerView: RecyclerView
   
@@ -32,7 +33,7 @@ class SavedLocationsActivity : AppCompatActivity() {
 
   private fun initActivity() {
     supportActionBar?.hide()
-    viewModel = ViewModelProvider(this).get(DetailViewModel::class.java)
+    viewModel = ViewModelProvider(this).get(BaseViewModel::class.java)
 
     initViews()
     initFab()
@@ -46,7 +47,7 @@ class SavedLocationsActivity : AppCompatActivity() {
   
   private fun initFab() {
     findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
-      startActivity(Intent(this, FindActivity::class.java))
+      startActivity(Intent(this, AddActivity::class.java))
     }
   }
   
@@ -55,6 +56,15 @@ class SavedLocationsActivity : AppCompatActivity() {
     val adapter = LocationListAdapter(this)
     recyclerView.adapter = adapter
     recyclerView.layoutManager = LinearLayoutManager(this)
+
+    adapter.setLocationClickedListener(object : LocationListAdapter.LocationClickedListener {
+      override fun onLocationClicked(position: Int) {
+        val returnIntent = Intent()
+        returnIntent.putExtra(DetailActivity.EXTRA_PAGER_POSITION, position)
+        setResult(RESULT_OK, returnIntent)
+        finish()
+      }
+    })
 
     viewModel.getAllLocations().observe(this) {
       showEmptyListMessage(it.isEmpty())
@@ -66,12 +76,11 @@ class SavedLocationsActivity : AppCompatActivity() {
   // ------------------------ UI ------------------------
 
   private fun showEmptyListMessage(boolean: Boolean) {
-    if (boolean) {
-      messageView.visibility = View.VISIBLE
-      recyclerView.visibility = View.GONE
-    } else {
-      messageView.visibility = View.GONE
-      recyclerView.visibility = View.VISIBLE
-    }
+    messageView.visibility = if (boolean) View.VISIBLE else View.GONE
+    recyclerView.visibility = if (boolean) View.GONE else View.VISIBLE
+  }
+
+  companion object {
+    private const val TAG = "GGG SavedLocationsActivit"
   }
 }

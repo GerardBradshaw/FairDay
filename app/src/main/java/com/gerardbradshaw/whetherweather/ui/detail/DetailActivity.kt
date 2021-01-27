@@ -7,8 +7,10 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.preference.PreferenceManager
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
@@ -16,7 +18,8 @@ import com.gerardbradshaw.weatherinfoview.datamodels.WeatherData
 import com.gerardbradshaw.whetherweather.BaseApplication
 import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.room.LocationEntity
-import com.gerardbradshaw.whetherweather.ui.find.FindActivity
+import com.gerardbradshaw.whetherweather.ui.BaseViewModel
+import com.gerardbradshaw.whetherweather.ui.add.AddActivity
 import com.gerardbradshaw.whetherweather.ui.savedlocations.SavedLocationsActivity
 import com.gerardbradshaw.whetherweather.util.*
 import com.gerardbradshaw.whetherweather.util.conditions.ConditionImageUtil
@@ -29,7 +32,7 @@ class DetailActivity :
     GpsUtil.LocationUpdateListener,
     WeatherUtil.WeatherDetailsListener {
 
-  private lateinit var viewModel: DetailViewModel
+  private lateinit var viewModel: BaseViewModel
   private lateinit var viewPager: ViewPager2
   private lateinit var backgroundImage: ImageView
   private lateinit var pagerAdapter: DetailPagerAdapter
@@ -40,7 +43,26 @@ class DetailActivity :
   private var isFirstLaunch = true
 
 
-  // ------------------------ ACTIVITY LIFECYCLE ------------------------
+  // ------------------------ ACTIVITY EVENTS ------------------------
+
+  private val movePagerToPosition =
+      registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        val intent = it.data
+        when {
+          intent == null -> Log.d(TAG, "movePagerToPosition: no intent received from last activity.")
+
+          intent.hasExtra(EXTRA_PAGER_POSITION) -> {
+            val position = intent.getIntExtra(EXTRA_PAGER_POSITION, 0)
+            val maxPosition = viewPager.adapter?.itemCount?.minus(1) ?: -1
+
+            when (position) {
+              Int.MAX_VALUE -> viewPager.setCurrentItem(maxPosition, true)
+              in 0..maxPosition -> viewPager.setCurrentItem(position, false)
+              else -> Log.d(TAG, "movePagerToPosition: ERROR: given position is invalid")
+            }
+          }
+        }
+      }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -58,51 +80,11 @@ class DetailActivity :
     super.onPause()
   }
 
-  override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
-    gpsUtil.onSaveInstanceState(outState)
-    super.onSaveInstanceState(outState, outPersistentState)
-  }
-
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
     if (requestCode == REQUEST_CODE_CHECK_SETTINGS) {
       gpsUtil.onActivityResult(requestCode, resultCode, data)
     } else {
       super.onActivityResult(requestCode, resultCode, data)
-    }
-    // TODO change onActivityResult to the new design pattern
-  }
-
-
-  // ------------------------ INIT ------------------------
-
-  private fun initActivity(savedInstanceState: Bundle?) {
-    supportActionBar?.setDisplayShowTitleEnabled(false)
-    viewModel = ViewModelProvider(this).get(DetailViewModel::class.java)
-
-    backgroundImage = findViewById(R.id.background_image_view)
-    weatherUtil = (application as BaseApplication).getWeatherUtil(this)
-
-    initGpsUtil(savedInstanceState)
-    initViewPager()
-  }
-
-  private fun initGpsUtil(savedInstanceState: Bundle?) {
-    gpsUtil = GpsUtil(this)
-    gpsUtil.setOnLocationUpdateListener(this)
-
-    if (savedInstanceState != null) gpsUtil.onLoadInstanceState(savedInstanceState)
-  }
-
-  private fun initViewPager() {
-    viewPager = findViewById(R.id.view_pager)
-    pagerAdapter = DetailPagerAdapter(this)
-    viewPager.adapter = pagerAdapter
-
-    viewModel.getAllLocations().observe(this) {
-      for (entity in it) {
-        pagerAdapter.addNewLocation(entity)
-        weatherUtil.requestWeatherFor(entity, false)
-      }
     }
   }
 
@@ -114,16 +96,64 @@ class DetailActivity :
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
     return when (item.itemId) {
       R.id.action_saved_locations -> {
-        startActivity(Intent(this, SavedLocationsActivity::class.java))
+        val intent = Intent(this, SavedLocationsActivity::class.java)
+        movePagerToPosition.launch(intent)
         true
       }
 
       R.id.action_add -> {
-        startActivity(Intent(this, FindActivity::class.java))
+        val intent = Intent(this, AddActivity::class.java)
+        movePagerToPosition.launch(intent)
         true
       }
 
       else -> super.onOptionsItemSelected(item)
+    }
+  }
+
+
+  // ------------------------ INIT ------------------------
+
+  private fun initActivity(savedInstanceState: Bundle?) {
+    supportActionBar?.setDisplayShowTitleEnabled(false)
+    viewModel = ViewModelProvider(this).get(BaseViewModel::class.java)
+
+    backgroundImage = findViewById(R.id.background_image_view)
+    weatherUtil = (application as BaseApplication).getWeatherUtil(this)
+
+    initGpsUtil(savedInstanceState)
+    initViewPager()
+    initCurrentLocationWeather()
+  }
+
+  private fun initGpsUtil(savedInstanceState: Bundle?) {
+    gpsUtil = GpsUtil(this)
+    gpsUtil.setOnLocationUpdateListener(this)
+  }
+
+  private fun initViewPager() {
+    viewPager = findViewById(R.id.view_pager)
+    pagerAdapter = DetailPagerAdapter(this)
+    viewPager.adapter = pagerAdapter
+
+    viewModel.getAllLocations().observe(this) {
+      for (entity in it) {
+        pagerAdapter.addNewLocation(entity)
+        weatherUtil.requestWeatherFor(entity)
+      }
+    }
+  }
+
+  private fun initCurrentLocationWeather() {
+    val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+    val isFirstLaunch = prefs.getBoolean(Constants.KEY_IS_FIRST_LAUNCH, true)
+
+    if (isFirstLaunch) {
+      prefs.edit()
+          .putBoolean(Constants.KEY_IS_FIRST_LAUNCH, false)
+          .apply()
+
+      gpsUtil.requestUpdates()
     }
   }
 
@@ -136,21 +166,19 @@ class DetailActivity :
       return
     }
 
+    Log.d(TAG, "onAddressUpdate: current address received")
+
     val currentLocationEntity = LocationEntity(
-        TAG_CURRENT_LOCATION,
+        address.postalCode,
         0L,
         address.latitude.toFloat(),
         address.longitude.toFloat())
 
     pagerAdapter.setCurrentLocation(currentLocationEntity)
-    weatherUtil.requestWeatherFor(address, true)
+    weatherUtil.requestWeatherFor(currentLocationEntity, address)
   }
 
-  override fun onWeatherReceived(
-      weatherData: WeatherData, 
-      locationEntity: LocationEntity?, 
-      isCurrentLocation: Boolean
-  ) {
+  override fun onWeatherReceived(weatherData: WeatherData, locationEntity: LocationEntity?) {
     if (isFirstLaunch) {
       changeConditionBackgroundImage(viewPager.currentItem)
       isFirstLaunch = false
@@ -183,6 +211,6 @@ class DetailActivity :
 
   companion object {
     private const val TAG = "GGG WeatherActivity"
-    private const val TAG_CURRENT_LOCATION = "com.gerardbradshaw.whetherweather.TAG_CURRENT_LOCATION"
+    const val EXTRA_PAGER_POSITION = "detail_pager_adapter_position"
   }
 }

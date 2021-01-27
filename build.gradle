@@ -7,6 +7,7 @@ buildscript {
         espresso_version = '3.3.0'
         fragment_version = '1.3.0-rc01'
         glide_version = '4.11.0'
+        gradle_version = "4.1.2"
         gson_version = '2.8.6'
         junit_version = '4.13.1'
         kotlin_version = '1.4.21'
@@ -14,6 +15,7 @@ buildscript {
         mvvm_version = '2.2.0'
         navigation_version = '2.3.2'
         places_version = '2.4.0'
+        preferences_version = '1.1.1'
         recycler_view_version = '1.1.0'
         retrofit_version = '2.9.0'
         room_version = '2.2.6'
@@ -25,7 +27,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:4.1.1"
+        classpath "com.android.tools.build:gradle:$gradle_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }

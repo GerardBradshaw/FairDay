@@ -1,5 +1,6 @@
-package com.gerardbradshaw.whetherweather.ui.find
+package com.gerardbradshaw.whetherweather.ui.add
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -7,7 +8,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.gerardbradshaw.whetherweather.BuildConfig
 import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.room.LocationEntity
-import com.gerardbradshaw.whetherweather.ui.detail.DetailViewModel
+import com.gerardbradshaw.whetherweather.ui.BaseViewModel
+import com.gerardbradshaw.whetherweather.ui.detail.DetailActivity
+import com.gerardbradshaw.whetherweather.util.Constants.API_KEY_MAPS
 import com.google.android.gms.common.api.Status
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
@@ -15,13 +18,13 @@ import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 
-class FindActivity : AppCompatActivity() {
-  private lateinit var viewModel: DetailViewModel
+class AddActivity : AppCompatActivity() {
+  private lateinit var viewModel: BaseViewModel
   private lateinit var placesClient: PlacesClient
   private lateinit var autocompleteFragment: AutocompleteSupportFragment
 
 
-  // ------------------------ ACTIVITY LIFECYCLE ------------------------
+  // ------------------------ ACTIVITY EVENTS ------------------------
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -34,7 +37,7 @@ class FindActivity : AppCompatActivity() {
 
   private fun initActivity() {
     supportActionBar?.hide()
-    viewModel = ViewModelProvider(this).get(DetailViewModel::class.java)
+    viewModel = ViewModelProvider(this).get(BaseViewModel::class.java)
 
     initPlacesApi()
     initAutocompleteFragment()
@@ -61,13 +64,17 @@ class FindActivity : AppCompatActivity() {
 
       it.setOnPlaceSelectedListener(object : PlaceSelectionListener {
         override fun onPlaceSelected(p0: Place) {
-          Log.d(TAG, "onPlaceSelected: place selected!")
           saveLocationToDb(p0)
+
+          val returnIntent = Intent()
+          returnIntent.putExtra(DetailActivity.EXTRA_PAGER_POSITION, Int.MAX_VALUE)
+          setResult(RESULT_OK, returnIntent)
           finish()
         }
 
         override fun onError(p0: Status) {
           Log.d(TAG, "onError: ERROR: no place was selected")
+          setResult(RESULT_CANCELED)
           finish()
         }
       })
@@ -103,6 +110,5 @@ class FindActivity : AppCompatActivity() {
 
   companion object {
     private const val TAG = "GGG FindActivity"
-    private const val API_KEY_MAPS = BuildConfig.GOOGLE_MAPS_API_KEY
   }
 }

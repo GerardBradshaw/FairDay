@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.find.FindActivity">
+    tools:context=".ui.add.AddActivity">
 
     <Space
         android:layout_width="match_parent"
@@ -14,6 +14,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/autocomplete_fragment"
+        android:focusedByDefault="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"/>

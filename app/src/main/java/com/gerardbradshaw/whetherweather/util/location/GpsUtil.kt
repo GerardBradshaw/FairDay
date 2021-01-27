@@ -6,13 +6,13 @@ import android.app.Activity
 import android.content.Intent
 import android.content.IntentSender
 import android.location.Address
-import android.location.Location
 import android.os.*
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
 import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.util.address.AddressUtil
 import com.gerardbradshaw.whetherweather.util.permissions.PermissionUtil
@@ -40,13 +40,16 @@ class GpsUtil(private val activity: AppCompatActivity) {
 
   private val addressUtil = AddressUtil()
   private var listener: LocationUpdateListener? = null
+  private val prefs = PreferenceManager.getDefaultSharedPreferences(activity)
 
-  private var isRequestingGpsUpdates = false
-  private var isAddressRequested = false
-
-  private var updateTime: Long? = null
-//  private var location: Location? = null
-  private var address: Address? = null
+  private var isGpsUpdatesRequested = false
+    set(value) {
+      field = value
+      prefs.edit().putBoolean(KEY_GPS_UPDATES_REQUESTED, field).apply()
+    }
+    get() {
+      return prefs.getBoolean(KEY_GPS_UPDATES_REQUESTED, false)
+    }
 
   private val addressChangeListener: AddressUtil.AddressChangeListener =
       object : AddressUtil.AddressChangeListener {
@@ -54,6 +57,15 @@ class GpsUtil(private val activity: AppCompatActivity) {
           listener?.onAddressUpdate(address)
         }
       }
+
+  private val activityResultLauncher =
+    activity.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+      when (it) {
+        true -> requestGpsUpdates()
+        false -> Log.d(TAG, "onRequestPermissionsResult: ERROR: user denied permission")
+        else -> Log.d(TAG, "onRequestPermissionsResult: ERROR: user ignored permission")
+      }
+    }
 
 
   // ------------------------ INIT ------------------------
@@ -111,7 +123,7 @@ class GpsUtil(private val activity: AppCompatActivity) {
    * [Activity] listener class.
    */
   fun onResume() {
-    if (isRequestingGpsUpdates) startLocationUpdates()
+    if (isGpsUpdatesRequested) startLocationUpdates()
   }
 
   /**
@@ -144,63 +156,20 @@ class GpsUtil(private val activity: AppCompatActivity) {
   }
 
   /**
-   * Saved fields so they can be quickly reloaded when the activity is restarted.
-   */
-  fun onSaveInstanceState(outState: Bundle) {
-    with(outState) {
-      putBoolean(KEY_ADDRESS_REQUESTED, isAddressRequested)
-//      putParcelable(KEY_LOCATION, location)
-      putParcelable(KEY_ADDRESS, address)
-      putBoolean(KEY_REQUESTING_LOCATION_UPDATES, isRequestingGpsUpdates)
-      if (updateTime != null) putLong(KEY_LAST_UPDATED_TIME, updateTime!!)
-    }
-  }
-
-  /**
-   * Updates fields based on data stored [savedInstanceState]
-   */
-  fun onLoadInstanceState(savedInstanceState: Bundle?) {
-    savedInstanceState ?: return
-    Log.d(TAG, "onLoadInstanceState: loading data from bundle")
-
-    KEY_REQUESTING_LOCATION_UPDATES.let {
-      if (savedInstanceState.keySet().contains(it)) {
-        isRequestingGpsUpdates = savedInstanceState.getBoolean((it))
-      }
-    }
-
-//    KEY_LOCATION.let {
-//      if (savedInstanceState.keySet().contains(it)) {
-//        location = savedInstanceState.getParcelable(it)
-//      }
-//    }
-
-    KEY_LAST_UPDATED_TIME.let {
-      if (savedInstanceState.keySet().contains(it)) {
-        updateTime = savedInstanceState.getLong(it)
-      }
-    }
-
-    KEY_ADDRESS_REQUESTED.let {
-      if (savedInstanceState.keySet().contains(it)) {
-        isAddressRequested = savedInstanceState.getBoolean(it)
-      }
-    }
-
-    KEY_ADDRESS.let {
-      if (savedInstanceState.keySet().contains(it)) {
-        address = savedInstanceState.getParcelable(it)
-      }
-    }
-
-    listener?.onAddressUpdate(address)
-  }
-
-  /**
    * Sets the [LocationUpdateListener] which will hear the location updates.
    */
   fun setOnLocationUpdateListener(listener: LocationUpdateListener) {
     this.listener = listener
+  }
+
+  fun requestUpdates() {
+    isGpsUpdatesRequested = true
+    startLocationUpdates()
+  }
+
+  fun stopUpdates() {
+    isGpsUpdatesRequested = false
+    stopRequestingLocationUpdates()
   }
 
 
@@ -214,15 +183,6 @@ class GpsUtil(private val activity: AppCompatActivity) {
   }
 
   private fun requestLocationPermissions() {
-    val activityResultLauncher =
-        activity.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-          when (it) {
-            true -> requestGpsUpdates()
-            false -> Log.d(TAG, "onRequestPermissionsResult: ERROR: user denied permission")
-            else -> Log.d(TAG, "onRequestPermissionsResult: ERROR: user ignored permission")
-          }
-        }
-
     PermissionUtil.RequestBuilder(LOCATION_PERMISSION, activity)
         .setRationaleDialogTitle(activity.resources.getString(R.string.message_location_rationale_title))
         .setRationaleDialogMessage(activity.resources.getString(R.string.app_name) + activity.resources.getString(R.string.message_location_rationale_body))
@@ -232,10 +192,8 @@ class GpsUtil(private val activity: AppCompatActivity) {
   }
 
   @SuppressLint("MissingPermission") // permission is checked in onCreate()
-  private fun requestGpsUpdates()
-  {
+  private fun requestGpsUpdates() {
     Log.d(TAG, "requestGpsUpdates: starting location updates")
-    isRequestingGpsUpdates = true
 
     settingsClient
         .checkLocationSettings(locationSettingsRequest)
@@ -277,12 +235,11 @@ class GpsUtil(private val activity: AppCompatActivity) {
    * Removes location updates from the FusedLocationApi.
    */
   private fun stopRequestingLocationUpdates() {
-    if (!isRequestingGpsUpdates) {
+    if (!isGpsUpdatesRequested) {
       Log.d(TAG, "stopLocationUpdates: updates never requested. Nothing to stop!")
       return
     }
-    isRequestingGpsUpdates = false
-    
+
     fusedLocationClient
         .removeLocationUpdates(locationCallback)
         .addOnCompleteListener(activity) { onLocationUpdateRequestsStopped() }
@@ -317,13 +274,6 @@ class GpsUtil(private val activity: AppCompatActivity) {
 
     const val REQUEST_CODE_CHECK_SETTINGS = 101
 
-    private const val KEY_REQUESTING_LOCATION_UPDATES = "requesting-location-updates"
-//    private const val KEY_LOCATION = "location-parcelable"
-    private const val KEY_LAST_UPDATED_TIME = "last-updated-time"
-    private const val KEY_ADDRESS_REQUESTED = "address-request-pending"
-    private const val KEY_ADDRESS = "location-address"
-
-    const val RESULT_SUCCESS = 0
-    const val RESULT_FAILURE = 1
+    private const val KEY_GPS_UPDATES_REQUESTED = "requesting-location-updates"
   }
 }
