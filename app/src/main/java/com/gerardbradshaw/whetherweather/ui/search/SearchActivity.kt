@@ -1,11 +1,10 @@
-package com.gerardbradshaw.whetherweather.ui.add
+package com.gerardbradshaw.whetherweather.ui.search
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.ViewModelProvider
-import com.gerardbradshaw.whetherweather.BuildConfig
 import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.room.LocationEntity
 import com.gerardbradshaw.whetherweather.ui.BaseViewModel
@@ -18,7 +17,7 @@ import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 
-class AddActivity : AppCompatActivity() {
+class SearchActivity : AppCompatActivity() {
   private lateinit var viewModel: BaseViewModel
   private lateinit var placesClient: PlacesClient
   private lateinit var autocompleteFragment: AutocompleteSupportFragment
@@ -109,6 +108,6 @@ class AddActivity : AppCompatActivity() {
   }
 
   companion object {
-    private const val TAG = "GGG FindActivity"
+    private const val TAG = "GGG SearchActivity"
   }
 }

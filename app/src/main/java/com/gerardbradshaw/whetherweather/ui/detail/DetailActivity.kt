@@ -19,7 +19,7 @@ import com.gerardbradshaw.whetherweather.BaseApplication
 import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.room.LocationEntity
 import com.gerardbradshaw.whetherweather.ui.BaseViewModel
-import com.gerardbradshaw.whetherweather.ui.add.AddActivity
+import com.gerardbradshaw.whetherweather.ui.search.SearchActivity
 import com.gerardbradshaw.whetherweather.ui.savedlocations.SavedLocationsActivity
 import com.gerardbradshaw.whetherweather.util.*
 import com.gerardbradshaw.whetherweather.util.conditions.ConditionImageUtil
@@ -102,7 +102,7 @@ class DetailActivity :
       }
 
       R.id.action_add -> {
-        val intent = Intent(this, AddActivity::class.java)
+        val intent = Intent(this, SearchActivity::class.java)
         movePagerToPosition.launch(intent)
         true
       }

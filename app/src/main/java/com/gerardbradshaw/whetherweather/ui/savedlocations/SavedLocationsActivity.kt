@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.ui.detail.DetailActivity
 import com.gerardbradshaw.whetherweather.ui.BaseViewModel
-import com.gerardbradshaw.whetherweather.ui.add.AddActivity
+import com.gerardbradshaw.whetherweather.ui.search.SearchActivity
 
 class SavedLocationsActivity : AppCompatActivity() {
   private lateinit var viewModel: BaseViewModel
@@ -47,7 +47,7 @@ class SavedLocationsActivity : AppCompatActivity() {
   
   private fun initFab() {
     findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
-      startActivity(Intent(this, AddActivity::class.java))
+      startActivity(Intent(this, SearchActivity::class.java))
     }
   }
   
