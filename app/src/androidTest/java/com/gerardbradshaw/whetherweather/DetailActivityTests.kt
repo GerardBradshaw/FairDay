@@ -1,16 +1,13 @@
 package com.gerardbradshaw.whetherweather
 
 import androidx.test.core.app.ActivityScenario
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
 import com.gerardbradshaw.whetherweather.ui.detail.DetailActivity
-
 import org.junit.Test
 import org.junit.runner.RunWith
-
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
@@ -80,7 +77,7 @@ class DetailActivityTests {
     }
 
     @Test
-    fun should_launchAddActivity_when_addButtonClickedInActionBarMenu() {
+    fun should_launchSearchActivity_when_addButtonClickedInActionBarMenu() {
       fail("Not implemented")
     }
   }
@@ -90,7 +87,7 @@ class DetailActivityTests {
   // ---------------- PAGER ADAPTER ----------------
 
   @RunWith(AndroidJUnit4::class)
-  class AdapterTest {
+  class PagerTests {
     lateinit var activityScenario: ActivityScenario<DetailActivity>
     lateinit var activity: DetailActivity
 
@@ -110,8 +107,8 @@ class DetailActivityTests {
     }
 
     @Test
-    fun should_scrollToPosition_when_anotherLocationClickedInSavedLocationsActivity() {
-      fail("Not implemented") // this should be in the tests for SavedLocationsActivity
+    fun should_scrollToPosition_when_intentReceivedWithScrollPosition() {
+      fail("Not implemented")
     }
 
     @Test
@@ -141,6 +138,11 @@ class DetailActivityTests {
 
     @Test
     fun should_displayWeatherForCurrentLocationInFirstPosition_when_weatherAtCurrentLocationEnabled() {
+      fail("Not implemented")
+    }
+
+    @Test
+    fun should_showLocationInPager_when_newLocationAddedInSearchActivity() {
       fail("Not implemented")
     }
   }
