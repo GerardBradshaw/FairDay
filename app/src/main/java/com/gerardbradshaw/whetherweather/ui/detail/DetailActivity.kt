@@ -20,7 +20,6 @@ import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.room.LocationEntity
 import com.gerardbradshaw.whetherweather.ui.BaseViewModel
 import com.gerardbradshaw.whetherweather.ui.add.AddActivity
-import com.gerardbradshaw.whetherweather.ui.savedlocations.LocationListAdapter.Companion.EXTRA_POSITION
 import com.gerardbradshaw.whetherweather.ui.savedlocations.SavedLocationsActivity
 import com.gerardbradshaw.whetherweather.util.*
 import com.gerardbradshaw.whetherweather.util.conditions.ConditionImageUtil
@@ -81,11 +80,6 @@ class DetailActivity :
     super.onPause()
   }
 
-  override fun onSaveInstanceState(outState: Bundle) {
-    gpsUtil.onSaveInstanceState(outState)
-    super.onSaveInstanceState(outState)
-  }
-
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
     if (requestCode == REQUEST_CODE_CHECK_SETTINGS) {
       gpsUtil.onActivityResult(requestCode, resultCode, data)
@@ -135,8 +129,6 @@ class DetailActivity :
   private fun initGpsUtil(savedInstanceState: Bundle?) {
     gpsUtil = GpsUtil(this)
     gpsUtil.setOnLocationUpdateListener(this)
-
-    if (savedInstanceState != null) gpsUtil.onLoadInstanceState(savedInstanceState)
   }
 
   private fun initViewPager() {
@@ -150,9 +142,6 @@ class DetailActivity :
         weatherUtil.requestWeatherFor(entity)
       }
     }
-
-    val position = intent.getIntExtra(EXTRA_POSITION, 0)
-    viewPager.setCurrentItem(position, false)
   }
 
   private fun initCurrentLocationWeather() {
