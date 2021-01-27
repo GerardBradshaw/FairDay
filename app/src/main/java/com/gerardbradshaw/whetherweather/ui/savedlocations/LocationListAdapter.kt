@@ -63,6 +63,5 @@ class LocationListAdapter(private val context: Context):
 
   companion object {
     private const val TAG = "GGG LocationListAdapter"
-    const val EXTRA_POSITION = "location_list_adapter_position"
   }
 }
