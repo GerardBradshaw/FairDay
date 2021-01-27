@@ -100,6 +100,9 @@ dependencies {
     // Places (GMP)
     implementation "com.google.android.libraries.places:places:$rootProject.places_version"
 
+    // Preferences
+    implementation "androidx.preference:preference-ktx:$rootProject.preferences_version"
+
     // RecyclerView
     implementation "androidx.recyclerview:recyclerview:$rootProject.recycler_view_version"
 

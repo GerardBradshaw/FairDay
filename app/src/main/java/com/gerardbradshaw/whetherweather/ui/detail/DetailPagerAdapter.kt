@@ -28,7 +28,7 @@ class DetailPagerAdapter(private val context: Context) :
   }
 
   fun addNewLocation(locationEntity: LocationEntity) {
-    if (locationEntityList.contains(locationEntity)) { // TODO HERE
+    if (locationEntityList.contains(locationEntity)) {
       Log.d(TAG, "addNewLocation: ERROR: ${locationEntity.name} already exists and cannot be added.")
       return
     }
@@ -121,7 +121,7 @@ class DetailPagerAdapter(private val context: Context) :
 
   override fun onBindViewHolder(holder: DetailViewHolder, position: Int) {
     try {
-      val weatherData = weatherDataList[position] // TODO HERE
+      val weatherData = weatherDataList[position]
       val isCurrentLocation = position == 0 && isCurrentLocationEnabled
 
       if (weatherData == null) {
@@ -139,6 +139,6 @@ class DetailPagerAdapter(private val context: Context) :
   }
 
   companion object {
-    private const val TAG = "GGG LocationListAdapter"
+    private const val TAG = "GGG DetailPagerAdapter"
   }
 }

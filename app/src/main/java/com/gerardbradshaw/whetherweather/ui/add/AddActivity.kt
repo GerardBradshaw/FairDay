@@ -10,6 +10,7 @@ import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.room.LocationEntity
 import com.gerardbradshaw.whetherweather.ui.BaseViewModel
 import com.gerardbradshaw.whetherweather.ui.detail.DetailActivity
+import com.gerardbradshaw.whetherweather.util.Constants.API_KEY_MAPS
 import com.google.android.gms.common.api.Status
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
@@ -109,6 +110,5 @@ class AddActivity : AppCompatActivity() {
 
   companion object {
     private const val TAG = "GGG FindActivity"
-    private const val API_KEY_MAPS = BuildConfig.GOOGLE_MAPS_API_KEY
   }
 }

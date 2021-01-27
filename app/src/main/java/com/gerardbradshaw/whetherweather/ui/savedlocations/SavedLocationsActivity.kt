@@ -79,4 +79,8 @@ class SavedLocationsActivity : AppCompatActivity() {
     messageView.visibility = if (boolean) View.VISIBLE else View.GONE
     recyclerView.visibility = if (boolean) View.GONE else View.VISIBLE
   }
+
+  companion object {
+    private const val TAG = "GGG SavedLocationsActivit"
+  }
 }
