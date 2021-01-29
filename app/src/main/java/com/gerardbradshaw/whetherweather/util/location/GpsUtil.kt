@@ -21,13 +21,13 @@ import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import java.lang.Exception
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 /**
  * Utility for requesting device location updates.
- *
  * @param activity the activity to register for location updates.
  */
-class GpsUtil(private val activity: AppCompatActivity) {
+class GpsUtil @Inject constructor(private val activity: AppCompatActivity) {
 
   private var settingsClient: SettingsClient =
       LocationServices.getSettingsClient(activity)
@@ -39,7 +39,7 @@ class GpsUtil(private val activity: AppCompatActivity) {
   private lateinit var locationSettingsRequest: LocationSettingsRequest
 
   private val addressUtil = AddressUtil()
-  private var listener: LocationUpdateListener? = null
+  private var listener: GpsUpdateListener? = null
   private val prefs = PreferenceManager.getDefaultSharedPreferences(activity)
 
   private var isGpsUpdatesRequested = false
@@ -54,7 +54,7 @@ class GpsUtil(private val activity: AppCompatActivity) {
   private val addressChangeListener: AddressUtil.AddressChangeListener =
       object : AddressUtil.AddressChangeListener {
         override fun onAddressChanged(address: Address?) {
-          listener?.onAddressUpdate(address)
+          listener?.onGpsUpdate(address)
         }
       }
 
@@ -118,7 +118,7 @@ class GpsUtil(private val activity: AppCompatActivity) {
   // ------------------------ TO BE CALLED IN ACTIVITY ------------------------
 
   /**
-   * To be called by a registered [LocationUpdateListener] to start location updates if it was 
+   * To be called by a registered [GpsUpdateListener] to start location updates if it was
    * previously set to receive them. Method is named to indicate its logical position in an
    * [Activity] listener class.
    */
@@ -127,7 +127,7 @@ class GpsUtil(private val activity: AppCompatActivity) {
   }
 
   /**
-   * To be called by a registered [LocationUpdateListener] to stop requesting location updates.
+   * To be called by a registered [GpsUpdateListener] to stop requesting location updates.
    * Method is named to indicate its logical position in an [Activity] listener class.
    */
   fun onPause() {
@@ -135,7 +135,7 @@ class GpsUtil(private val activity: AppCompatActivity) {
   }
 
   /**
-   * To be called by a registered [LocationUpdateListener] to handle Android settings changes
+   * To be called by a registered [GpsUpdateListener] to handle Android settings changes
    * related to permissions.
    *
    * [requestCode], [resultCode], [data] are as per [Activity.onActivityResult].
@@ -156,9 +156,9 @@ class GpsUtil(private val activity: AppCompatActivity) {
   }
 
   /**
-   * Sets the [LocationUpdateListener] which will hear the location updates.
+   * Sets the [GpsUpdateListener] which will hear the location updates.
    */
-  fun setOnLocationUpdateListener(listener: LocationUpdateListener) {
+  fun setOnGpsUpdateListener(listener: GpsUpdateListener) {
     this.listener = listener
   }
 
@@ -261,8 +261,8 @@ class GpsUtil(private val activity: AppCompatActivity) {
 
   // ------------------------ UTIL ------------------------
 
-  interface LocationUpdateListener {
-    fun onAddressUpdate(address: Address?)
+  interface GpsUpdateListener {
+    fun onGpsUpdate(address: Address?)
   }
 
   companion object {

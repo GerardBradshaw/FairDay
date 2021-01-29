@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import androidx.viewpager2.widget.ViewPager2
-import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.gerardbradshaw.weatherinfoview.datamodels.WeatherData
 import com.gerardbradshaw.whetherweather.BaseApplication
@@ -26,43 +26,45 @@ import com.gerardbradshaw.whetherweather.util.conditions.ConditionImageUtil
 import com.gerardbradshaw.whetherweather.util.location.GpsUtil
 import com.gerardbradshaw.whetherweather.util.location.GpsUtil.Companion.REQUEST_CODE_CHECK_SETTINGS
 import com.gerardbradshaw.whetherweather.util.weather.WeatherUtil
+import javax.inject.Inject
 
 class DetailActivity :
     AppCompatActivity(),
-    GpsUtil.LocationUpdateListener,
-    WeatherUtil.WeatherDetailsListener {
-
+    GpsUtil.GpsUpdateListener,
+    WeatherUtil.WeatherDetailsListener
+{
   private lateinit var viewModel: BaseViewModel
   private lateinit var viewPager: ViewPager2
   private lateinit var backgroundImage: ImageView
-  private lateinit var pagerAdapter: DetailPagerAdapter
 
-  private lateinit var gpsUtil: GpsUtil
-  private lateinit var weatherUtil: WeatherUtil
+  @Inject lateinit var pagerAdapter: DetailPagerAdapter
+  @Inject lateinit var gpsUtil: GpsUtil
+  @Inject lateinit var weatherUtil: WeatherUtil
+  @Inject lateinit var glideInstance: RequestManager
 
   private var isFirstLaunch = true
 
-
-  // ------------------------ ACTIVITY EVENTS ------------------------
-
   private val movePagerToPosition =
-      registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        val intent = it.data
-        when {
-          intent == null -> Log.d(TAG, "movePagerToPosition: no intent received from last activity.")
+    registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+      val intent = it.data
+      when {
+        intent == null -> Log.d(TAG, "movePagerToPosition: no intent received from last activity.")
 
-          intent.hasExtra(EXTRA_PAGER_POSITION) -> {
-            val position = intent.getIntExtra(EXTRA_PAGER_POSITION, 0)
-            val maxPosition = viewPager.adapter?.itemCount?.minus(1) ?: -1
+        intent.hasExtra(EXTRA_PAGER_POSITION) -> {
+          val position = intent.getIntExtra(EXTRA_PAGER_POSITION, 0)
+          val maxPosition = viewPager.adapter?.itemCount?.minus(1) ?: -1
 
-            when (position) {
-              Int.MAX_VALUE -> viewPager.setCurrentItem(maxPosition, true)
-              in 0..maxPosition -> viewPager.setCurrentItem(position, false)
-              else -> Log.d(TAG, "movePagerToPosition: ERROR: given position is invalid")
-            }
+          when (position) {
+            Int.MAX_VALUE -> viewPager.setCurrentItem(maxPosition, true)
+            in 0..maxPosition -> viewPager.setCurrentItem(position, false)
+            else -> Log.d(TAG, "movePagerToPosition: ERROR: given position is invalid")
           }
         }
       }
+    }
+
+
+  // ------------------------ ACTIVITY EVENTS ------------------------
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -117,18 +119,26 @@ class DetailActivity :
   private fun initActivity(savedInstanceState: Bundle?) {
     supportActionBar?.setDisplayShowTitleEnabled(false)
     viewModel = ViewModelProvider(this).get(BaseViewModel::class.java)
-
     backgroundImage = findViewById(R.id.background_image_view)
-    weatherUtil = (application as BaseApplication).getWeatherUtil(this)
 
-    initGpsUtil(savedInstanceState)
+    injectFields()
+    initListeners()
     initViewPager()
     initCurrentLocationWeather()
   }
 
-  private fun initGpsUtil(savedInstanceState: Bundle?) {
-    gpsUtil = GpsUtil(this)
-    gpsUtil.setOnLocationUpdateListener(this)
+  private fun injectFields() {
+    val component = (application as BaseApplication)
+      .getAppComponent()
+      .getDetailActivityComponentFactory()
+      .create(this, this)
+
+    component.inject(this)
+  }
+
+  private fun initListeners() {
+    weatherUtil.setWeatherDetailsListener(this)
+    gpsUtil.setOnGpsUpdateListener(this)
   }
 
   private fun initViewPager() {
@@ -160,19 +170,22 @@ class DetailActivity :
 
   // ------------------------ LOCATION ------------------------
 
-  override fun onAddressUpdate(address: Address?) {
+  override fun onGpsUpdate(address: Address?) {
     if (address == null) {
       Log.d(TAG, "onLocationUpdate: ERROR: address is null")
       return
     }
+    requestWeatherForCurrentLocation(address)
+  }
 
+  private fun requestWeatherForCurrentLocation(address: Address) {
     Log.d(TAG, "onAddressUpdate: current address received")
 
     val currentLocationEntity = LocationEntity(
-        address.postalCode,
-        0L,
-        address.latitude.toFloat(),
-        address.longitude.toFloat())
+      address.postalCode,
+      0L,
+      address.latitude.toFloat(),
+      address.longitude.toFloat())
 
     pagerAdapter.setCurrentLocation(currentLocationEntity)
     weatherUtil.requestWeatherFor(currentLocationEntity, address)
@@ -198,12 +211,18 @@ class DetailActivity :
     val id = pagerAdapter.getConditionIdForPosition(position)
     val imageResId = ConditionImageUtil.getConditionImageUri(id)
 
-    Glide
-        .with(this@DetailActivity)
-        .asBitmap()
-        .load(imageResId)
-        .transition(BitmapTransitionOptions.withCrossFade())
-        .into(backgroundImage)
+    glideInstance
+      .asBitmap()
+      .load(imageResId)
+      .transition(BitmapTransitionOptions.withCrossFade())
+      .into(backgroundImage)
+
+//    Glide
+//        .with(this@DetailActivity)
+//        .asBitmap()
+//        .load(imageResId)
+//        .transition(BitmapTransitionOptions.withCrossFade())
+//        .into(backgroundImage)
   }
 
 

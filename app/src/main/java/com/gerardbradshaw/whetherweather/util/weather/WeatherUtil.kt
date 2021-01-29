@@ -10,12 +10,12 @@ import com.gerardbradshaw.whetherweather.BuildConfig
 import com.gerardbradshaw.whetherweather.retrofit.WeatherFile
 import com.gerardbradshaw.whetherweather.room.LocationEntity
 import com.gerardbradshaw.whetherweather.util.Constants
-import com.gerardbradshaw.whetherweather.util.location.GpsUtil
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import javax.inject.Inject
 
-class WeatherUtil(private val context: Context) {
+class WeatherUtil @Inject constructor(private val context: Context) {
 
   private var listener: WeatherDetailsListener? = null
 

@@ -11,8 +11,9 @@ import com.gerardbradshaw.weatherinfoview.WeatherInfoView
 import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.room.LocationEntity
 import java.util.*
+import javax.inject.Inject
 
-class DetailPagerAdapter(private val context: Context) :
+class DetailPagerAdapter @Inject constructor(private val context: Context) :
     RecyclerView.Adapter<DetailPagerAdapter.DetailViewHolder>()
 {
   private val inflater = LayoutInflater.from(context)

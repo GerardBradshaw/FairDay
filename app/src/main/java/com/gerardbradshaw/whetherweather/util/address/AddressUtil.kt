@@ -9,21 +9,16 @@ import android.os.ResultReceiver
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.gerardbradshaw.whetherweather.util.Constants
+import javax.inject.Inject
 
-class AddressUtil {
-
-  private var addressResultReceiver: AddressResultReceiver
+class AddressUtil @Inject constructor() {
   private var listener: AddressChangeListener? = null
-
-  init {
-    addressResultReceiver = AddressResultReceiver(Handler())
-  }
 
   fun fetchAddress(location: Location, activity: AppCompatActivity, listener: AddressChangeListener) {
     this.listener = listener
 
     val intent = Intent(activity, FetchAddressIntentService::class.java).apply {
-      putExtra(Constants.RECEIVER, addressResultReceiver)
+      putExtra(Constants.RECEIVER, AddressResultReceiver(Handler()))
       putExtra(Constants.EXTRA_LOCATION_DATA, location)
     }
 
