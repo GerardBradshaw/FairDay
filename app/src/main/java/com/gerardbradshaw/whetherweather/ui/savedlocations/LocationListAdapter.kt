@@ -45,7 +45,7 @@ class LocationListAdapter(private val context: Context):
       holder.itemView.setOnClickListener { listener?.onLocationClicked(position) }
 
     } catch (e: IndexOutOfBoundsException) {
-      Log.d(TAG, "onBindViewHolder: ERROR: index out of bounds for i = $position")
+      Log.e(TAG, "onBindViewHolder: ERROR: index out of bounds for i = $position", e)
     }
   }
 

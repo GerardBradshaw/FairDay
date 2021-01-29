@@ -5,18 +5,19 @@ import com.gerardbradshaw.whetherweather.di.app.AppComponent
 import com.gerardbradshaw.whetherweather.di.app.DaggerAppComponent
 import com.gerardbradshaw.whetherweather.retrofit.OpenWeatherApi
 import com.gerardbradshaw.whetherweather.room.Repository
-import com.gerardbradshaw.whetherweather.util.weather.WeatherUtil
+import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Inject
 
 class BaseApplication : Application() {
-
+  private lateinit var component: AppComponent
   lateinit var openWeatherApi: OpenWeatherApi
     private set
 
-  private lateinit var repository: Repository
-  private lateinit var weatherUtil: WeatherUtil
-  private lateinit var component: AppComponent
+  @Inject lateinit var repository: Repository
+  @Inject lateinit var retrofit: Retrofit
 
 
   // ------------------------ APPLICATION EVENTS ------------------------
@@ -30,32 +31,31 @@ class BaseApplication : Application() {
   // ------------------------ INIT ------------------------
 
   private fun initApp() {
-    val retrofit = Retrofit.Builder()
-      .baseUrl("https://api.openweathermap.org/data/2.5/")
-      .addConverterFactory(GsonConverterFactory.create())
-      .build()
-
-    openWeatherApi = retrofit.create(OpenWeatherApi::class.java)
-
-    repository = Repository(this)
-    weatherUtil = WeatherUtil(this)
-
     component = DaggerAppComponent
       .builder()
       .setApplication(this)
+      .setMainDispatcher(Main)
+      .setDefaultDispatcher(Default)
+      .setIoDispatcher(IO)
       .build()
+
+    component.inject(this)
+    openWeatherApi = retrofit.create(OpenWeatherApi::class.java)
   }
 
 
   // ------------------------ BASE APPLICATION METHODS ------------------------
 
-  fun getRepository(): Repository {
-    return repository
-  }
+  fun replaceDispatchersForTests() {
+    component = DaggerAppComponent
+      .builder()
+      .setApplication(this)
+      .setMainDispatcher(Main)
+      .setDefaultDispatcher(Main)
+      .setIoDispatcher(Main)
+      .build()
 
-  fun getWeatherUtil(listener: WeatherUtil.WeatherDetailsListener): WeatherUtil {
-    weatherUtil.setWeatherDetailsListener(listener)
-    return weatherUtil
+    component.inject(this)
   }
 
   fun getAppComponent(): AppComponent {

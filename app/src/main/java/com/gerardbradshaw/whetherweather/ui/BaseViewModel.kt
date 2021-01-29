@@ -9,7 +9,7 @@ import com.gerardbradshaw.whetherweather.room.Repository
 
 class BaseViewModel(application: Application) : AndroidViewModel(application) {
 
-  private val repository: Repository = (application as BaseApplication).getRepository()
+  private val repository: Repository = (application as BaseApplication).repository
 
   fun getAllLocations(): LiveData<List<LocationEntity>> {
     return repository.getLiveLocations()

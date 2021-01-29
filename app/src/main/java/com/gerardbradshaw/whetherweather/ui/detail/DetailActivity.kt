@@ -48,7 +48,7 @@ class DetailActivity :
     registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
       val intent = it.data
       when {
-        intent == null -> Log.d(TAG, "movePagerToPosition: no intent received from last activity.")
+        intent == null -> Log.i(TAG, "movePagerToPosition: no intent received from last activity.")
 
         intent.hasExtra(EXTRA_PAGER_POSITION) -> {
           val position = intent.getIntExtra(EXTRA_PAGER_POSITION, 0)
@@ -57,7 +57,7 @@ class DetailActivity :
           when (position) {
             Int.MAX_VALUE -> viewPager.setCurrentItem(maxPosition, true)
             in 0..maxPosition -> viewPager.setCurrentItem(position, false)
-            else -> Log.d(TAG, "movePagerToPosition: ERROR: given position is invalid")
+            else -> Log.e(TAG, "movePagerToPosition: ERROR: given position is invalid")
           }
         }
       }
@@ -86,6 +86,7 @@ class DetailActivity :
     if (requestCode == REQUEST_CODE_CHECK_SETTINGS) {
       gpsUtil.onActivityResult(requestCode, resultCode, data)
     } else {
+      @Suppress("DEPRECATION") // TODO update to new callback method
       super.onActivityResult(requestCode, resultCode, data)
     }
   }
@@ -121,10 +122,16 @@ class DetailActivity :
     viewModel = ViewModelProvider(this).get(BaseViewModel::class.java)
     backgroundImage = findViewById(R.id.background_image_view)
 
+    loadInstanceState(savedInstanceState)
     injectFields()
     initListeners()
     initViewPager()
     initCurrentLocationWeather()
+  }
+
+  private fun loadInstanceState(savedInstanceState: Bundle?) {
+    // TODO load cache data for less battery and data usage
+    Log.d(TAG, "loadInstanceState: no state loaded from bundle ($savedInstanceState)")
   }
 
   private fun injectFields() {
@@ -172,14 +179,14 @@ class DetailActivity :
 
   override fun onGpsUpdate(address: Address?) {
     if (address == null) {
-      Log.d(TAG, "onLocationUpdate: ERROR: address is null")
+      Log.e(TAG, "onLocationUpdate: ERROR: address is null")
       return
     }
     requestWeatherForCurrentLocation(address)
   }
 
   private fun requestWeatherForCurrentLocation(address: Address) {
-    Log.d(TAG, "onAddressUpdate: current address received")
+    Log.i(TAG, "onAddressUpdate: current address received")
 
     val currentLocationEntity = LocationEntity(
       address.postalCode,

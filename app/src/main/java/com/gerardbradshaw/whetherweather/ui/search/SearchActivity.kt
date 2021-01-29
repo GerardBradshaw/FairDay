@@ -72,7 +72,7 @@ class SearchActivity : AppCompatActivity() {
         }
 
         override fun onError(p0: Status) {
-          Log.d(TAG, "onError: ERROR: no place was selected")
+          Log.e(TAG, "onError: ERROR: no place was selected.")
           setResult(RESULT_CANCELED)
           finish()
         }
@@ -88,7 +88,7 @@ class SearchActivity : AppCompatActivity() {
   private fun saveLocationToDb(place: Place) {
     val addressComponents = place.addressComponents
     val list = addressComponents!!.asList()
-    Log.d(TAG, "saveLocationToDb: address components: $list")
+    Log.i(TAG, "saveLocationToDb: address components: $list")
 
     val name = place.name
     val offset = place.utcOffsetMinutes?.times(60L) ?: 0L
@@ -96,7 +96,7 @@ class SearchActivity : AppCompatActivity() {
     val lon = place.latLng?.longitude?.toFloat()
 
     if (name == null || lat == null || lon == null) {
-      Log.d(TAG, "saveLocationToDb: ERROR: location info incomplete " +
+      Log.e(TAG, "saveLocationToDb: ERROR: location info incomplete " +
           "(name = $name, offset = $offset, lat = $lat, lon = $lon")
       return
     }
@@ -104,7 +104,7 @@ class SearchActivity : AppCompatActivity() {
     val entity = LocationEntity(name, offset, lat, lon)
 
     viewModel.saveLocation(entity)
-    Log.d(TAG, "saveLocationToDb: Success! ${entity.name} sent to DB")
+    Log.i(TAG, "saveLocationToDb: Success! ${entity.name} sent to DB")
   }
 
   companion object {

@@ -62,8 +62,8 @@ class GpsUtil @Inject constructor(private val activity: AppCompatActivity) {
     activity.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
       when (it) {
         true -> requestGpsUpdates()
-        false -> Log.d(TAG, "onRequestPermissionsResult: ERROR: user denied permission")
-        else -> Log.d(TAG, "onRequestPermissionsResult: ERROR: user ignored permission")
+        false -> Log.e(TAG, "onRequestPermissionsResult: ERROR: user denied permission")
+        else -> Log.e(TAG, "onRequestPermissionsResult: ERROR: user ignored permission")
       }
     }
 
@@ -86,7 +86,7 @@ class GpsUtil @Inject constructor(private val activity: AppCompatActivity) {
         if (locationResult != null) {
           addressUtil.fetchAddress(locationResult.lastLocation, activity, addressChangeListener)
         } else {
-          Log.d(TAG, "onLocationResult: ERROR: locationResult is null")
+          Log.e(TAG, "onLocationResult: ERROR: locationResult is null")
         }
       }
     }
@@ -144,7 +144,7 @@ class GpsUtil @Inject constructor(private val activity: AppCompatActivity) {
     if (requestCode == REQUEST_CODE_CHECK_SETTINGS) {
       when (resultCode) {
         Activity.RESULT_OK -> {
-          Log.d(TAG, "onActivityResult: Settings change successful!")
+          Log.i(TAG, "onActivityResult: Settings change successful!")
           return // Nothing to do - startLocationUpdates() called in onResume
         }
         Activity.RESULT_CANCELED -> {
@@ -193,7 +193,7 @@ class GpsUtil @Inject constructor(private val activity: AppCompatActivity) {
 
   @SuppressLint("MissingPermission") // permission is checked in onCreate()
   private fun requestGpsUpdates() {
-    Log.d(TAG, "requestGpsUpdates: starting location updates")
+    Log.i(TAG, "requestGpsUpdates: starting location updates")
 
     settingsClient
         .checkLocationSettings(locationSettingsRequest)
@@ -203,7 +203,7 @@ class GpsUtil @Inject constructor(private val activity: AppCompatActivity) {
   
   @RequiresPermission(LOCATION_PERMISSION)
   private fun onLocationSettingsSatisfied() {
-    Log.d(TAG, "requestGpsUpdates: All settings satisfied. Starting updates.")
+    Log.i(TAG, "requestGpsUpdates: All settings satisfied. Starting updates.")
 
     fusedLocationClient.requestLocationUpdates(
         locationRequest,
@@ -215,7 +215,7 @@ class GpsUtil @Inject constructor(private val activity: AppCompatActivity) {
     when ((e as ApiException).statusCode) {
 
       LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
-        Log.d(TAG, "requestGpsUpdates: attempting to resolve settings")
+        Log.i(TAG, "requestGpsUpdates: attempting to resolve settings")
         try {
           val rae = e as ResolvableApiException
           rae.startResolutionForResult(activity, REQUEST_CODE_CHECK_SETTINGS)
@@ -236,7 +236,7 @@ class GpsUtil @Inject constructor(private val activity: AppCompatActivity) {
    */
   private fun stopRequestingLocationUpdates() {
     if (!isGpsUpdatesRequested) {
-      Log.d(TAG, "stopLocationUpdates: updates never requested. Nothing to stop!")
+      Log.i(TAG, "stopLocationUpdates: updates never requested. Nothing to stop!")
       return
     }
 
@@ -246,11 +246,11 @@ class GpsUtil @Inject constructor(private val activity: AppCompatActivity) {
   }
   
   private fun onLocationUpdateRequestsStopped() {
-    Log.d(TAG, "stopRequestingLocationUpdates: updates stopped")
+    Log.i(TAG, "stopRequestingLocationUpdates: updates stopped")
   }
 
   private fun toastLocationErrorAndLog(logMsg: String) {
-    Log.d(TAG, logMsg)
+    Log.e(TAG, logMsg)
 
     Toast.makeText(
         activity,

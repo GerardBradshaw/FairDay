@@ -25,12 +25,12 @@ class FetchAddressIntentService : IntentService("FetchAddress") {
     var resultCode = Constants.RESULT_FAILURE
 
     if (intent == null || receiver == null) {
-      Log.d(TAG, "onHandleIntent: ERROR: No receiver. There is nowhere to send the results")
+      Log.e(TAG, "onHandleIntent: ERROR: No receiver. There is nowhere to send the results")
     } else {
       val location = intent.getParcelableExtra<Location>(Constants.EXTRA_LOCATION_DATA)
 
       if (location == null) {
-        Log.d(TAG, "onHandleIntent: ERROR: No location data provided")
+        Log.e(TAG, "onHandleIntent: ERROR: No location data provided")
       }
       else {
         try {
@@ -39,16 +39,16 @@ class FetchAddressIntentService : IntentService("FetchAddress") {
             .get(0)
 
           resultCode = Constants.RESULT_SUCCESS
-          Log.d(TAG, "onHandleIntent: address found")
+          Log.i(TAG, "onHandleIntent: address found: $address")
 
-        } catch (ioException: IOException) {
-          Log.e(TAG, "onHandleIntent: ERROR: service unavailable", ioException)
+        } catch (e: IOException) {
+          Log.e(TAG, "onHandleIntent: ERROR: service unavailable", e)
 
-        } catch (illegalArgumentException: IllegalArgumentException) {
-          Log.e(TAG, "onHandleIntent: ERROR: Invalid lat or long", illegalArgumentException)
+        } catch (e: IllegalArgumentException) {
+          Log.e(TAG, "onHandleIntent: ERROR: Invalid lat or long", e)
 
-        } catch (indexException: IndexOutOfBoundsException) {
-          Log.e(TAG, "onHandleIntent: ERROR: no address found")
+        } catch (e: IndexOutOfBoundsException) {
+          Log.e(TAG, "onHandleIntent: ERROR: no address found", e)
         }
       }
     }

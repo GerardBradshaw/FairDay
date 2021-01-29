@@ -30,14 +30,14 @@ class DetailPagerAdapter @Inject constructor(private val context: Context) :
 
   fun addNewLocation(locationEntity: LocationEntity) {
     if (locationEntityList.contains(locationEntity)) {
-      Log.d(TAG, "addNewLocation: ERROR: ${locationEntity.name} already exists and cannot be added.")
+      Log.e(TAG, "addNewLocation: ERROR: ${locationEntity.name} cannot be duplicated.")
       return
     }
 
     locationEntityList.add(locationEntity)
     weatherDataList.add(null)
     notifyItemInserted(locationEntityList.indexOf(locationEntity))
-    Log.d(TAG, "addNewLocation: ${locationEntity.name} added.")
+    Log.i(TAG, "addNewLocation: ${locationEntity.name} added.")
   }
 
   fun setCurrentLocation(locationEntity: LocationEntity) {
@@ -73,13 +73,13 @@ class DetailPagerAdapter @Inject constructor(private val context: Context) :
       locationEntity: LocationEntity?
   ) {
     if (locationEntity == null) {
-      Log.d(TAG, "updateWeatherData: ERROR: LocationEntity was null.")
+      Log.e(TAG, "updateWeatherData: ERROR: LocationEntity was null.")
       return
     }
 
     val locationIndex = locationEntityList.indexOf(locationEntity)
     if (locationIndex == -1) {
-      Log.d(TAG, "updateWeatherData: ERROR: ${locationEntity.name} could not be found.")
+      Log.e(TAG, "updateWeatherData: ERROR: ${locationEntity.name} could not be found.")
       return
     }
 
@@ -87,7 +87,7 @@ class DetailPagerAdapter @Inject constructor(private val context: Context) :
       weatherDataList[locationIndex] = weatherData
       notifyItemChanged(locationIndex)
     } catch (e: IndexOutOfBoundsException) {
-      Log.d(TAG, "updateWeatherData: ERROR: weather data could not be saved.")
+      Log.e(TAG, "updateWeatherData: ERROR: weather data could not be saved.", e)
     }
   }
 
@@ -98,7 +98,7 @@ class DetailPagerAdapter @Inject constructor(private val context: Context) :
     return try {
       locationEntityList.elementAt(position)
     } catch (e: IndexOutOfBoundsException) {
-      Log.d(TAG, "getLocationEntityFor: ERROR: invalid position $position.")
+      Log.e(TAG, "getLocationEntityFor: ERROR: invalid position $position.", e)
       null
     }
   }
@@ -107,7 +107,7 @@ class DetailPagerAdapter @Inject constructor(private val context: Context) :
     return try {
       weatherDataList.elementAt(position)
     } catch (e: IndexOutOfBoundsException) {
-      Log.d(TAG, "getWeatherDataFor: ERROR: invalid position $position.")
+      Log.e(TAG, "getWeatherDataFor: ERROR: invalid position $position.", e)
       null
     }
   }
@@ -131,7 +131,7 @@ class DetailPagerAdapter @Inject constructor(private val context: Context) :
         holder.weatherView.setLocation(weatherData, isCurrentLocation)
       }
     } catch (e: IndexOutOfBoundsException) {
-      Log.d(TAG, "onBindViewHolder: ERROR: invalid position")
+      Log.e(TAG, "onBindViewHolder: ERROR: invalid position $position", e)
     }
   }
 

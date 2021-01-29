@@ -5,6 +5,7 @@ import android.location.Address
 import android.location.Location
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.os.ResultReceiver
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -18,7 +19,7 @@ class AddressUtil @Inject constructor() {
     this.listener = listener
 
     val intent = Intent(activity, FetchAddressIntentService::class.java).apply {
-      putExtra(Constants.RECEIVER, AddressResultReceiver(Handler()))
+      putExtra(Constants.RECEIVER, AddressResultReceiver(Handler(Looper.getMainLooper())))
       putExtra(Constants.EXTRA_LOCATION_DATA, location)
     }
 
@@ -30,7 +31,7 @@ class AddressUtil @Inject constructor() {
       val address: Address? = resultData?.getParcelable(Constants.KEY_RESULT_DATA)
       listener?.onAddressChanged(address)
 
-      if (resultCode == Constants.RESULT_SUCCESS) Log.d(TAG, "onReceiveResult: Address found")
+      if (resultCode == Constants.RESULT_SUCCESS) Log.i(TAG, "onReceiveResult: Address found")
     }
   }
 

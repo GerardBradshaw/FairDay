@@ -59,7 +59,7 @@ class WeatherUtil @Inject constructor(private val context: Context) {
     
     call.enqueue(object : Callback<WeatherFile> {
       override fun onFailure(call: Call<WeatherFile>, t: Throwable) {
-        Log.d(TAG, "onFailure: ERROR: failed to call OpenWeather.org")
+        Log.e(TAG, "onFailure: ERROR: failed to call OpenWeather.org")
         Toast.makeText(context, "Can't connect to OpenWeather.com", Toast.LENGTH_SHORT).show()
 
         return onWeatherRequestResponse(Constants.RESULT_FAILURE, null, locationEntity)
@@ -70,8 +70,8 @@ class WeatherUtil @Inject constructor(private val context: Context) {
         var weatherFile: WeatherFile? = null
 
         when {
-          !response.isSuccessful -> Log.d(TAG, "onResponse: ERROR: weather request unsuccessful")
-          response.body() == null -> Log.d(TAG, "onResponse: ERROR: Weather response empty!")
+          !response.isSuccessful -> Log.e(TAG, "onResponse: ERROR: weather request unsuccessful")
+          response.body() == null -> Log.e(TAG, "onResponse: ERROR: Weather response empty!")
           else -> {
             responseCode = Constants.RESULT_SUCCESS
             weatherFile = response.body()
@@ -92,7 +92,7 @@ class WeatherUtil @Inject constructor(private val context: Context) {
       val weatherData = WeatherDataUtil.getWeatherDataFromWeatherFile(weatherFile)
       listener?.onWeatherReceived(weatherData, locationEntity)
     }
-    else Log.d(TAG, "onWeatherRequestResponse: ERROR: no location data")
+    else Log.e(TAG, "onWeatherRequestResponse: ERROR: no location data")
   }
   
   interface WeatherDetailsListener {

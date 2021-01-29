@@ -2,13 +2,18 @@ package com.gerardbradshaw.whetherweather.room
 
 import android.app.Application
 import androidx.lifecycle.LiveData
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.gerardbradshaw.whetherweather.di.annotations.ThreadDefault
+import com.gerardbradshaw.whetherweather.di.annotations.ThreadIo
+import com.gerardbradshaw.whetherweather.di.annotations.ThreadMain
+import kotlinx.coroutines.*
+import javax.inject.Inject
 
-class Repository(application: Application) {
-
+class Repository @Inject constructor(
+  application: Application,
+  @ThreadMain private val threadMain: CoroutineDispatcher,
+  @ThreadDefault private val threadDefault: CoroutineDispatcher,
+  @ThreadIo private val threadIo: CoroutineDispatcher
+) {
   private val locationDataDao: LocationDataDao
 
   var locations: List<LocationEntity> = ArrayList()
@@ -24,16 +29,16 @@ class Repository(application: Application) {
   // ------------------------ RETRIEVE ------------------------
 
   private fun setLocations() {
-    CoroutineScope(Dispatchers.Main).launch {
+    CoroutineScope(threadMain).launch {
       getLocationDataSetFromDb()
     }
   }
 
   private suspend fun getLocationDataSetFromDb() {
-    withContext(Dispatchers.IO) {
+    withContext(threadIo) {
       val locations = locationDataDao.getLocationDataSet()
 
-      withContext(Dispatchers.Main) {
+      withContext(threadMain) {
         saveLocationsLocalCopy(locations)
       }
     }
@@ -51,13 +56,13 @@ class Repository(application: Application) {
   // ------------------------ INSERT ------------------------
 
   fun saveLocation(location: LocationEntity) {
-    CoroutineScope(Dispatchers.Main).launch {
+    CoroutineScope(threadMain).launch {
       saveLocationToDb(location)
     }
   }
 
   private suspend fun saveLocationToDb(location: LocationEntity) {
-    withContext(Dispatchers.IO) {
+    withContext(threadIo) {
       locationDataDao.insertLocation(location)
     }
   }
@@ -67,13 +72,13 @@ class Repository(application: Application) {
   // ------------------------ DELETE ------------------------
 
   fun deleteLocationData(location: LocationEntity) {
-    CoroutineScope(Dispatchers.Main).launch {
+    CoroutineScope(threadMain).launch {
       deleteLocationFromDb(location)
     }
   }
 
   private suspend fun deleteLocationFromDb(location: LocationEntity) {
-    withContext(Dispatchers.IO) {
+    withContext(threadIo) {
       locationDataDao.deleteLocation(location)
     }
   }
