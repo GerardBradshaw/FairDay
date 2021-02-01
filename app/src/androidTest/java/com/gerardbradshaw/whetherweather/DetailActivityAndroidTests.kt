@@ -14,7 +14,7 @@ import org.junit.Rule
 import org.junit.experimental.runners.Enclosed
 
 @RunWith(Enclosed::class)
-class DetailActivityTests {
+class DetailActivityAndroidTests {
 
   // ---------------- FIRST LAUNCH ----------------
 
@@ -32,6 +32,11 @@ class DetailActivityTests {
 
     @Test
     fun should_showInstructions_when_firstEntering() {
+      fail("Not implemented")
+    }
+
+    @Test
+    fun should_shouldAskForLocationPermission_when_firstEntering() {
       fail("Not implemented")
     }
 
