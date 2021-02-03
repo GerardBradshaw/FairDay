@@ -17,6 +17,10 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
 import androidx.viewpager2.widget.ViewPager2
+import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.checkViewPagerHasItemCount
+import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.checkWeatherIsDisplayedForCurrentLocation
+import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.checkWeatherIsDisplayedForLocation
+import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.scrollViewPagerToPosition
 import com.gerardbradshaw.whetherweather.activities.detail.DetailActivity
 import com.gerardbradshaw.whetherweather.activities.saved.SavedActivity
 import com.gerardbradshaw.whetherweather.activities.search.SearchActivity
@@ -163,13 +167,13 @@ class DetailActivityAndroidTests {
     // -------------------------------- TESTS --------------------------------
     @Test
     fun should_haveSingleItemInPager_when_firstLaunched() {
-      DetailActivityUtil.checkViewPagerHasItemCount(1)
+      checkViewPagerHasItemCount(1)
     }
 
     @Test
     fun should_addLocationToViewPager_when_newLocationAddedToDb() {
       mockWebServer.addLocation(0)
-      DetailActivityUtil.checkViewPagerHasItemCount(2)
+      checkViewPagerHasItemCount(2)
     }
 
     @Test
@@ -181,83 +185,85 @@ class DetailActivityAndroidTests {
     @Test
     fun should_displayNoDuplicates_when_manyLocationsLoaded() {
       mockWebServer.addAllLocations()
-      DetailActivityUtil.checkViewPagerHasItemCount(4)
+      checkViewPagerHasItemCount(4)
     }
 
     @Test
     fun should_displayWeatherForAnotherLocation_when_pageChanged() {
       mockWebServer.addAllLocations()
 
-      DetailActivityUtil.scrollViewPagerToPosition(0)
-      DetailActivityUtil.scrollViewPagerToPosition(2)
-      DetailActivityUtil.checkWeatherIsDisplayedForLocation(2)
+      scrollViewPagerToPosition(0)
+      scrollViewPagerToPosition(2)
+      checkWeatherIsDisplayedForLocation(2)
     }
 
     @Test
     fun should_displayWeatherForCurrentLocation_when_weatherAtCurrentLocationEnabled() {
-      DetailActivityUtil.checkWeatherIsDisplayedForCurrentLocation()
+      checkWeatherIsDisplayedForCurrentLocation()
     }
+  }
 
-    @Ignore("Helper class")
-    abstract class DetailActivityUtil {
-      companion object {
-        @JvmStatic
-        fun checkViewPagerHasItemCount(n: Int): ViewInteraction {
-          return onViewPager().check(matches(hasItemCount(n)))
-        }
 
-        @JvmStatic
-        fun scrollViewPagerToPosition(p: Int): ViewInteraction {
-          return onViewPager().perform(scrollToPosition(p))
-        }
 
-        @JvmStatic
-        fun checkWeatherIsDisplayedForLocation(n: Int) {
-          onView(allOf(withId(R.id.location_text_view), isDisplayed()))
-            .check(matches(withText(containsString("Location$n"))))
-        }
+  @Ignore("Helper class")
+  private abstract class DetailActivityAndroidTestUtil {
+    companion object {
+      @JvmStatic
+      fun checkViewPagerHasItemCount(n: Int): ViewInteraction {
+        return onViewPager().check(matches(hasItemCount(n)))
+      }
 
-        @JvmStatic
-        fun checkWeatherIsDisplayedForCurrentLocation() {
-          onView(allOf(withId(R.id.location_pin_icon), isDisplayed()))
-            .check(matches(isDisplayed()))
+      @JvmStatic
+      fun scrollViewPagerToPosition(p: Int): ViewInteraction {
+        return onViewPager().perform(scrollToPosition(p))
+      }
 
-          onView(allOf(withId(R.id.location_text_view), isDisplayed()))
-            .check(matches(withText(containsString("Santa Clara"))))
-        }
+      @JvmStatic
+      fun checkWeatherIsDisplayedForLocation(n: Int) {
+        onView(allOf(withId(R.id.location_text_view), isDisplayed()))
+          .check(matches(withText(containsString("Location$n"))))
+      }
 
-        private fun onViewPager(): ViewInteraction {
-          return onView(allOf(withId(R.id.view_pager), isDisplayed()))
-        }
+      @JvmStatic
+      fun checkWeatherIsDisplayedForCurrentLocation() {
+        onView(allOf(withId(R.id.location_pin_icon), isDisplayed()))
+          .check(matches(isDisplayed()))
 
-        private fun hasItemCount(count: Int): Matcher<View?> {
-          return object : BoundedMatcher<View?, ViewPager2>(ViewPager2::class.java) {
-            override fun matchesSafely(view: ViewPager2): Boolean {
-              return count == view.adapter?.itemCount ?: -1
-            }
+        onView(allOf(withId(R.id.location_text_view), isDisplayed()))
+          .check(matches(withText(containsString("Santa Clara"))))
+      }
 
-            override fun describeTo(description: Description) {
-              description.appendText("Matches on ViewPager2 with same item count.")
-            }
+      private fun onViewPager(): ViewInteraction {
+        return onView(allOf(withId(R.id.view_pager), isDisplayed()))
+      }
+
+      private fun hasItemCount(count: Int): Matcher<View?> {
+        return object : BoundedMatcher<View?, ViewPager2>(ViewPager2::class.java) {
+          override fun matchesSafely(view: ViewPager2): Boolean {
+            return count == view.adapter?.itemCount ?: -1
+          }
+
+          override fun describeTo(description: Description) {
+            description.appendText("Matches on ViewPager2 with same item count.")
           }
         }
+      }
 
-        private fun scrollToPosition(p: Int): ViewAction {
-          return object : ViewAction {
-            override fun getConstraints() = isDisplayed()
+      private fun scrollToPosition(p: Int): ViewAction {
+        return object : ViewAction {
+          override fun getConstraints() = isDisplayed()
 
-            override fun getDescription() = "Position update"
+          override fun getDescription() = "Position update"
 
-            override fun perform(uiController: UiController?, view: View?) {
-              uiController?.loopMainThreadForAtLeast(1000)
+          override fun perform(uiController: UiController?, view: View?) {
+            uiController?.loopMainThreadForAtLeast(1000)
 
-              val pager = view as ViewPager2
+            val pager = view as ViewPager2
 
-              val itemCount = pager.adapter?.itemCount ?: return
-              val maxPos = itemCount - if(itemCount > 0) 1 else 0
+            val itemCount = pager.adapter?.itemCount ?: return
+            val maxPos = itemCount - if(itemCount > 0) 1 else 0
 
-              pager.currentItem = max(0, min(maxPos, p))
-            }
+            pager.currentItem = max(0, min(maxPos, p))
           }
         }
       }
