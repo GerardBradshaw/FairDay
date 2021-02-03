@@ -1,0 +1,44 @@
+{
+  "coord": {
+    "lon": 10.0,
+    "lat": 10.0
+  },
+  "weather": [
+    {
+      "id": 800,
+      "main": "Snow",
+      "description": "light snow",
+      "icon": "02d"
+    }
+  ],
+  "base": "stations",
+  "main": {
+    "temp": 292.55,
+    "feels_like": 291.86,
+    "temp_min": 290.37,
+    "temp_max": 294.26,
+    "pressure": 1023,
+    "humidity": 50
+  },
+  "visibility": 16093,
+  "wind": {
+    "speed": 1.5,
+    "deg": 350
+  },
+  "clouds": {
+    "all": 1
+  },
+  "dt": 1560350645,
+  "sys": {
+    "type": 1,
+    "id": 5122,
+    "message": 0.0139,
+    "country": "US",
+    "sunrise": 1560343627,
+    "sunset": 1560396563
+  },
+  "timezone": -25200,
+  "id": 420006353,
+  "name": "Location1",
+  "cod": 200
+  }

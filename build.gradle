@@ -1,21 +1,47 @@
+/*
+ * Copyright 2021 Gerard Bradshaw
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 buildscript {
     ext {
         activity_version = '1.2.0-rc01'
+        android_core_ktx_version = '1.3.2'
+        android_junit_version = '1.1.2'
+        androidxtest_version = '1.3.0'
+        appcompat_version = '1.2.0'
         constraint_layout_version = '2.0.4'
         coroutines_version = '1.3.7'
         dagger_version = '2.28.3'
         espresso_version = '3.3.0'
         fragment_version = '1.3.0-rc01'
         glide_version = '4.11.0'
+        gradle_version = "4.1.2"
         gson_version = '2.8.6'
         junit_version = '4.13.1'
         kotlin_version = '1.4.21'
         location_services_version = '17.1.0'
+        material_version = '1.2.1'
+        mockito_version = '3.6.0'
         mvvm_version = '2.2.0'
         navigation_version = '2.3.2'
+        okhttp_version = '4.9.0'
         places_version = '2.4.0'
+        preferences_version = '1.1.1'
         recycler_view_version = '1.1.0'
         retrofit_version = '2.9.0'
+        robolectric_version = '4.4'
         room_version = '2.2.6'
         viewpager2_version = '1.0.0'
     }
@@ -25,7 +51,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:4.1.1"
+        classpath "com.android.tools.build:gradle:$gradle_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -35,6 +61,16 @@ allprojects {
         google()
         jcenter()
     }
+}
+
+ext {
+    sdkVersionInformation = [
+            minSdkVersion: 21,
+            targetSdkVersion: 30,
+            compileSdkVersion: 30]
+    rootPackageName = 'com.gerardbradshaw.whetherweather'
+    miscVersionInformation = [androidBuildToolsVersion: '30.0.3']
+    mavenReleaseInformation = [groupId: 'com.gerardbradshaw']
 }
 
 task clean(type: Delete) {
