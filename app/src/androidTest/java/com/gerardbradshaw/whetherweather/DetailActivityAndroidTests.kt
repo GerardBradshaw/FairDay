@@ -1,98 +1,141 @@
 package com.gerardbradshaw.whetherweather
 
+import android.view.View
 import androidx.test.core.app.ActivityScenario
-import androidx.test.ext.junit.rules.ActivityScenarioRule
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.UiController
+import androidx.test.espresso.ViewAction
+import androidx.test.espresso.ViewInteraction
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.Intents.intended
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
+import androidx.test.espresso.matcher.BoundedMatcher
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
-import com.gerardbradshaw.whetherweather.ui.detail.DetailActivity
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.Assert.*
-import org.junit.Before
-import org.junit.Rule
+import androidx.viewpager2.widget.ViewPager2
+import com.gerardbradshaw.whetherweather.activities.detail.DetailActivity
+import com.gerardbradshaw.whetherweather.activities.saved.SavedActivity
+import com.gerardbradshaw.whetherweather.activities.search.SearchActivity
+import com.gerardbradshaw.whetherweather.application.BaseApplication
+import com.gerardbradshaw.whetherweather.util.MyMockServer
+import org.hamcrest.Description
+import org.hamcrest.Matcher
+import org.hamcrest.Matchers.*
+import org.junit.*
 import org.junit.experimental.runners.Enclosed
+import org.junit.runner.RunWith
+import kotlin.math.max
+import kotlin.math.min
 
 @RunWith(Enclosed::class)
 class DetailActivityAndroidTests {
 
-  // ---------------- FIRST LAUNCH ----------------
-
   @RunWith(AndroidJUnit4::class)
   class FirstLaunchTests {
-    @Rule
-    @JvmField
-    val asr = ActivityScenarioRule(DetailActivity::class.java)
+    lateinit var activityScenario: ActivityScenario<DetailActivity>
+    lateinit var activity: DetailActivity
+    lateinit var mockWebServer: MyMockServer
 
-    @Test
-    fun should_useAppContext_when_launched() {
-      val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-      assertEquals("com.gerardbradshaw.wheatherweather", appContext.packageName)
+    @get:Rule
+    val runtimePermissionRule: GrantPermissionRule? =
+      GrantPermissionRule.grant(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+
+    @Before
+    fun setup() {
+      mockWebServer = MyMockServer()
+      mockWebServer.start()
+
+      ApplicationProvider.getApplicationContext<BaseApplication>().prepareForTests(mockWebServer.url())
+
+      activityScenario = ActivityScenario.launch(DetailActivity::class.java)
+      activityScenario.onActivity { activity = it }
     }
 
+    @After
+    fun tearDown() {
+      mockWebServer.shutdown()
+    }
+
+    // -------------------------------- TESTS --------------------------------
     @Test
     fun should_showInstructions_when_firstEntering() {
-      fail("Not implemented")
-    }
-
-    @Test
-    fun should_shouldAskForLocationPermission_when_firstEntering() {
-      fail("Not implemented")
-    }
-
-    @Test
-    fun should_haveTransparentActionBar_when_firstEntering() {
-      fail("Not implemented")
+      onView(withId(R.id.instructions_text_view))
+        .check(matches(isDisplayed()))
     }
 
     @Test
     fun should_displayOpenWeatherCredit_when_firstEntering() {
-      fail("Not implemented")
-    }
-
-    @Test
-    fun should_askUserForLocationPermission_when_firstEntering() {
-      fail("Not implemented")
+      onView(withId(R.id.open_weather_credit_view))
+        .check(matches(isDisplayed()))
     }
   }
 
 
 
-  // ---------------- ACTION BAR ----------------
-
   @RunWith(AndroidJUnit4::class)
   class ActionBarTests {
-    @Rule
-    @JvmField
-    val asr = ActivityScenarioRule(DetailActivity::class.java)
+    lateinit var activityScenario: ActivityScenario<DetailActivity>
+    lateinit var activity: DetailActivity
+    lateinit var mockWebServer: MyMockServer
+
+    @get:Rule
+    val runtimePermissionRule: GrantPermissionRule? =
+      GrantPermissionRule.grant(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+
+    @Before
+    fun setup() {
+      mockWebServer = MyMockServer()
+      mockWebServer.start()
+
+      ApplicationProvider.getApplicationContext<BaseApplication>().prepareForTests(mockWebServer.url())
+
+      activityScenario = ActivityScenario.launch(DetailActivity::class.java)
+      activityScenario.onActivity { activity = it }
+    }
+
+    @After
+    fun tearDown() {
+      mockWebServer.shutdown()
+    }
+
+    // -------------------------------- TESTS --------------------------------
 
     @Test
     fun should_displayListButtonInActionBarMenu_when_firstEntering() {
-      fail("Not implemented")
+      onView(withId(R.id.action_saved_locations)).check(matches(isDisplayed()))
     }
 
     @Test
     fun should_displayAddButtonInActionBarMenu_when_firstEntering() {
-      fail("Not implemented")
+      onView(withId(R.id.action_add)).check(matches(isDisplayed()))
     }
 
     @Test
     fun should_launchSavedLocationsActivity_when_listButtonClickedInActionBarMenu() {
-      fail("Not implemented")
+      Intents.init()
+      onView(withId(R.id.action_saved_locations)).perform(click())
+      intended(hasComponent(SavedActivity::class.java.name))
+      Intents.release()
     }
 
     @Test
     fun should_launchSearchActivity_when_addButtonClickedInActionBarMenu() {
-      fail("Not implemented")
+      Intents.init()
+      onView(withId(R.id.action_add)).perform(click())
+      intended(hasComponent(SearchActivity::class.java.name))
+      Intents.release()
     }
   }
 
 
 
-  // ---------------- PAGER ADAPTER ----------------
-
   @RunWith(AndroidJUnit4::class)
   class PagerTests {
+    lateinit var mockWebServer: MyMockServer
     lateinit var activityScenario: ActivityScenario<DetailActivity>
     lateinit var activity: DetailActivity
 
@@ -102,53 +145,122 @@ class DetailActivityAndroidTests {
 
     @Before
     fun setup() {
+      mockWebServer = MyMockServer()
+      mockWebServer.start()
+
+      ApplicationProvider.getApplicationContext<BaseApplication>()
+        .prepareForTests(mockWebServer.url())
+
       activityScenario = ActivityScenario.launch(DetailActivity::class.java)
       activityScenario.onActivity { activity = it }
     }
 
+    @After
+    fun tearDown() {
+      mockWebServer.shutdown()
+    }
+
+    // -------------------------------- TESTS --------------------------------
     @Test
-    fun should_showLoadingMessageAsLocationName_when_newLocationAdded() {
-      fail("Not implemented")
+    fun should_haveSingleItemInPager_when_firstLaunched() {
+      DetailActivityUtil.checkViewPagerHasItemCount(1)
     }
 
     @Test
-    fun should_scrollToPosition_when_intentReceivedWithScrollPosition() {
-      fail("Not implemented")
+    fun should_addLocationToViewPager_when_newLocationAddedToDb() {
+      mockWebServer.addLocation(0)
+      DetailActivityUtil.checkViewPagerHasItemCount(2)
+    }
+
+    @Test
+    fun should_showLoadingMessageAsLocationName_when_newLocationAdded() {
+      onView(allOf(withId(R.id.location_text_view), isDisplayed()))
+        .check((matches(withText(containsString(activity.resources.getString(R.string.string_loading))))))
     }
 
     @Test
     fun should_displayNoDuplicates_when_manyLocationsLoaded() {
-      fail("Not implemented")
-    }
-
-    @Test
-    fun should_displayAllLocationsFromDb_when_manyLocationsAddedToDb() {
-      fail("Not implemented")
+      mockWebServer.addAllLocations()
+      DetailActivityUtil.checkViewPagerHasItemCount(4)
     }
 
     @Test
     fun should_displayWeatherForAnotherLocation_when_pageChanged() {
-      fail("Not implemented")
+      mockWebServer.addAllLocations()
+
+      DetailActivityUtil.scrollViewPagerToPosition(0)
+      DetailActivityUtil.scrollViewPagerToPosition(2)
+      DetailActivityUtil.checkWeatherIsDisplayedForLocation(2)
     }
 
     @Test
     fun should_displayWeatherForCurrentLocation_when_weatherAtCurrentLocationEnabled() {
-      fail("Not implemented")
+      DetailActivityUtil.checkWeatherIsDisplayedForCurrentLocation()
     }
 
-    @Test
-    fun should_notDisplayWeatherForCurrentLocation_when_weatherAtCurrentLocationDisabled() {
-      fail("Not implemented")
-    }
+    @Ignore("Helper class")
+    abstract class DetailActivityUtil {
+      companion object {
+        @JvmStatic
+        fun checkViewPagerHasItemCount(n: Int): ViewInteraction {
+          return onViewPager().check(matches(hasItemCount(n)))
+        }
 
-    @Test
-    fun should_displayWeatherForCurrentLocationInFirstPosition_when_weatherAtCurrentLocationEnabled() {
-      fail("Not implemented")
-    }
+        @JvmStatic
+        fun scrollViewPagerToPosition(p: Int): ViewInteraction {
+          return onViewPager().perform(scrollToPosition(p))
+        }
 
-    @Test
-    fun should_showLocationInPager_when_newLocationAddedInSearchActivity() {
-      fail("Not implemented")
+        @JvmStatic
+        fun checkWeatherIsDisplayedForLocation(n: Int) {
+          onView(allOf(withId(R.id.location_text_view), isDisplayed()))
+            .check(matches(withText(containsString("Location$n"))))
+        }
+
+        @JvmStatic
+        fun checkWeatherIsDisplayedForCurrentLocation() {
+          onView(allOf(withId(R.id.location_pin_icon), isDisplayed()))
+            .check(matches(isDisplayed()))
+
+          onView(allOf(withId(R.id.location_text_view), isDisplayed()))
+            .check(matches(withText(containsString("Santa Clara"))))
+        }
+
+        private fun onViewPager(): ViewInteraction {
+          return onView(allOf(withId(R.id.view_pager), isDisplayed()))
+        }
+
+        private fun hasItemCount(count: Int): Matcher<View?> {
+          return object : BoundedMatcher<View?, ViewPager2>(ViewPager2::class.java) {
+            override fun matchesSafely(view: ViewPager2): Boolean {
+              return count == view.adapter?.itemCount ?: -1
+            }
+
+            override fun describeTo(description: Description) {
+              description.appendText("Matches on ViewPager2 with same item count.")
+            }
+          }
+        }
+
+        private fun scrollToPosition(p: Int): ViewAction {
+          return object : ViewAction {
+            override fun getConstraints() = isDisplayed()
+
+            override fun getDescription() = "Position update"
+
+            override fun perform(uiController: UiController?, view: View?) {
+              uiController?.loopMainThreadForAtLeast(1000)
+
+              val pager = view as ViewPager2
+
+              val itemCount = pager.adapter?.itemCount ?: return
+              val maxPos = itemCount - if(itemCount > 0) 1 else 0
+
+              pager.currentItem = max(0, min(maxPos, p))
+            }
+          }
+        }
+      }
     }
   }
 }
