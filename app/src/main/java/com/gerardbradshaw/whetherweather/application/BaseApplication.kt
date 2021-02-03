@@ -1,12 +1,10 @@
 package com.gerardbradshaw.whetherweather.application
 
 import android.app.Application
-import com.gerardbradshaw.whetherweather.application.DaggerAppComponent
+import com.gerardbradshaw.whetherweather.application.di.AppComponent
+import com.gerardbradshaw.whetherweather.application.di.DaggerAppComponent
 import com.gerardbradshaw.whetherweather.retrofit.OpenWeatherApi
 import com.gerardbradshaw.whetherweather.room.Repository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import retrofit2.Retrofit

@@ -1,4 +1,4 @@
-package com.gerardbradshaw.whetherweather.application
+package com.gerardbradshaw.whetherweather.application.di
 
 import com.gerardbradshaw.whetherweather.activities.detail.DetailActivityComponent
 import dagger.Module

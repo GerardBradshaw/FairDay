@@ -23,13 +23,13 @@ import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivi
 import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.scrollViewPagerToPosition
 import com.gerardbradshaw.whetherweather.activities.detail.DetailActivity
 import com.gerardbradshaw.whetherweather.activities.saved.SavedActivity
-import com.gerardbradshaw.whetherweather.activities.search.SearchActivity
 import com.gerardbradshaw.whetherweather.application.BaseApplication
 import com.gerardbradshaw.whetherweather.util.MyMockServer
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.*
 import org.junit.*
+import org.junit.Assert.fail
 import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
 import kotlin.math.max
@@ -110,7 +110,7 @@ class DetailActivityAndroidTests {
 
     @Test
     fun should_displayListButtonInActionBarMenu_when_firstEntering() {
-      onView(withId(R.id.action_saved_locations)).check(matches(isDisplayed()))
+      onView(withId(R.id.action_list)).check(matches(isDisplayed()))
     }
 
     @Test
@@ -121,17 +121,18 @@ class DetailActivityAndroidTests {
     @Test
     fun should_launchSavedLocationsActivity_when_listButtonClickedInActionBarMenu() {
       Intents.init()
-      onView(withId(R.id.action_saved_locations)).perform(click())
+      onView(withId(R.id.action_list)).perform(click())
       intended(hasComponent(SavedActivity::class.java.name))
       Intents.release()
     }
 
     @Test
     fun should_launchSearchActivity_when_addButtonClickedInActionBarMenu() {
-      Intents.init()
-      onView(withId(R.id.action_add)).perform(click())
-      intended(hasComponent(SearchActivity::class.java.name))
-      Intents.release()
+      fail("SearchActivity no longer exists")
+//      Intents.init()
+//      onView(withId(R.id.action_add)).perform(click())
+//      intended(hasComponent(SearchActivity::class.java.name))
+//      Intents.release()
     }
   }
 

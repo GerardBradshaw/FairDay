@@ -10,14 +10,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gerardbradshaw.whetherweather.R
+import com.gerardbradshaw.whetherweather.activities.utils.AutocompleteUtil
 import com.gerardbradshaw.whetherweather.activities.detail.DetailActivity
-import com.gerardbradshaw.whetherweather.activities.BaseViewModel
-import com.gerardbradshaw.whetherweather.activities.search.SearchActivity
+import com.gerardbradshaw.whetherweather.activities.utils.BaseViewModel
+import com.gerardbradshaw.whetherweather.application.BaseApplication
+import javax.inject.Inject
 
 class SavedActivity : AppCompatActivity() {
   private lateinit var viewModel: BaseViewModel
   private lateinit var messageView: TextView
   private lateinit var recyclerView: RecyclerView
+  @Inject lateinit var autocompleteUtil: AutocompleteUtil
   
 
   // ------------------------ ACTIVITY LIFECYCLE ------------------------
@@ -35,9 +38,19 @@ class SavedActivity : AppCompatActivity() {
     supportActionBar?.hide()
     viewModel = ViewModelProvider(this).get(BaseViewModel::class.java)
 
+    injectFields()
     initViews()
     initFab()
     initRecycler()
+  }
+
+  private fun injectFields() {
+    val component = (application as BaseApplication)
+      .getAppComponent()
+      .getSavedActivityComponentFactory()
+      .create(this, this)
+
+    component.inject(this)
   }
 
   private fun initViews() {
@@ -47,7 +60,7 @@ class SavedActivity : AppCompatActivity() {
   
   private fun initFab() {
     findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
-      startActivity(Intent(this, SearchActivity::class.java))
+      autocompleteUtil.getPlaceFromAutocomplete()
     }
   }
   
@@ -81,6 +94,6 @@ class SavedActivity : AppCompatActivity() {
   }
 
   companion object {
-    private const val TAG = "GGG SavedLocationsActivit"
+    private const val TAG = "GGG SavedActivity"
   }
 }
