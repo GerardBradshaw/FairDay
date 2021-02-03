@@ -3,24 +3,27 @@ package com.gerardbradshaw.whetherweather.room
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlin.math.roundToInt
 
 @Entity(tableName = "weather_table")
 class LocationEntity(
-    @PrimaryKey @ColumnInfo(name = "location") var name: String,
-    @ColumnInfo(name = "utc_offset") var gmtOffset: Long,
-    @ColumnInfo(name = "lat") var lat: Float,
-    @ColumnInfo(name = "long") var lon: Float
+  @PrimaryKey @ColumnInfo(name = "location") var locality: String,
+  @ColumnInfo(name = "lat") var lat: Float,
+  @ColumnInfo(name = "long") var lon: Float
   ) {
 
   override fun equals(other: Any?): Boolean {
-    return other is LocationEntity && name == other.name
+    return (other is LocationEntity) &&
+        (locality == other.locality) &&
+        (other.lat.roundToInt() == lat.roundToInt()) &&
+        (other.lon.roundToInt() == lon.roundToInt())
   }
 
   override fun hashCode(): Int {
-    return name.hashCode()
+    return locality.hashCode() + lat.roundToInt().hashCode() + lon.roundToInt().hashCode()
   }
 
   override fun toString(): String {
-    return "[$name, $gmtOffset, $lat, $lon]"
+    return "[$locality, $lat, $lon]"
   }
 }

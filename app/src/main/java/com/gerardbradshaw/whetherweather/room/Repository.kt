@@ -2,79 +2,38 @@ package com.gerardbradshaw.whetherweather.room
 
 import android.app.Application
 import androidx.lifecycle.LiveData
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.gerardbradshaw.whetherweather.application.annotations.IsTest
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import javax.inject.Inject
 
-class Repository(application: Application) {
-
-  private val locationDataDao: LocationDataDao
-
-  var locations: List<LocationEntity> = ArrayList()
-    private set
+class Repository @Inject constructor(application: Application, @IsTest val isTest: Boolean) {
+  private val locationDao: LocationDao
+  private val threadIo: CoroutineDispatcher = if (isTest) Main else IO
 
   init {
-    val db = RoomDb.getDatabase(application)
-    locationDataDao = db.getLocationDao()
-    setLocations()
+    val db = RoomDb.getDatabase(application, isTest)
+    locationDao = db.getLocationDao()
   }
 
-
-  // ------------------------ RETRIEVE ------------------------
-
-  private fun setLocations() {
-    CoroutineScope(Dispatchers.Main).launch {
-      getLocationDataSetFromDb()
-    }
+  fun getLiveLocations(): LiveData<List<LocationEntity>> {
+    return locationDao.getLiveLocations()
   }
 
-  private suspend fun getLocationDataSetFromDb() {
-    withContext(Dispatchers.IO) {
-      val locations = locationDataDao.getLocationDataSet()
-
-      withContext(Dispatchers.Main) {
-        saveLocationsLocalCopy(locations)
+  fun saveLocation(location: LocationEntity) {
+    CoroutineScope(Main).launch {
+      withContext(threadIo) {
+        locationDao.insertLocation(location)
       }
     }
   }
 
-  private fun saveLocationsLocalCopy(locations: List<LocationEntity>) {
-    this.locations = locations
-  }
-
-  fun getLiveLocations(): LiveData<List<LocationEntity>> {
-    return locationDataDao.getLiveLocations()
-  }
-
-
-  // ------------------------ INSERT ------------------------
-
-  fun saveLocation(location: LocationEntity) {
-    CoroutineScope(Dispatchers.Main).launch {
-      saveLocationToDb(location)
-    }
-  }
-
-  private suspend fun saveLocationToDb(location: LocationEntity) {
-    withContext(Dispatchers.IO) {
-      locationDataDao.insertLocation(location)
-    }
-  }
-
-
-
-  // ------------------------ DELETE ------------------------
-
   fun deleteLocationData(location: LocationEntity) {
-    CoroutineScope(Dispatchers.Main).launch {
-      deleteLocationFromDb(location)
-    }
-  }
-
-  private suspend fun deleteLocationFromDb(location: LocationEntity) {
-    withContext(Dispatchers.IO) {
-      locationDataDao.deleteLocation(location)
+    CoroutineScope(Main).launch {
+      withContext(threadIo) {
+        locationDao.deleteLocation(location)
+      }
     }
   }
 }

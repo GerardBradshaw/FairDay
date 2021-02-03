@@ -2,7 +2,7 @@ package com.gerardbradshaw.whetherweather
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.gerardbradshaw.whetherweather.ui.search.SearchActivity
+import com.gerardbradshaw.whetherweather.activities.search.SearchActivity
 import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test

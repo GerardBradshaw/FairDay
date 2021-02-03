@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
-    tools:context=".ui.detail.DetailActivity">
+    tools:context=".activities.detail.DetailActivity">
 
     <!-- BACKGROUND IMAGE -->
     <ImageView
@@ -15,8 +15,17 @@
         android:layout_height="match_parent"
         android:adjustViewBounds="true"
         android:importantForAccessibility="no"
-        android:scaleType="centerCrop"
-        tools:src="@drawable/img_clear_day" />
+        android:scaleType="centerCrop" />
+
+    <!-- INSTRUCTIONS -->
+    <TextView
+        android:id="@+id/instructions_text_view"
+        style="@style/BasicWhiteTextWithShadowStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingTop="120dp"
+        android:text="@string/string_press_plus_to_add_a_new_location"/>
 
     <!-- OPAQUE IMAGE FILTER -->
     <FrameLayout
@@ -38,7 +47,8 @@
             android:layout_weight="1"/>
 
         <!-- OPEN WEATHER CREDIT -->
-        <com.gerardbradshaw.whetherweather.views.OpenWeatherCreditView
+        <com.gerardbradshaw.whetherweather.activities.detail.utils.OpenWeatherCreditView
+            android:id="@+id/open_weather_credit_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom" />
