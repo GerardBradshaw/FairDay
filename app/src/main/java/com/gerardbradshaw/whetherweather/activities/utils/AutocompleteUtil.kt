@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.gerardbradshaw.whetherweather.Constants
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.model.TypeFilter
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteActivity
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
@@ -42,6 +43,7 @@ class AutocompleteUtil @Inject constructor(private val activity: AppCompatActivi
     val fields = listOf(Place.Field.ADDRESS_COMPONENTS, Place.Field.LAT_LNG)
     val intent = Autocomplete
       .IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
+      .setTypeFilter(TypeFilter.CITIES)
       .build(activity)
 
     getPlaceFromSearch.launch(intent)

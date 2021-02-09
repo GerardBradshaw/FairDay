@@ -36,6 +36,7 @@ class DetailPagerAdapter @Inject constructor(private val context: Context) :
   override fun onBindViewHolder(holder: DetailViewHolder, position: Int) {
     try {
       val itemData = data[position]
+      val locality = data[position].locationEntity.locality
       val weather = itemData.weatherData
       val isCurrentLocation = itemData.isCurrentLocation
 
@@ -43,7 +44,7 @@ class DetailPagerAdapter @Inject constructor(private val context: Context) :
         val str = context.getString(R.string.string_loading)
         holder.weatherView.setLocationName(str, isCurrentLocation)
       } else {
-        holder.weatherView.setLocation(weather, isCurrentLocation)
+        holder.weatherView.setLocation(locality, weather, isCurrentLocation)
       }
     } catch (e: IndexOutOfBoundsException) {
       Log.e(TAG, "onBindViewHolder: invalid position $position", e)
