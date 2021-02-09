@@ -17,8 +17,6 @@ class LocationListAdapter(private val context: Context):
   private var locations: List<LocationEntity> = ArrayList()
   private val inflater = LayoutInflater.from(context)
 
-  // ------------------------ ADAPTER FUNCTIONS ------------------------
-
   override fun getItemCount(): Int {
     return locations.size
   }
@@ -28,8 +26,18 @@ class LocationListAdapter(private val context: Context):
     notifyDataSetChanged()
   }
 
+  fun setLocationClickedListener(listener: LocationClickedListener) {
+    this.listener = listener
+  }
 
-  // ------------------------ VIEW HOLDER ------------------------
+  fun getEntityAtPosition(position: Int): LocationEntity? {
+    return try {
+      locations[position]
+    } catch (e: java.lang.IndexOutOfBoundsException) {
+      Log.e(TAG, "getEntityAtPosition: invalid position $position", e)
+      null
+    }
+  }
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocationViewHolder {
     val itemView = inflater.inflate(R.layout.list_item_saved_location, parent, false)
@@ -42,7 +50,7 @@ class LocationListAdapter(private val context: Context):
       holder.itemView.setOnClickListener { listener?.onLocationClicked(position) }
 
     } catch (e: IndexOutOfBoundsException) {
-      Log.e(TAG, "onBindViewHolder: ERROR: index out of bounds for i = $position", e)
+      Log.e(TAG, "onBindViewHolder: index out of bounds for i = $position", e)
     }
   }
 
@@ -50,9 +58,7 @@ class LocationListAdapter(private val context: Context):
     val textView: TextView = itemView.findViewById(R.id.list_item_saved_location_text_view)
   }
 
-  fun setLocationClickedListener(listener: LocationClickedListener) {
-    this.listener = listener
-  }
+
 
   interface LocationClickedListener {
     fun onLocationClicked(position: Int)

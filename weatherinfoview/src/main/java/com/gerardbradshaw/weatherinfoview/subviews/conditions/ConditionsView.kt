@@ -37,8 +37,8 @@ class ConditionsView : FrameLayout {
           .load(url)
           .into(conditionIcon)
 
-        conditionIcon.contentDescription = context.getString(R.string.condition_content_desc_prefix) +
-            description + context.getString(R.string.condition_content_desc_suffix)
+        conditionIcon.contentDescription = context.getString(R.string.cd_condition_description_prefix) +
+            description + context.getString(R.string.cd_condition_description_suffix)
       }
 
       descriptionTextView.text = description

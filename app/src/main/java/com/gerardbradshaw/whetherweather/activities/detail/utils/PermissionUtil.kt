@@ -94,7 +94,7 @@ abstract class PermissionUtil {
     private fun showSystemPermissionsRequest() {
       if (requestPermission == null) {
         Log.e(
-          TAG, "showSystemPermissionsRequest: ERROR: activity result launcher is null. Did " +
+          TAG, "showSystemPermissionsRequest: activity result launcher is null. Did " +
             "you forget to call setActivityResultLauncher() in the RequestBuilder?")
       }
       requestPermission?.launch(permission)

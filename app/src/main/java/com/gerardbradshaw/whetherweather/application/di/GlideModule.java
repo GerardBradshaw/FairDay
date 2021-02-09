@@ -1,4 +1,4 @@
-package com.gerardbradshaw.whetherweather.application;
+package com.gerardbradshaw.whetherweather.application.di;
 
 import android.app.Application;
 import android.graphics.drawable.Drawable;

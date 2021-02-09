@@ -1,7 +1,9 @@
-package com.gerardbradshaw.whetherweather.application
+package com.gerardbradshaw.whetherweather.application.di
 
 import android.app.Application
 import com.gerardbradshaw.whetherweather.activities.detail.DetailActivityComponent
+import com.gerardbradshaw.whetherweather.activities.saved.SavedActivityComponent
+import com.gerardbradshaw.whetherweather.application.BaseApplication
 import com.gerardbradshaw.whetherweather.application.annotations.IsTest
 import dagger.BindsInstance
 import dagger.Component
@@ -21,5 +23,6 @@ interface AppComponent {
   }
 
   fun getDetailActivityComponentFactory(): DetailActivityComponent.Factory
+  fun getSavedActivityComponentFactory(): SavedActivityComponent.Factory
   fun inject(baseApplication: BaseApplication)
 }

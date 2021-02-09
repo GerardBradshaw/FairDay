@@ -2,22 +2,29 @@ package com.gerardbradshaw.whetherweather.activities.saved
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gerardbradshaw.whetherweather.R
+import com.gerardbradshaw.whetherweather.activities.utils.AutocompleteUtil
 import com.gerardbradshaw.whetherweather.activities.detail.DetailActivity
-import com.gerardbradshaw.whetherweather.activities.BaseViewModel
-import com.gerardbradshaw.whetherweather.activities.search.SearchActivity
+import com.gerardbradshaw.whetherweather.activities.utils.BaseViewModel
+import com.gerardbradshaw.whetherweather.application.BaseApplication
+import javax.inject.Inject
 
 class SavedActivity : AppCompatActivity() {
   private lateinit var viewModel: BaseViewModel
   private lateinit var messageView: TextView
   private lateinit var recyclerView: RecyclerView
+  private lateinit var locationListAdapter: LocationListAdapter
+  @Inject lateinit var autocompleteUtil: AutocompleteUtil
   
 
   // ------------------------ ACTIVITY LIFECYCLE ------------------------
@@ -35,9 +42,19 @@ class SavedActivity : AppCompatActivity() {
     supportActionBar?.hide()
     viewModel = ViewModelProvider(this).get(BaseViewModel::class.java)
 
+    injectFields()
     initViews()
     initFab()
     initRecycler()
+  }
+
+  private fun injectFields() {
+    val component = (application as BaseApplication)
+      .getAppComponent()
+      .getSavedActivityComponentFactory()
+      .create(this, this)
+
+    component.inject(this)
   }
 
   private fun initViews() {
@@ -47,17 +64,17 @@ class SavedActivity : AppCompatActivity() {
   
   private fun initFab() {
     findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
-      startActivity(Intent(this, SearchActivity::class.java))
+      autocompleteUtil.getPlaceFromAutocomplete()
     }
   }
   
   private fun initRecycler() {
     showEmptyListMessage(true)
-    val adapter = LocationListAdapter(this)
-    recyclerView.adapter = adapter
+    locationListAdapter = LocationListAdapter(this)
+    recyclerView.adapter = locationListAdapter
     recyclerView.layoutManager = LinearLayoutManager(this)
 
-    adapter.setLocationClickedListener(object : LocationListAdapter.LocationClickedListener {
+    locationListAdapter.setLocationClickedListener(object : LocationListAdapter.LocationClickedListener {
       override fun onLocationClicked(position: Int) {
         val returnIntent = Intent()
         returnIntent.putExtra(DetailActivity.EXTRA_PAGER_POSITION, position)
@@ -66,9 +83,45 @@ class SavedActivity : AppCompatActivity() {
       }
     })
 
-    viewModel.getAllLocations().observe(this) {
+    val swipeDirs = ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+
+    val touchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, swipeDirs) {
+      override fun onMove(
+        recyclerView: RecyclerView,
+        viewHolder: RecyclerView.ViewHolder,
+        target: RecyclerView.ViewHolder
+      ): Boolean {
+        return false // Items not movable
+      }
+
+      override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+        displayDeleteLocationDialog(viewHolder.adapterPosition)
+      }
+    })
+
+    touchHelper.attachToRecyclerView(recyclerView)
+
+    viewModel.getLiveLocations().observe(this) {
       showEmptyListMessage(it.isEmpty())
-      adapter.setLocations(it)
+      locationListAdapter.setLocations(it)
+    }
+  }
+
+  private fun displayDeleteLocationDialog(position: Int) {
+    val entityToDelete = locationListAdapter.getEntityAtPosition(position)
+
+    if (entityToDelete == null) {
+      Log.e(TAG, "displayDeleteLocationDialog: no location received")
+      return
+    }
+
+    val msg = "Remove ${entityToDelete.locality} from ${getString(R.string.app_name)}"
+
+    AlertDialog.Builder(this).let {
+      it.setMessage(msg)
+      it.setPositiveButton(getString(R.string.string_ok)) { _, _ -> viewModel.deleteLocation(entityToDelete)}
+      it.setNegativeButton(getString(R.string.string_not_now)) { _, _ -> locationListAdapter.notifyDataSetChanged()}
+      it.show()
     }
   }
 
@@ -81,6 +134,6 @@ class SavedActivity : AppCompatActivity() {
   }
 
   companion object {
-    private const val TAG = "GGG SavedLocationsActivit"
+    private const val TAG = "GGG SavedActivity"
   }
 }

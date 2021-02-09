@@ -7,7 +7,7 @@ import kotlin.math.roundToInt
 
 @Entity(tableName = "weather_table")
 class LocationEntity(
-  @PrimaryKey @ColumnInfo(name = "location") var locality: String,
+  @PrimaryKey @ColumnInfo(name = "locality") var locality: String,
   @ColumnInfo(name = "lat") var lat: Float,
   @ColumnInfo(name = "long") var lon: Float
   ) {

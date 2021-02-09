@@ -25,24 +25,12 @@ class WeatherUtil @Inject constructor(private val context: Context) {
 
   // ------------------------ WEATHER REQUESTS ------------------------
 
-  fun requestWeatherForEntityUsingLatLon(locationEntity: LocationEntity) {
+  fun requestWeatherFor(locationEntity: LocationEntity) {
     val params = HashMap<String, String>()
     params["lat"] = locationEntity.lat.toString()
     params["lon"] = locationEntity.lon.toString()
     params["appId"] = API_KEY_OPEN_WEATHER
 
-    enqueueOpenWeatherCall(params, locationEntity)
-  }
-  
-  fun requestWeatherForEntityUsingPostCode(locationEntity: LocationEntity, address: Address) {
-    val zipCode = address.postalCode
-    val countryCode = address.countryCode
-    val zip = "$zipCode,$countryCode"
-    
-    val params = HashMap<String, String>()
-    params["zip"] = zip
-    params["appId"] = API_KEY_OPEN_WEATHER
-    
     enqueueOpenWeatherCall(params, locationEntity)
   }
 
@@ -58,8 +46,7 @@ class WeatherUtil @Inject constructor(private val context: Context) {
     
     call.enqueue(object : Callback<WeatherFile> {
       override fun onFailure(call: Call<WeatherFile>, t: Throwable) {
-        Log.e(TAG, "onFailure: ERROR: failed to call web host.")
-//        Toast.makeText(context, "Can't connect to OpenWeather.com", Toast.LENGTH_SHORT).show()
+        Log.e(TAG, "onFailure: failed to call web host.")
 
         return onWeatherRequestResponse(Constants.RESULT_FAILURE, null, locationEntity)
       }
@@ -69,8 +56,8 @@ class WeatherUtil @Inject constructor(private val context: Context) {
         var weatherFile: WeatherFile? = null
 
         when {
-          !response.isSuccessful -> Log.e(TAG, "onResponse: ERROR: unsuccessful response.")
-          response.body() == null -> Log.e(TAG, "onResponse: ERROR: Weather response empty.")
+          !response.isSuccessful -> Log.e(TAG, "onResponse: unsuccessful response.")
+          response.body() == null -> Log.e(TAG, "onResponse: Weather response empty.")
           else -> {
             responseCode = Constants.RESULT_SUCCESS
             weatherFile = response.body()
@@ -91,7 +78,7 @@ class WeatherUtil @Inject constructor(private val context: Context) {
       val weatherData = WeatherDataUtil.getWeatherDataFromWeatherFile(weatherFile)
       listener?.onWeatherReceived(weatherData, locationEntity)
     }
-    else Log.e(TAG, "onWeatherRequestResponse: ERROR: no location data")
+    else Log.e(TAG, "onWeatherRequestResponse: no location data")
   }
   
   interface WeatherDetailsListener {

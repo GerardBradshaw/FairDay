@@ -1,12 +1,13 @@
 package com.gerardbradshaw.whetherweather.application
 
 import android.app.Application
-import com.gerardbradshaw.whetherweather.application.DaggerAppComponent
+import android.content.SharedPreferences
+import androidx.preference.PreferenceManager
+import com.gerardbradshaw.whetherweather.Constants.KEY_GPS_NEEDED
+import com.gerardbradshaw.whetherweather.application.di.AppComponent
+import com.gerardbradshaw.whetherweather.application.di.DaggerAppComponent
 import com.gerardbradshaw.whetherweather.retrofit.OpenWeatherApi
 import com.gerardbradshaw.whetherweather.room.Repository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import retrofit2.Retrofit
@@ -14,6 +15,7 @@ import javax.inject.Inject
 
 class BaseApplication : Application() {
   private lateinit var component: AppComponent
+  private lateinit var prefs: SharedPreferences
 
   lateinit var openWeatherApi: OpenWeatherApi
     private set
@@ -33,6 +35,7 @@ class BaseApplication : Application() {
   // ------------------------ INIT ------------------------
 
   private fun initApp() {
+    prefs = PreferenceManager.getDefaultSharedPreferences(this)
     component = DaggerAppComponent
       .builder()
       .setApplication(this)
@@ -45,7 +48,7 @@ class BaseApplication : Application() {
   }
 
 
-  // ------------------------ BASE APPLICATION METHODS ------------------------
+  // ------------------------ PUBLIC FUNCTIONS ------------------------
 
   fun prepareForTests(mockWebServer: HttpUrl) {
     component = DaggerAppComponent
@@ -61,6 +64,15 @@ class BaseApplication : Application() {
 
   fun getAppComponent(): AppComponent {
     return component
+  }
+
+  fun setBooleanPref(key: String, b: Boolean): Boolean {
+    prefs.edit().putBoolean(key, b).apply()
+    return b
+  }
+
+  fun getBooleanPref(key: String, default: Boolean): Boolean {
+    return prefs.getBoolean(key, default)
   }
 
   companion object {

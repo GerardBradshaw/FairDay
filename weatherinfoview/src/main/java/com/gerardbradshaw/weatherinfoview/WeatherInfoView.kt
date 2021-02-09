@@ -50,14 +50,17 @@ class WeatherInfoView : FrameLayout {
     lastUpdateTime = root.findViewById(R.id.last_update_time_text_view)
   }
 
-  fun setLocation(location: WeatherData?, isCurrentLocation: Boolean = false) {
-    if (location != null) {
-      setName(location.name, isCurrentLocation)
-      setTemperatures(location.currentTemp, location.minTemp, location.maxTemp)
-      setConditions(location.condition, location.description, location.conditionIconId)
-      setOtherInfo(location)
-      setLastUpdateTime(location.timeUpdated)
-    } else Log.e(TAG, "setLocation: ERROR: location is null")
+  fun setLocation(locality: String, weather: WeatherData?, isCurrentLocation: Boolean = false) {
+    if (weather != null) {
+      setName(locality, isCurrentLocation)
+      setTemperatures(weather.currentTemp, weather.minTemp, weather.maxTemp)
+      setConditions(weather.condition, weather.description, weather.conditionIconId)
+      setOtherInfo(weather)
+      setLastUpdateTime(weather.timeUpdated)
+    } else {
+      setName(context.getString(R.string.string_loading))
+      Log.i(TAG, "setLocation: location is null")
+    }
   }
 
   fun setLocationName(name: String, isCurrentLocation: Boolean) {

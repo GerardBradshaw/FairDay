@@ -20,4 +20,7 @@ interface LocationDao {
 
   @Query("select * from weather_table")
   fun getLiveLocations(): LiveData<List<LocationEntity>>
+
+  @Query("select * from weather_table")
+  fun getLocations(): List<LocationEntity>
 }

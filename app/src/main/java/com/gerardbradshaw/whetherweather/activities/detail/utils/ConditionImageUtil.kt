@@ -5,11 +5,11 @@ import com.gerardbradshaw.whetherweather.R
 abstract class ConditionImageUtil {
   companion object {
     @JvmStatic
-    fun getConditionImageUri(conditionIconId: String?): Int {
-      if (conditionIconId == null|| conditionIconId.length < 3) return R.drawable.img_clear_day
+    fun getResId(conditionId: String?): Int {
+      if (conditionId == null|| conditionId.length < 3) return R.drawable.img_clear_day
 
-      val number = Integer.parseInt(conditionIconId.substring(0,2))
-      val isDay = conditionIconId.substring(3) == "d"
+      val number = Integer.parseInt(conditionId.substring(0,2))
+      val isDay = conditionId.substring(3) == "d"
 
       return when (number) {
         2, 4 -> if (isDay) R.drawable.img_broken_and_few_clouds_day else R.drawable.img_broken_and_few_clouds_night
