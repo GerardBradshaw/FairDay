@@ -15,6 +15,8 @@ object Constants {
 
   const val RECEIVER = "$PACKAGE_NAME.RECEIVER"
 
+  const val URL_OPEN_WEATHER = "https://openweathermap.org"
+
   const val RESULT_SUCCESS = 0
   const val RESULT_FAILURE = 1
   const val RESULT_ERROR = 2

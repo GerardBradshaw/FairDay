@@ -2,6 +2,7 @@ package com.gerardbradshaw.whetherweather.activities.detail
 
 import android.content.Intent
 import android.location.Address
+import android.net.Uri
 import android.os.*
 import android.util.Log
 import android.view.Menu
@@ -18,6 +19,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.gerardbradshaw.weatherinfoview.datamodels.WeatherData
+import com.gerardbradshaw.whetherweather.Constants
 import com.gerardbradshaw.whetherweather.Constants.KEY_GPS_NEEDED
 import com.gerardbradshaw.whetherweather.Constants.RESULT_ERROR
 import com.gerardbradshaw.whetherweather.application.BaseApplication
@@ -29,6 +31,7 @@ import com.gerardbradshaw.whetherweather.activities.detail.utils.ConditionImageU
 import com.gerardbradshaw.whetherweather.activities.detail.utils.GpsUtil
 import com.gerardbradshaw.whetherweather.activities.saved.SavedActivity
 import com.gerardbradshaw.whetherweather.activities.detail.utils.GpsUtil.Companion.REQUEST_CODE_CHECK_SETTINGS
+import com.gerardbradshaw.whetherweather.activities.detail.utils.OpenWeatherCreditView
 import com.gerardbradshaw.whetherweather.activities.detail.utils.WeatherUtil
 import com.gerardbradshaw.whetherweather.activities.detail.viewpager.DetailPagerAdapter
 import com.gerardbradshaw.whetherweather.activities.detail.viewpager.PagerItemUtil
@@ -177,16 +180,27 @@ class DetailActivity :
   // ------------------------ INIT ------------------------
 
   private fun initActivity(savedInstanceState: Bundle?) {
-    supportActionBar?.setDisplayShowTitleEnabled(false)
     app = application as BaseApplication
     viewModel = ViewModelProvider(this).get(BaseViewModel::class.java)
-    backgroundImage = findViewById(R.id.background_image_view)
-    instructionsTextView = findViewById(R.id.instructions_text_view)
 
+    initViews()
     loadInstanceState(savedInstanceState)
     injectFields()
     initListeners()
     initViewPager()
+  }
+
+  private fun initViews() {
+    supportActionBar?.setDisplayShowTitleEnabled(false)
+    backgroundImage = findViewById(R.id.background_image_view)
+    instructionsTextView = findViewById(R.id.instructions_text_view)
+
+    findViewById<OpenWeatherCreditView>(R.id.open_weather_credit_view).setOnClickListener {
+      Intent(Intent.ACTION_VIEW).also {
+        it.data = Uri.parse(Constants.URL_OPEN_WEATHER)
+        startActivity(it)
+      }
+    }
   }
 
   private fun loadInstanceState(savedInstanceState: Bundle?) {
