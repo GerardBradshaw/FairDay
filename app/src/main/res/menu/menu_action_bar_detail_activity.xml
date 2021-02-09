@@ -4,7 +4,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_saved_locations"
+        android:id="@+id/action_pin"
+        android:orderInCategory="50"
+        android:title="@string/string_my_location"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_location_on" />
+
+    <item
+        android:id="@+id/action_list"
         android:orderInCategory="100"
         android:title="@string/string_locations"
         app:showAsAction="ifRoom"

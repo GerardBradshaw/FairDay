@@ -166,7 +166,8 @@ class GpsUtil @Inject constructor(
     startLocationUpdates()
   }
 
-  fun stopUpdates() {
+  fun stopRequestingUpdates() {
+    isGpsUpdatesRequested = false
     stopRequestingLocationUpdates()
   }
 
@@ -238,8 +239,6 @@ class GpsUtil @Inject constructor(
       return
     }
 
-    isGpsUpdatesRequested = false
-
     fusedLocationClient
         .removeLocationUpdates(locationCallback)
         .addOnCompleteListener(activity) { onLocationUpdateRequestsStopped() }
@@ -260,6 +259,10 @@ class GpsUtil @Inject constructor(
 
 
   // ------------------------ UTIL ------------------------
+
+  fun isRequestingUpdates(): Boolean {
+    return isGpsUpdatesRequested
+  }
 
   interface GpsUpdateListener {
     fun onGpsUpdate(address: Address?)

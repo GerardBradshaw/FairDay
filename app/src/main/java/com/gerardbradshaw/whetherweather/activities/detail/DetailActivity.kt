@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import androidx.viewpager2.widget.ViewPager2
@@ -20,14 +21,15 @@ import com.gerardbradshaw.weatherinfoview.datamodels.WeatherData
 import com.gerardbradshaw.whetherweather.Constants
 import com.gerardbradshaw.whetherweather.application.BaseApplication
 import com.gerardbradshaw.whetherweather.R
+import com.gerardbradshaw.whetherweather.activities.utils.AutocompleteUtil
 import com.gerardbradshaw.whetherweather.room.LocationEntity
-import com.gerardbradshaw.whetherweather.activities.BaseViewModel
+import com.gerardbradshaw.whetherweather.activities.utils.BaseViewModel
 import com.gerardbradshaw.whetherweather.activities.detail.utils.ConditionImageUtil
 import com.gerardbradshaw.whetherweather.activities.detail.utils.GpsUtil
-import com.gerardbradshaw.whetherweather.activities.search.SearchActivity
 import com.gerardbradshaw.whetherweather.activities.saved.SavedActivity
 import com.gerardbradshaw.whetherweather.activities.detail.utils.GpsUtil.Companion.REQUEST_CODE_CHECK_SETTINGS
 import com.gerardbradshaw.whetherweather.activities.detail.utils.WeatherUtil
+import com.google.android.libraries.places.widget.AutocompleteActivity
 import javax.inject.Inject
 
 class DetailActivity :
@@ -44,6 +46,7 @@ class DetailActivity :
   @Inject lateinit var gpsUtil: GpsUtil
   @Inject lateinit var weatherUtil: WeatherUtil
   @Inject lateinit var glideInstance: RequestManager
+  @Inject lateinit var autocompleteUtil: AutocompleteUtil
 
   private var isFirstLaunch = true
 
@@ -51,16 +54,28 @@ class DetailActivity :
     registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
       val intent = it.data
       when {
-        intent == null -> Log.i(TAG, "movePagerToPosition: no intent received from last activity.")
+        intent == null -> Log.wtf(TAG, "movePagerToPosition: ERROR: missing intent.")
 
-        intent.hasExtra(EXTRA_PAGER_POSITION) -> {
-          val position = intent.getIntExtra(EXTRA_PAGER_POSITION, 0)
-          val maxPosition = viewPager.adapter?.itemCount?.minus(1) ?: -1
+        it.resultCode == AutocompleteActivity.RESULT_CANCELED -> {
+          Log.i(TAG, "movePagerToPosition: no place selected.")
+        }
 
-          when (position) {
-            Int.MAX_VALUE -> viewPager.setCurrentItem(maxPosition, true)
-            in 0..maxPosition -> viewPager.setCurrentItem(position, false)
-            else -> Log.e(TAG, "movePagerToPosition: ERROR: given position is invalid")
+        it.resultCode == AutocompleteActivity.RESULT_ERROR -> {
+          Log.e(TAG, "movePagerToPosition: ERROR: intent error. Cannot scroll ViewPager.")
+        }
+
+        it.resultCode == AutocompleteActivity.RESULT_OK -> {
+          if (!intent.hasExtra(EXTRA_PAGER_POSITION)) {
+            Log.e(TAG, "movePagerToPosition: ERROR: no position received.")
+          } else {
+            val position = intent.getIntExtra(EXTRA_PAGER_POSITION, 0)
+            val maxPosition = viewPager.adapter?.itemCount?.minus(1) ?: -1
+
+            when (position) {
+              Int.MAX_VALUE -> viewPager.setCurrentItem(maxPosition, true)
+              in 0..maxPosition -> viewPager.setCurrentItem(position, false)
+              else -> Log.e(TAG, "movePagerToPosition: ERROR: position is invalid")
+            }
           }
         }
       }
@@ -96,25 +111,48 @@ class DetailActivity :
 
   override fun onCreateOptionsMenu(menu: Menu): Boolean {
     menuInflater.inflate(R.menu.menu_action_bar_detail_activity, menu)
+
+    val icon = if (gpsUtil.isRequestingUpdates()) {
+      ContextCompat.getDrawable(this, R.drawable.ic_location_on)
+    } else {
+      ContextCompat.getDrawable(this, R.drawable.ic_location_off)
+    }
+
+    menu.getItem(0).icon = icon
     return super.onCreateOptionsMenu(menu)
   }
 
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
     return when (item.itemId) {
-      R.id.action_saved_locations -> {
-        val intent = Intent(this, SavedActivity::class.java)
-        movePagerToPosition.launch(intent)
-        true
-      }
-
-      R.id.action_add -> {
-        val intent = Intent(this, SearchActivity::class.java)
-        movePagerToPosition.launch(intent)
-        true
-      }
-
+      R.id.action_pin -> onPinButtonClicked(item)
+      R.id.action_list -> onSavedButtonClicked()
+      R.id.action_add -> onAddButtonClicked()
       else -> super.onOptionsItemSelected(item)
     }
+  }
+
+  private fun onPinButtonClicked(item: MenuItem): Boolean {
+    if (gpsUtil.isRequestingUpdates()) {
+      gpsUtil.stopRequestingUpdates()
+      pagerAdapter.removeCurrentLocation()
+      item.icon = ContextCompat.getDrawable(this, R.drawable.ic_location_off)
+    }
+    else {
+      gpsUtil.requestUpdates()
+      item.icon = ContextCompat.getDrawable(this, R.drawable.ic_location_on)
+    }
+    return true
+  }
+
+  private fun onSavedButtonClicked(): Boolean {
+    val intent = Intent(this, SavedActivity::class.java)
+    movePagerToPosition.launch(intent)
+    return true
+  }
+
+  private fun onAddButtonClicked(): Boolean {
+    autocompleteUtil.getPlaceFromAutocomplete()
+    return true
   }
 
 
