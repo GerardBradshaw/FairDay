@@ -57,7 +57,10 @@ class WeatherInfoView : FrameLayout {
       setConditions(location.condition, location.description, location.conditionIconId)
       setOtherInfo(location)
       setLastUpdateTime(location.timeUpdated)
-    } else Log.e(TAG, "setLocation: ERROR: location is null")
+    } else {
+      setName(context.getString(R.string.string_loading))
+      Log.i(TAG, "setLocation: location is null")
+    }
   }
 
   fun setLocationName(name: String, isCurrentLocation: Boolean) {

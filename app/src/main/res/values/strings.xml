@@ -25,7 +25,7 @@
     <!-- CONTENT DESCRIPTIONS -->
     <string name="cd_add_new_location_button">Add new location button</string>
     <string name="cd_condition_prefix">\"Graphic of \"</string>
-    <string name="cd_condition_suffix">\" conditions\"</string>
+    <string name="cd_condition_description_suffix">\" conditions\"</string>
     <string name="cd_location_pin_icon">Pin indicating current location</string>
     <string name="cd_open_weather_logo">Open Weather logo</string>
 

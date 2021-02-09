@@ -34,7 +34,7 @@
             android:id="@+id/location_text_view"
             style="@style/LocationStyle"
             tools:text="San Francisco"
-            android:text="@string/invalid_location" />
+            android:text="@string/string_invalid_location" />
 
     </LinearLayout>
 

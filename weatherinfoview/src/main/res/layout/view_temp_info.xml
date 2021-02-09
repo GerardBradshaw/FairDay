@@ -41,7 +41,7 @@
 
             <TextView
                 style="@style/TemperatureBoundStyle"
-                android:text="@string/min" />
+                android:text="@string/symbol_low" />
 
             <TextView
                 android:id="@+id/min_text_view"
@@ -62,7 +62,7 @@
 
             <TextView
                 style="@style/TemperatureBoundStyle"
-                android:text="@string/max" />
+                android:text="@string/symbol_high" />
 
             <TextView
                 android:id="@+id/max_text_view"

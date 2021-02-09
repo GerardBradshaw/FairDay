@@ -10,11 +10,12 @@ object Constants {
   const val EXTRA_IS_TEST = "$PACKAGE_NAME.EXTRA_IS_TEST"
   const val EXTRA_LOCATION_DATA = "$PACKAGE_NAME.EXTRA_LOCATION_DATA"
 
-  const val KEY_IS_FIRST_LAUNCH = "pref_location_updates"
   const val KEY_RESULT_DATA = "$PACKAGE_NAME.KEY_RESULT_DATA"
+  const val KEY_GPS_NEEDED = "$PACKAGE_NAME.KEY_GPS_NEEDED"
 
   const val RECEIVER = "$PACKAGE_NAME.RECEIVER"
 
   const val RESULT_SUCCESS = 0
   const val RESULT_FAILURE = 1
+  const val RESULT_ERROR = 2
 }

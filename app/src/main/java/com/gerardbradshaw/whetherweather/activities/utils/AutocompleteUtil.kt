@@ -20,11 +20,11 @@ class AutocompleteUtil @Inject constructor(private val activity: AppCompatActivi
       val intent = it.data
 
       when {
-        intent == null -> Log.wtf(TAG, "getPlaceFromSearch: ERROR: missing intent.")
+        intent == null -> Log.wtf(TAG, "getPlaceFromSearch: missing intent.")
 
         it.resultCode == AutocompleteActivity.RESULT_OK -> {
           val place = Autocomplete.getPlaceFromIntent(intent)
-          viewModel.savePlaceAsLocation(place)
+          viewModel.saveLocation(place)
         }
 
         it.resultCode == AutocompleteActivity.RESULT_CANCELED -> {
@@ -32,7 +32,7 @@ class AutocompleteUtil @Inject constructor(private val activity: AppCompatActivi
         }
 
         it.resultCode == AutocompleteActivity.RESULT_ERROR -> {
-          Log.e(TAG, "getPlaceFromSearch: ERROR: something went wrong with the autocomplete fragment.")
+          Log.e(TAG, "getPlaceFromSearch: something went wrong with the autocomplete fragment.")
         }
       }
     }
