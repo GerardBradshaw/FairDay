@@ -6,7 +6,7 @@
     <item
         android:id="@+id/action_pin"
         android:orderInCategory="50"
-        android:title="@string/string_my_location"
+        android:title="@string/string_enable_location_services"
         app:showAsAction="ifRoom"
         android:icon="@drawable/ic_location_on" />
 

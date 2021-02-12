@@ -20,7 +20,9 @@
     <string name="string_unable_to_determine_location">Unable to determine location</string>
     <string name="string_unknown_location">Unknown location</string>
     <string name="string_waiting">Waiting…</string>
-    <string name="string_my_location">My Location</string>
+    <string name="string_enable_location_services">Enable location services</string>
+    <string name="string_disable_location_services">Disable location services</string>
+
 
     <!-- CONTENT DESCRIPTIONS -->
     <string name="cd_add_new_location_button">Add new location button</string>

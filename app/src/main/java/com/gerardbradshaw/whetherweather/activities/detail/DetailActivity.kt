@@ -78,7 +78,7 @@ class DetailActivity :
         when (it.resultCode) {
           RESULT_CANCELED -> Log.i(TAG, "movePagerToPosition: no place selected.")
           RESULT_ERROR -> Log.e(TAG, "movePagerToPosition: intent error. Cannot scroll.")
-          RESULT_OK -> movePagerToPositionInIntent(intent)
+          RESULT_OK -> {}//movePagerToPositionInIntent(intent)
         }
       }
     }
@@ -128,14 +128,9 @@ class DetailActivity :
   override fun onCreateOptionsMenu(menu: Menu): Boolean {
     menuInflater.inflate(R.menu.menu_action_bar_detail_activity, menu)
 
-    val icon =
-      if (app.getBooleanPref(KEY_GPS_NEEDED, false)) {
-        ContextCompat.getDrawable(this, R.drawable.ic_location_on)
-      } else {
-        ContextCompat.getDrawable(this, R.drawable.ic_location_off)
-      }
+    val isGpsOn = app.getBooleanPref(KEY_GPS_NEEDED, false)
+    setPinMenuItemIconAndTitle(menu.getItem(0), isGpsOn)
 
-    menu.getItem(0).icon = icon
     return super.onCreateOptionsMenu(menu)
   }
 
@@ -155,14 +150,26 @@ class DetailActivity :
     if (isNowUsingGps) {
       Log.d(TAG, "onPinButtonClicked: Starting GPS updates.")
       gpsUtil.requestUpdates()
-      item.icon = ContextCompat.getDrawable(this, R.drawable.ic_location_on)
+      setPinMenuItemIconAndTitle(item, true)
     } else {
       Log.d(TAG, "onPinButtonClicked: Stopping GPS updates.")
       gpsUtil.stopRequestingUpdates()
       pagerItemUtil.disableCurrentLocation()
-      item.icon = ContextCompat.getDrawable(this, R.drawable.ic_location_off)
+      setPinMenuItemIconAndTitle(item, false)
     }
     return true
+  }
+
+  private fun setPinMenuItemIconAndTitle(menuItem: MenuItem, isGpsOn: Boolean) {
+    menuItem.let {
+      if (isGpsOn) {
+        it.icon = ContextCompat.getDrawable(this, R.drawable.ic_location_on)
+        it.title = getString(R.string.string_disable_location_services)
+      } else {
+        it.icon = ContextCompat.getDrawable(this, R.drawable.ic_location_off)
+        it.title = getString(R.string.string_enable_location_services)
+      }
+    }
   }
 
   private fun onSavedButtonClicked(): Boolean {

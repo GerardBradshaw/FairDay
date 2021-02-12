@@ -18,13 +18,9 @@ class Repository @Inject constructor(
   application: Application,
   @IsTest val isTest: Boolean
   ) {
-  private val locationDao: LocationDao
+  private val db: RoomDb = RoomDb.getDatabase(application, isTest)
+  private val locationDao: LocationDao = db.getLocationDao()
   private val threadIo: CoroutineDispatcher = if (isTest) Main else IO
-
-  init {
-    val db = RoomDb.getDatabase(application, isTest)
-    locationDao = db.getLocationDao()
-  }
 
   fun getLiveLocations(): LiveData<List<LocationEntity>> {
     return locationDao.getLiveLocations()
@@ -44,6 +40,10 @@ class Repository @Inject constructor(
         locationDao.deleteLocation(location)
       }
     }
+  }
+
+  fun wipeLocalDb() {
+    db.clearAllTables()
   }
 
   companion object {

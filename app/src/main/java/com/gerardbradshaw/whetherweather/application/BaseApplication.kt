@@ -3,7 +3,6 @@ package com.gerardbradshaw.whetherweather.application
 import android.app.Application
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
-import com.gerardbradshaw.whetherweather.Constants.KEY_GPS_NEEDED
 import com.gerardbradshaw.whetherweather.application.di.AppComponent
 import com.gerardbradshaw.whetherweather.application.di.DaggerAppComponent
 import com.gerardbradshaw.whetherweather.retrofit.OpenWeatherApi
@@ -50,13 +49,20 @@ class BaseApplication : Application() {
 
   // ------------------------ PUBLIC FUNCTIONS ------------------------
 
-  fun prepareForTests(mockWebServer: HttpUrl) {
+  fun prepareForTests(
+    mockWebServer: HttpUrl,
+    resetPrefs: Boolean = true,
+    wipeLocalDb: Boolean = true
+  ) {
     component = DaggerAppComponent
       .builder()
       .setApplication(this)
       .setIsTest(true)
       .setHttpUrl(mockWebServer)
       .build()
+
+    if (wipeLocalDb) repository.wipeLocalDb()
+    if (resetPrefs) prefs.edit().clear().apply()
 
     component.inject(this)
     openWeatherApi = retrofit.create(OpenWeatherApi::class.java)
