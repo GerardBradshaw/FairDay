@@ -1,7 +1,9 @@
 package com.gerardbradshaw.whetherweather
 
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.ActionMenuItemView
+import androidx.test.InstrumentationRegistry.getTargetContext
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -9,20 +11,29 @@ import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.BoundedMatcher
+import androidx.test.espresso.matcher.RootMatchers.withDecorView
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.viewpager2.widget.ViewPager2
+import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.checkPermissionRationaleDisplayed
 import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.checkPinMenuItemHasTitle
+import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.checkSystemPermissionRequestDisplayed
+import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.checkToastIsDisplayedContaining
 import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.checkViewPagerHasItemCount
 import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.checkWeatherIsDisplayedForCurrentLocation
 import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.checkWeatherIsDisplayedForLocation
+import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.clickDialogButton
+import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.clickPinMenuItem
 import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.scrollViewPagerToPosition
+import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.DialogButton.*
 import com.gerardbradshaw.whetherweather.activities.detail.DetailActivity
 import com.gerardbradshaw.whetherweather.activities.saved.SavedActivity
 import com.gerardbradshaw.whetherweather.application.BaseApplication
@@ -35,12 +46,12 @@ import org.junit.*
 import org.junit.Assert.fail
 import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
+import java.util.jar.Manifest
 import kotlin.math.max
 import kotlin.math.min
 
 @RunWith(Enclosed::class)
 class DetailActivityAndroidTests {
-// done
   @RunWith(AndroidJUnit4::class)
   class FirstLaunchTests {
     lateinit var activityScenario: ActivityScenario<DetailActivity>
@@ -81,7 +92,95 @@ class DetailActivityAndroidTests {
     }
   }
 
-// done
+  @Ignore("Can't force runner to ask for location permission. Manually testing required for the below cases :(")
+  class PermissionsTests {
+    lateinit var activityScenario: ActivityScenario<DetailActivity>
+    lateinit var activity: DetailActivity
+    lateinit var mockWebServer: MyMockServer
+
+    @Before
+    fun setup() {
+      mockWebServer = MyMockServer()
+      mockWebServer.start()
+      ApplicationProvider.getApplicationContext<BaseApplication>()
+        .prepareForTests(mockWebServer.url())
+
+      activityScenario = ActivityScenario.launch(DetailActivity::class.java)
+      activityScenario.onActivity { activity = it }
+    }
+
+    @After
+    fun tearDown() {
+      mockWebServer.shutdown()
+
+      InstrumentationRegistry.getInstrumentation().uiAutomation
+        .executeShellCommand(
+          "pm revoke ${android.Manifest.permission.ACCESS_FINE_LOCATION}")
+    }
+
+    // -------------------------------- TESTS --------------------------------
+
+    @Test
+    fun should_displayPermissionRationale_when_weatherAtCurrentLocationRequestedForTheFirstTime() {
+      clickPinMenuItem()
+      checkPermissionRationaleDisplayed(true)
+    }
+
+    @Test
+    fun should_displayPermissionRequest_when_permissionRationaleAccepted() {
+      clickPinMenuItem()
+      clickDialogButton(POSITIVE)
+      checkSystemPermissionRequestDisplayed(true)
+    }
+
+    @Test
+    fun should_notDisplayPermissionRequest_when_permissionRationaleDismissed() {
+      clickPinMenuItem()
+      clickDialogButton(NEGATIVE)
+      checkSystemPermissionRequestDisplayed(false)
+    }
+
+    @Test
+    fun should_displayPermissionRationale_when_previouslyDismissedAndLocationRequestedAgain() {
+      clickPinMenuItem()
+      clickDialogButton(NEGATIVE)
+      clickPinMenuItem()
+      checkPermissionRationaleDisplayed(true)
+    }
+
+    @Test
+    fun should_notDisplayPermissionRationale_when_previousRationaleAcceptedAndLocationRequested() {
+      clickPinMenuItem()
+      clickDialogButton(POSITIVE)
+      clickDialogButton(NEGATIVE)
+      clickPinMenuItem()
+      checkSystemPermissionRequestDisplayed(true)
+    }
+
+    @Test
+    fun should_displayWeatherAtCurrentLocation_when_permissionRequestGranted() {
+      clickPinMenuItem()
+      clickDialogButton(POSITIVE)
+      clickDialogButton(POSITIVE)
+      checkWeatherIsDisplayedForCurrentLocation()
+    }
+
+    @Test
+    fun should_displayErrorToast_when_permissionRequestDenied() {
+      clickPinMenuItem()
+      clickDialogButton(POSITIVE)
+      clickDialogButton(NEGATIVE)
+      checkToastIsDisplayedContaining("error", activity)
+    }
+
+    @Test
+    fun should_notDisplayErrorToast_when_permissionRequestIgnored() {
+      clickPinMenuItem()
+      clickDialogButton(POSITIVE)
+      fail("Need to dismiss permission request") // TODO
+    }
+  }
+
   @RunWith(AndroidJUnit4::class)
   class ActionBarTests {
     lateinit var activityScenario: ActivityScenario<DetailActivity>
@@ -117,14 +216,14 @@ class DetailActivityAndroidTests {
 
     @Test
     fun should_displayLocationOnPinButton_when_pinFirstClicked() {
-      onView(withId(R.id.action_pin)).perform(click())
+      clickPinMenuItem()
       checkPinMenuItemHasTitle(activity.getString(R.string.string_disable_location_services))
     }
 
     @Test
     fun should_displayLocationOffPinButton_when_pinFirstClickedTwice() {
-      onView(withId(R.id.action_pin)).perform(click())
-      onView(withId(R.id.action_pin)).perform(click())
+      clickPinMenuItem()
+      clickPinMenuItem()
       checkPinMenuItemHasTitle(activity.getString(R.string.string_enable_location_services))
     }
 
@@ -157,7 +256,7 @@ class DetailActivityAndroidTests {
     }
   }
 
-
+  // TODO
   @RunWith(AndroidJUnit4::class)
   class PagerTests {
     lateinit var mockWebServer: MyMockServer
@@ -187,18 +286,39 @@ class DetailActivityAndroidTests {
 
     // -------------------------------- TESTS --------------------------------
     @Test
-    fun should_haveSingleItemInPager_when_firstLaunched() {
+    fun should_displayInstructions_when_firstLaunched() {
+      onView(withId(R.id.instructions_text_view)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun should_haveEmptyPager_when_firstLaunched() {
+      checkViewPagerHasItemCount(0)
+    }
+
+    @Test
+    fun should_displayWeatherAtCurrentLocation_when_locationEnabled() {
+      clickPinMenuItem()
+      scrollViewPagerToPosition(0)
+      checkWeatherIsDisplayedForCurrentLocation()
+    }
+
+    @Test
+    fun should_loadWeatherIntoFirstPosition_when_locationEnabled() {
+      mockWebServer.addAllLocations()
+      clickPinMenuItem()
+      scrollViewPagerToPosition(0)
+      checkWeatherIsDisplayedForCurrentLocation()
+    }
+
+
+    @Test
+    fun should_addAnItemToPager_when_newLocationAddedToDb() {
+      mockWebServer.addLocation(0)
       checkViewPagerHasItemCount(1)
     }
 
     @Test
-    fun should_addLocationToViewPager_when_newLocationAddedToDb() {
-      mockWebServer.addLocation(0)
-      checkViewPagerHasItemCount(2)
-    }
-
-    @Test
-    fun should_showLoadingMessageAsLocationName_when_newLocationAdded() {
+    fun should_showLoadingMessageAsLocationName_when_newLocationAddedToPager() {
       onView(allOf(withId(R.id.location_text_view), isDisplayed()))
         .check((matches(withText(containsString(activity.resources.getString(R.string.string_loading))))))
     }
@@ -217,21 +337,32 @@ class DetailActivityAndroidTests {
       scrollViewPagerToPosition(2)
       checkWeatherIsDisplayedForLocation(2)
     }
-
-    @Test
-    fun should_displayWeatherForCurrentLocation_when_weatherAtCurrentLocationEnabled() {
-      checkWeatherIsDisplayedForCurrentLocation()
-    }
   }
-
 
 
   @Ignore("Helper class")
   private abstract class DetailActivityAndroidTestUtil {
     companion object {
+      // -------- VIEW PAGER --------
+      private fun onViewPager(): ViewInteraction {
+        return onView(allOf(withId(R.id.view_pager), isDisplayed()))
+      }
+
       @JvmStatic
       fun checkViewPagerHasItemCount(n: Int) {
         onViewPager().check(matches(hasItemCount(n)))
+      }
+
+      private fun hasItemCount(count: Int): Matcher<View?> {
+        return object : BoundedMatcher<View?, ViewPager2>(ViewPager2::class.java) {
+          override fun matchesSafely(view: ViewPager2): Boolean {
+            return count == view.adapter?.itemCount ?: -1
+          }
+
+          override fun describeTo(description: Description) {
+            description.appendText("Matches on ViewPager2 with same item count.")
+          }
+        }
       }
 
       @JvmStatic
@@ -246,34 +377,14 @@ class DetailActivityAndroidTests {
           .check(matches(isDisplayed()))
 
         onView(allOf(withId(R.id.location_text_view), isDisplayed()))
-          .check(matches(withText(containsString("Santa Clara"))))
-      }
-
-      @JvmStatic
-      fun checkPinMenuItemHasTitle(title: String) {
-        onView(allOf(withId(R.id.action_pin), isDisplayed()))
-          .check(matches(hasTitle(title)))
+          .check(matches(allOf(
+            not(withText(R.string.string_loading)),
+            not(withText(R.string.string_unknown_location)))))
       }
 
       @JvmStatic
       fun scrollViewPagerToPosition(p: Int): ViewInteraction {
         return onViewPager().perform(scrollToPosition(p))
-      }
-
-      private fun onViewPager(): ViewInteraction {
-        return onView(allOf(withId(R.id.view_pager), isDisplayed()))
-      }
-
-      private fun hasItemCount(count: Int): Matcher<View?> {
-        return object : BoundedMatcher<View?, ViewPager2>(ViewPager2::class.java) {
-          override fun matchesSafely(view: ViewPager2): Boolean {
-            return count == view.adapter?.itemCount ?: -1
-          }
-
-          override fun describeTo(description: Description) {
-            description.appendText("Matches on ViewPager2 with same item count.")
-          }
-        }
       }
 
       private fun scrollToPosition(p: Int): ViewAction {
@@ -295,6 +406,19 @@ class DetailActivityAndroidTests {
         }
       }
 
+
+      // -------- ACTION BAR --------
+      @JvmStatic
+      fun clickPinMenuItem() {
+        onView(withId(R.id.action_pin)).perform(click())
+      }
+
+      @JvmStatic
+      fun checkPinMenuItemHasTitle(title: String) {
+        onView(allOf(withId(R.id.action_pin), isDisplayed()))
+          .check(matches(hasTitle(title)))
+      }
+
       private fun hasTitle(expected: String): Matcher<View?> {
         return object : BoundedMatcher<View?, ActionMenuItemView>(ActionMenuItemView::class.java) {
           override fun matchesSafely(view: ActionMenuItemView): Boolean {
@@ -305,6 +429,47 @@ class DetailActivityAndroidTests {
             description.appendText("has title $expected.")
           }
         }
+      }
+
+
+      // -------- DIALOGUES --------
+      @JvmStatic
+      fun checkPermissionRationaleDisplayed(expected: Boolean) {
+        val matchesExpected = if (expected) matches(isDisplayed()) else doesNotExist()
+
+        onView(withText("Permission required"))
+          .check(matchesExpected)
+      }
+
+      @JvmStatic
+      fun clickDialogButton(button: DialogButton) {
+        val buttonId = when (button) {
+          POSITIVE -> android.R.id.button1
+          NEGATIVE -> android.R.id.button2
+          NEUTRAL -> android.R.id.button3
+        }
+
+        onView(withId(buttonId))
+          .perform(click())
+      }
+
+      @JvmStatic
+      fun checkSystemPermissionRequestDisplayed(expected: Boolean) {
+        val matchesExpected = if (expected) matches(isDisplayed()) else doesNotExist()
+
+        onView(withText("would like to"))
+          .check(matchesExpected)
+      }
+
+      @JvmStatic
+      fun checkToastIsDisplayedContaining(string: String, activity: AppCompatActivity) {
+        onView(withText(string))
+          .inRoot(withDecorView(not(`is`(activity.window.decorView))))
+          .check(matches(isDisplayed()))
+      }
+
+      enum class DialogButton {
+        POSITIVE, NEUTRAL, NEGATIVE
       }
     }
   }

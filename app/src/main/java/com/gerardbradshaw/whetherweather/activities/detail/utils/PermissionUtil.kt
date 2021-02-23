@@ -18,7 +18,7 @@ abstract class PermissionUtil {
     ) {
     private var rationaleDialog: AlertDialog? = null
     private var dialogMessage = "This app requires permissions to deliver the best experience."
-    private var dialogTitle = "Permissions required"
+    private var dialogTitle = "Permission required"
     private var dialogPositiveButtonText = "OK"
     private var dialogNegativeButtonText = "Not now"
 

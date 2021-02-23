@@ -111,10 +111,10 @@ dependencies {
     implementation "org.mockito:mockito-android:$rootProject.mockito_version"
 
     // MVVM
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$rootProject.mvvm_version"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$rootProject.mvvm_version"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$rootProject.mvvm_version"
-    implementation "androidx.lifecycle:lifecycle-extensions:$rootProject.mvvm_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$rootProject.lifecycle_viewmodel_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$rootProject.lifecycle_runtime_version"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$rootProject.lifecycle_livedata_version"
+    implementation "androidx.lifecycle:lifecycle-extensions:$rootProject.lifecycle_extensions_version"
 
     // Navigation
     implementation "androidx.navigation:navigation-fragment-ktx:$rootProject.navigation_version"
