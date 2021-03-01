@@ -1,5 +1,6 @@
 package com.gerardbradshaw.whetherweather.activities.detail.viewpager
 
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -20,21 +21,31 @@ class PagerItemUtil(
   val dataLive = MutableLiveData<LinkedList<DetailPagerItem>>()
 
   init {
-    liveLocations.observe(activity) {
-      val newCache = LinkedHashMap<LocationEntity, DetailPagerItem>()
+    liveLocations.observe(activity) { syncLocations(it) }
+    liveWeather.observe(activity) { syncWeather(it) }
+  }
 
-      for (location in it) {
+  private fun syncLocations(locations: List<LocationEntity>) {
+    synchronized(this) {
+      val newCache = LinkedHashMap<LocationEntity, DetailPagerItem>()
+      val requestList = ArrayList<LocationEntity>()
+
+      for (location in locations) {
         val weatherData = dataCached[location]?.weatherData
-        if (weatherData == null) weatherUtil.requestWeatherFor(location)
+        if (weatherData == null) requestList.add(location)
         newCache[location] = dataCached[location] ?: DetailPagerItem(location, weatherData)
       }
 
       dataCached = newCache
       postUpdates()
-    }
 
-    liveWeather.observe(activity) {
-      for (entry in it) {
+      for (location in requestList) weatherUtil.requestWeatherFor(location)
+    }
+  }
+
+  private fun syncWeather(weatherMap: LinkedHashMap<LocationEntity, WeatherData>) {
+    synchronized(this) {
+      for (entry in weatherMap) {
         val location = entry.key
         val weather = entry.value
 
@@ -48,49 +59,70 @@ class PagerItemUtil(
   }
 
   fun setWeather(location: LocationEntity, weather: WeatherData) {
-    val isCurrentLocation = dataCached[location]?.isCurrentLocation ?: false
-    dataCached[location] = DetailPagerItem(location, weather, isCurrentLocation)
-    postUpdates()
-  }
-
-  fun setCurrentLocation(currentLocation: LocationEntity) {
-    val newCache = LinkedHashMap<LocationEntity, DetailPagerItem>()
-
-    newCache[currentLocation] = DetailPagerItem(currentLocation, null, true)
-
-    for (entry in dataCached) {
-      val location = entry.key
-      val item = entry.value
-
-      if (!item.isCurrentLocation) newCache[location] = item
-    }
-
-    dataCached = newCache
-    postUpdates()
-
-    if (dataCached[currentLocation]?.weatherData == null) {
-      weatherUtil.requestWeatherFor(currentLocation)
-    }
-  }
-
-  fun disableCurrentLocation() {
-    val removeList = ArrayList<LocationEntity>()
-
-    for (entry in dataCached) {
-      if (entry.value.isCurrentLocation) {
-        removeList.add(entry.key)
-      }
-    }
-
-    if (removeList.isNotEmpty()) {
-      for (r in removeList) {
-        dataCached.remove(r)
-      }
+    synchronized(this) {
+      val isCurrentLocation = dataCached[location]?.isCurrentLocation ?: false
+      dataCached[location] = DetailPagerItem(location, weather, isCurrentLocation)
       postUpdates()
     }
   }
 
+  fun refreshWeather() {
+    synchronized(this) {
+      for (key in dataCached.keys) {
+        val isCurrentLocation = dataCached[key]?.isCurrentLocation ?: false
+        dataCached[key] = DetailPagerItem(key, null, isCurrentLocation)
+        postUpdates()
+      }
+    }
+  }
+
+  fun setCurrentLocation(currentLocation: LocationEntity) {
+    synchronized(this) {
+      val newCache = LinkedHashMap<LocationEntity, DetailPagerItem>()
+
+      newCache[currentLocation] = DetailPagerItem(currentLocation, null, true)
+
+      for (entry in dataCached) {
+        val location = entry.key
+        val item = entry.value
+
+        if (!item.isCurrentLocation) newCache[location] = item
+      }
+
+      dataCached = newCache
+      postUpdates()
+
+      if (dataCached[currentLocation]?.weatherData == null) {
+        weatherUtil.requestWeatherFor(currentLocation)
+      }
+    }
+  }
+
+  fun disableCurrentLocation() {
+    synchronized(this) {
+      val removeList = ArrayList<LocationEntity>()
+
+      for (entry in dataCached) {
+        if (entry.value.isCurrentLocation) {
+          removeList.add(entry.key)
+        }
+      }
+
+      if (removeList.isNotEmpty()) {
+        for (r in removeList) {
+          dataCached.remove(r)
+        }
+        postUpdates()
+      }
+    }
+  }
+
   private fun postUpdates() {
+    Log.d(TAG, "postUpdates: posting updates")
     dataLive.value = LinkedList(dataCached.values.toList())
+  }
+
+  companion object {
+    private const val TAG = "GGG PagerItemUtil"
   }
 }

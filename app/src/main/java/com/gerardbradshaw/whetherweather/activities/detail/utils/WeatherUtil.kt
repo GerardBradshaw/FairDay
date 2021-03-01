@@ -46,7 +46,7 @@ class WeatherUtil @Inject constructor(private val context: Context) {
     
     call.enqueue(object : Callback<WeatherFile> {
       override fun onFailure(call: Call<WeatherFile>, t: Throwable) {
-        Log.e(TAG, "onFailure: failed to call web host.")
+        Log.e(TAG, "onFailure: failed to call web host.", t)
 
         return onWeatherRequestResponse(Constants.RESULT_FAILURE, null, locationEntity)
       }

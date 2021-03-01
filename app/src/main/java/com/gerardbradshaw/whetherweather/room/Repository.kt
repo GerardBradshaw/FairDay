@@ -42,8 +42,13 @@ class Repository @Inject constructor(
     }
   }
 
-  fun wipeLocalDb() {
-    db.clearAllTables()
+  fun wipeDb() {
+    CoroutineScope(Main).launch {
+      withContext(threadIo) {
+        locationDao.deleteAll()
+        Log.i(TAG, "wipeDb: erasing tables")
+      }
+    }
   }
 
   companion object {

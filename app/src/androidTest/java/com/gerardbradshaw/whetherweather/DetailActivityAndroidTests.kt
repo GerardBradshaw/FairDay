@@ -1,9 +1,9 @@
 package com.gerardbradshaw.whetherweather
 
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.ActionMenuItemView
-import androidx.test.InstrumentationRegistry.getTargetContext
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -21,6 +21,7 @@ import androidx.test.espresso.matcher.RootMatchers.withDecorView
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.rule.ActivityTestRule
 import androidx.test.rule.GrantPermissionRule
 import androidx.viewpager2.widget.ViewPager2
 import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.checkPermissionRationaleDisplayed
@@ -29,15 +30,16 @@ import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivi
 import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.checkToastIsDisplayedContaining
 import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.checkViewPagerHasItemCount
 import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.checkWeatherIsDisplayedForCurrentLocation
-import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.checkWeatherIsDisplayedForLocation
 import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.clickDialogButton
 import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.clickPinMenuItem
-import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.scrollViewPagerToPosition
 import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.DialogButton.*
+import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.checkWeatherIsDisplayedForLocation
+import com.gerardbradshaw.whetherweather.DetailActivityAndroidTests.DetailActivityAndroidTestUtil.Companion.scrollViewPagerToPosition
 import com.gerardbradshaw.whetherweather.activities.detail.DetailActivity
 import com.gerardbradshaw.whetherweather.activities.saved.SavedActivity
 import com.gerardbradshaw.whetherweather.application.BaseApplication
-import com.gerardbradshaw.whetherweather.util.MyMockServer
+import com.gerardbradshaw.whetherweather.util.DataBindingIdlingResourceRule
+import com.gerardbradshaw.whetherweather.util.MockRepo
 import com.google.android.libraries.places.widget.AutocompleteActivity
 import org.hamcrest.Description
 import org.hamcrest.Matcher
@@ -46,17 +48,17 @@ import org.junit.*
 import org.junit.Assert.fail
 import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
-import java.util.jar.Manifest
 import kotlin.math.max
 import kotlin.math.min
 
 @RunWith(Enclosed::class)
 class DetailActivityAndroidTests {
+
   @RunWith(AndroidJUnit4::class)
   class FirstLaunchTests {
     lateinit var activityScenario: ActivityScenario<DetailActivity>
     lateinit var activity: DetailActivity
-    lateinit var mockWebServer: MyMockServer
+    lateinit var mockRepo: MockRepo
 
     @get:Rule
     val runtimePermissionRule: GrantPermissionRule? =
@@ -64,10 +66,10 @@ class DetailActivityAndroidTests {
 
     @Before
     fun setup() {
-      mockWebServer = MyMockServer()
-      mockWebServer.start()
+      mockRepo = MockRepo()
+      mockRepo.start()
       ApplicationProvider.getApplicationContext<BaseApplication>()
-        .prepareForTests(mockWebServer.url())
+        .prepareForTests(mockRepo.url())
 
       activityScenario = ActivityScenario.launch(DetailActivity::class.java)
       activityScenario.onActivity { activity = it }
@@ -75,7 +77,7 @@ class DetailActivityAndroidTests {
 
     @After
     fun tearDown() {
-      mockWebServer.shutdown()
+      mockRepo.shutdown()
     }
 
     // -------------------------------- TESTS --------------------------------
@@ -92,18 +94,18 @@ class DetailActivityAndroidTests {
     }
   }
 
-  @Ignore("Can't force runner to ask for location permission. Manually testing required for the below cases :(")
+  @Ignore("Below tests will fail (unable to prevent permissions from being automatically granted). Manually test if required.")
   class PermissionsTests {
     lateinit var activityScenario: ActivityScenario<DetailActivity>
     lateinit var activity: DetailActivity
-    lateinit var mockWebServer: MyMockServer
+    lateinit var mockRepo: MockRepo
 
     @Before
     fun setup() {
-      mockWebServer = MyMockServer()
-      mockWebServer.start()
+      mockRepo = MockRepo()
+      mockRepo.start()
       ApplicationProvider.getApplicationContext<BaseApplication>()
-        .prepareForTests(mockWebServer.url())
+        .prepareForTests(mockRepo.url())
 
       activityScenario = ActivityScenario.launch(DetailActivity::class.java)
       activityScenario.onActivity { activity = it }
@@ -111,7 +113,7 @@ class DetailActivityAndroidTests {
 
     @After
     fun tearDown() {
-      mockWebServer.shutdown()
+      mockRepo.shutdown()
 
       InstrumentationRegistry.getInstrumentation().uiAutomation
         .executeShellCommand(
@@ -185,7 +187,7 @@ class DetailActivityAndroidTests {
   class ActionBarTests {
     lateinit var activityScenario: ActivityScenario<DetailActivity>
     lateinit var activity: DetailActivity
-    lateinit var mockWebServer: MyMockServer
+    lateinit var mockRepo: MockRepo
 
     @get:Rule
     val runtimePermissionRule: GrantPermissionRule? =
@@ -193,10 +195,10 @@ class DetailActivityAndroidTests {
 
     @Before
     fun setup() {
-      mockWebServer = MyMockServer()
-      mockWebServer.start()
+      mockRepo = MockRepo()
+      mockRepo.start()
       ApplicationProvider.getApplicationContext<BaseApplication>()
-        .prepareForTests(mockWebServer.url())
+        .prepareForTests(mockRepo.url())
 
       activityScenario = ActivityScenario.launch(DetailActivity::class.java)
       activityScenario.onActivity { activity = it }
@@ -204,7 +206,7 @@ class DetailActivityAndroidTests {
 
     @After
     fun tearDown() {
-      mockWebServer.shutdown()
+      mockRepo.shutdown()
     }
 
     // -------------------------------- TESTS --------------------------------
@@ -256,24 +258,18 @@ class DetailActivityAndroidTests {
     }
   }
 
-  // TODO
   @RunWith(AndroidJUnit4::class)
   class PagerTests {
-    lateinit var mockWebServer: MyMockServer
+    lateinit var mockRepo: MockRepo
     lateinit var activityScenario: ActivityScenario<DetailActivity>
     lateinit var activity: DetailActivity
 
-    @get:Rule
-    val runtimePermissionRule: GrantPermissionRule? =
-      GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
-
     @Before
     fun setup() {
-      mockWebServer = MyMockServer()
-      mockWebServer.start()
+      mockRepo = MockRepo()
+      mockRepo.start()
 
-      ApplicationProvider.getApplicationContext<BaseApplication>()
-        .prepareForTests(mockWebServer.url())
+      ApplicationProvider.getApplicationContext<BaseApplication>().prepareForTests(mockRepo.url())
 
       activityScenario = ActivityScenario.launch(DetailActivity::class.java)
       activityScenario.onActivity { activity = it }
@@ -281,18 +277,25 @@ class DetailActivityAndroidTests {
 
     @After
     fun tearDown() {
-      mockWebServer.shutdown()
-    }
-
-    // -------------------------------- TESTS --------------------------------
-    @Test
-    fun should_displayInstructions_when_firstLaunched() {
-      onView(withId(R.id.instructions_text_view)).check(matches(isDisplayed()))
+      ApplicationProvider.getApplicationContext<BaseApplication>().wipeDb()
+      mockRepo.shutdown()
     }
 
     @Test
     fun should_haveEmptyPager_when_firstLaunched() {
       checkViewPagerHasItemCount(0)
+    }
+
+    @Test
+    fun should_displayInstructions_when_firstLaunched() {
+      onView(withId(R.id.instructions_text_view))
+        .check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun should_addAnItemToPager_when_newLocationAddedToDb() {
+      mockRepo.addAllLocations()
+      checkViewPagerHasItemCount(1)
     }
 
     @Test
@@ -303,46 +306,26 @@ class DetailActivityAndroidTests {
     }
 
     @Test
-    fun should_loadWeatherIntoFirstPosition_when_locationEnabled() {
-      mockWebServer.addAllLocations()
-      clickPinMenuItem()
-      scrollViewPagerToPosition(0)
-      checkWeatherIsDisplayedForCurrentLocation()
-    }
-
-
-    @Test
-    fun should_addAnItemToPager_when_newLocationAddedToDb() {
-      mockWebServer.addLocation(0)
-      checkViewPagerHasItemCount(1)
-    }
-
-    @Test
-    fun should_showLoadingMessageAsLocationName_when_newLocationAddedToPager() {
-      onView(allOf(withId(R.id.location_text_view), isDisplayed()))
-        .check((matches(withText(containsString(activity.resources.getString(R.string.string_loading))))))
-    }
-
-    @Test
     fun should_displayNoDuplicates_when_manyLocationsLoaded() {
-      mockWebServer.addAllLocations()
-      checkViewPagerHasItemCount(4)
+      mockRepo.addAllLocations()
+      mockRepo.addLocation(MockRepo.MockLocation.LOCATION_0)
+      checkViewPagerHasItemCount(3)
     }
 
     @Test
     fun should_displayWeatherForAnotherLocation_when_pageChanged() {
-      mockWebServer.addAllLocations()
-
+      mockRepo.addAllLocations()
       scrollViewPagerToPosition(0)
       scrollViewPagerToPosition(2)
-      checkWeatherIsDisplayedForLocation(2)
+      checkWeatherIsDisplayedForLocation(MockRepo.MockLocation.LOCATION_2)
     }
   }
-
 
   @Ignore("Helper class")
   private abstract class DetailActivityAndroidTestUtil {
     companion object {
+      private const val TAG = "GGG - DAAndroidTest"
+
       // -------- VIEW PAGER --------
       private fun onViewPager(): ViewInteraction {
         return onView(allOf(withId(R.id.view_pager), isDisplayed()))
@@ -353,33 +336,32 @@ class DetailActivityAndroidTests {
         onViewPager().check(matches(hasItemCount(n)))
       }
 
-      private fun hasItemCount(count: Int): Matcher<View?> {
+      private fun hasItemCount(expected: Int): Matcher<View?> {
         return object : BoundedMatcher<View?, ViewPager2>(ViewPager2::class.java) {
+          var actual: Int? = null
+
           override fun matchesSafely(view: ViewPager2): Boolean {
-            return count == view.adapter?.itemCount ?: -1
+            actual = view.adapter?.itemCount ?: -1
+            Log.d(TAG, "matchesSafely: Expected/Actual = $expected/$actual")
+            return expected == actual
           }
 
           override fun describeTo(description: Description) {
-            description.appendText("Matches on ViewPager2 with same item count.")
+            description.appendText("Matches on ViewPager2 with same item count).")
           }
         }
       }
 
       @JvmStatic
-      fun checkWeatherIsDisplayedForLocation(n: Int) {
-        onView(allOf(withId(R.id.location_text_view), isDisplayed()))
-          .check(matches(withText(containsString("Location$n"))))
+      fun checkWeatherIsDisplayedForLocation(location: MockRepo.MockLocation) {
+        onView(withText(containsString("Location${location.ordinal}")))
+          .check(matches(isDisplayed()))
       }
 
       @JvmStatic
       fun checkWeatherIsDisplayedForCurrentLocation() {
         onView(allOf(withId(R.id.location_pin_icon), isDisplayed()))
           .check(matches(isDisplayed()))
-
-        onView(allOf(withId(R.id.location_text_view), isDisplayed()))
-          .check(matches(allOf(
-            not(withText(R.string.string_loading)),
-            not(withText(R.string.string_unknown_location)))))
       }
 
       @JvmStatic
@@ -394,14 +376,11 @@ class DetailActivityAndroidTests {
           override fun getDescription() = "Position update"
 
           override fun perform(uiController: UiController?, view: View?) {
-            uiController?.loopMainThreadForAtLeast(1000)
-
-            val pager = view as ViewPager2
-
-            val itemCount = pager.adapter?.itemCount ?: return
-            val maxPos = itemCount - if(itemCount > 0) 1 else 0
-
-            pager.currentItem = max(0, min(maxPos, p))
+            with(view as ViewPager2) {
+              val itemCount = adapter?.itemCount ?: return
+              val maxPos = itemCount - if(itemCount > 0) 1 else 0
+              currentItem = max(0, min(maxPos, p))
+            }
           }
         }
       }

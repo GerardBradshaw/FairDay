@@ -12,59 +12,59 @@ import androidx.core.content.ContextCompat
 
 abstract class PermissionUtil {
 
-  class RequestBuilder(
+  class RationaleDialogBuilder(
     private val permission: String,
     private val activity: AppCompatActivity
     ) {
     private var rationaleDialog: AlertDialog? = null
     private var dialogMessage = "This app requires permissions to deliver the best experience."
     private var dialogTitle = "Permission required"
-    private var dialogPositiveButtonText = "OK"
-    private var dialogNegativeButtonText = "Not now"
+    private var acceptedButtonText = "OK"
+    private var dismissedButtonText = "Not now"
 
-    private var onPermissionGranted: (() -> Unit)? = null
-    private var onPermissionDenied: (() -> Unit)? = null
-    private var onPermissionIgnored: (() -> Unit)? = null
+    private var onAccepted: (() -> Unit)? = null
+    private var onDismissed: (() -> Unit)? = null
+    private var onCancelled: (() -> Unit)? = null
 
-    private var requestPermission: ActivityResultLauncher<String?>? = null
+    private var systemRequestLauncher: ActivityResultLauncher<String?>? = null
 
-    fun setRationaleDialogTitle(title: String): RequestBuilder {
+    fun setTitle(title: String): RationaleDialogBuilder {
       this.dialogTitle = title
       return this
     }
 
-    fun setRationaleDialogMessage(message: String): RequestBuilder {
+    fun setMessage(message: String): RationaleDialogBuilder {
       this.dialogMessage = message
       return this
     }
 
-    fun setRationaleDialogNegativeButtonText(s: String): RequestBuilder {
-      this.dialogNegativeButtonText = s
+    fun setAcceptedButtonText(text: String): RationaleDialogBuilder {
+      this.acceptedButtonText = text
       return this
     }
 
-    fun setRationaleDialogPositiveButtonText(s: String): RequestBuilder {
-      this.dialogPositiveButtonText = s
+    fun setOnAccepted(onAccepted: () -> Unit): RationaleDialogBuilder {
+      this.onAccepted = onAccepted
       return this
     }
 
-    fun setOnPermissionGranted(onPermissionGranted: () -> Unit): RequestBuilder {
-      this.onPermissionGranted = onPermissionGranted
+    fun setDismissedButtonText(text: String): RationaleDialogBuilder {
+      this.dismissedButtonText = text
       return this
     }
 
-    fun setOnPermissionDenied(onPermissionDenied: () -> Unit): RequestBuilder {
-      this.onPermissionDenied = onPermissionDenied
+    fun setOnDismissed(onDismissed: () -> Unit): RationaleDialogBuilder {
+      this.onDismissed = onDismissed
       return this
     }
 
-    fun setOnPermissionIgnored(onPermissionIgnored: () -> Unit): RequestBuilder {
-      this.onPermissionIgnored = onPermissionIgnored
+    fun setOnCancelled(onCancelled: () -> Unit): RationaleDialogBuilder {
+      this.onCancelled = onCancelled
       return this
     }
 
-    fun setActivityResultLauncher(arl: ActivityResultLauncher<String?>): RequestBuilder {
-      this.requestPermission = arl
+    fun setActivityResultLauncher(arl: ActivityResultLauncher<String?>): RationaleDialogBuilder {
+      this.systemRequestLauncher = arl
       return this
     }
 
@@ -84,20 +84,19 @@ abstract class PermissionUtil {
       val dialog = rationaleDialog ?: AlertDialog.Builder(activity)
         .setMessage(dialogMessage)
         .setTitle(dialogTitle)
-        .setPositiveButton(dialogPositiveButtonText) { _, _ -> showSystemPermissionsRequest() }
-        .setNegativeButton(dialogNegativeButtonText) { _, _ -> }
+        .setPositiveButton(acceptedButtonText) { _, _ -> showSystemPermissionsRequest() }
+        .setNegativeButton(dismissedButtonText) { _, _ -> }
         .create()
 
       dialog.show()
     }
 
     private fun showSystemPermissionsRequest() {
-      if (requestPermission == null) {
-        Log.e(
-          TAG, "showSystemPermissionsRequest: activity result launcher is null. Did " +
+      if (systemRequestLauncher == null) {
+        Log.e(TAG, "showSystemPermissionsRequest: activity result launcher is null. Did " +
             "you forget to call setActivityResultLauncher() in the RequestBuilder?")
       }
-      requestPermission?.launch(permission)
+      systemRequestLauncher?.launch(permission)
     }
   }
 

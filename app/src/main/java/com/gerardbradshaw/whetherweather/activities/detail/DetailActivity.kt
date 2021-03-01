@@ -1,6 +1,8 @@
 package com.gerardbradshaw.whetherweather.activities.detail
 
 import android.content.Intent
+import android.content.SharedPreferences
+import android.graphics.Color
 import android.location.Address
 import android.net.Uri
 import android.os.*
@@ -15,13 +17,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
+import androidx.preference.PreferenceManager
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.gerardbradshaw.weatherinfoview.datamodels.WeatherData
 import com.gerardbradshaw.whetherweather.Constants
-import com.gerardbradshaw.whetherweather.Constants.KEY_GPS_NEEDED
-import com.gerardbradshaw.whetherweather.Constants.RESULT_ERROR
 import com.gerardbradshaw.whetherweather.application.BaseApplication
 import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.activities.utils.AutocompleteUtil
@@ -41,9 +42,10 @@ import kotlin.math.min
 
 class DetailActivity :
   AppCompatActivity(),
-  GpsUtil.GpsUpdateListener,
+  GpsUtil.GpsUtilListener,
   WeatherUtil.WeatherDetailsListener,
-  DetailPagerAdapter.DataChangeListener
+  DetailPagerAdapter.DataChangeListener,
+  SharedPreferences.OnSharedPreferenceChangeListener
 {
   private lateinit var app: BaseApplication
   private lateinit var viewModel: BaseViewModel
@@ -51,6 +53,8 @@ class DetailActivity :
   private lateinit var instructionsTextView: TextView
   private lateinit var viewPager: ViewPager2
   private lateinit var pagerItemUtil: PagerItemUtil
+  private lateinit var optionsMenu: Menu
+  private lateinit var prefs: SharedPreferences
 
   @Inject lateinit var pagerAdapter: DetailPagerAdapter
   @Inject lateinit var gpsUtil: GpsUtil
@@ -58,8 +62,7 @@ class DetailActivity :
   @Inject lateinit var glideInstance: RequestManager
   @Inject lateinit var autocompleteUtil: AutocompleteUtil
 
-  private var isFirstLaunch = true
-  private val liveWeather = MutableLiveData<LinkedHashMap<LocationEntity, WeatherData>>()
+  private val liveLocationToWeatherMap = MutableLiveData<LinkedHashMap<LocationEntity, WeatherData>>()
 
   private val viewPagerPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
     override fun onPageSelected(position: Int) {
@@ -67,21 +70,6 @@ class DetailActivity :
       super.onPageSelected(position)
     }
   }
-
-  private val movePagerResultLauncher =
-    registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-      val intent = it.data
-
-      if (intent == null) {
-        Log.e(TAG, "movePagerToPosition: missing intent.")
-      } else {
-        when (it.resultCode) {
-          RESULT_CANCELED -> Log.i(TAG, "movePagerToPosition: no place selected.")
-          RESULT_ERROR -> Log.e(TAG, "movePagerToPosition: intent error. Cannot scroll.")
-          RESULT_OK -> {}//movePagerToPositionInIntent(intent)
-        }
-      }
-    }
 
   private fun movePagerToPositionInIntent(intent: Intent) {
     if (!intent.hasExtra(EXTRA_PAGER_POSITION)) {
@@ -94,7 +82,7 @@ class DetailActivity :
   }
 
 
-  // ------------------------ ACTIVITY EVENTS ------------------------
+  // ------------------------ ACTIVITY WAKE ------------------------
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -104,83 +92,23 @@ class DetailActivity :
 
   override fun onResume() {
     gpsUtil.onResume()
+    initListeners()
     viewPager.registerOnPageChangeCallback(viewPagerPageChangeCallback)
     super.onResume()
   }
 
-  override fun onPause() {
-    gpsUtil.onPause()
-    viewPager.unregisterOnPageChangeCallback(viewPagerPageChangeCallback)
-    super.onPause()
-  }
+  private fun initListeners() {
+    weatherUtil.setWeatherDetailsListener(this)
+    gpsUtil.setOnGpsUpdateListener(this)
 
-  override fun onDataUpdate() {
-    updateBackgroundImageToMatchAdapterAt(viewPager.currentItem)
-  }
-
-  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-    when (requestCode) {
-      REQUEST_CODE_CHECK_SETTINGS -> gpsUtil.onActivityResult(requestCode, resultCode)
-      else -> super.onActivityResult(requestCode, resultCode, data)
-    }
-  }
-
-  override fun onCreateOptionsMenu(menu: Menu): Boolean {
-    menuInflater.inflate(R.menu.menu_action_bar_detail_activity, menu)
-
-    val isGpsOn = app.getBooleanPref(KEY_GPS_NEEDED, false)
-    setPinMenuItemIconAndTitle(menu.getItem(0), isGpsOn)
-
-    return super.onCreateOptionsMenu(menu)
-  }
-
-  override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    return when (item.itemId) {
-      R.id.action_pin -> onPinButtonClicked(item)
-      R.id.action_list -> onSavedButtonClicked()
-      R.id.action_add -> onAddButtonClicked()
-      else -> super.onOptionsItemSelected(item)
-    }
-  }
-
-  private fun onPinButtonClicked(item: MenuItem): Boolean {
-    val wasUsingGps = app.getBooleanPref(KEY_GPS_NEEDED, false)
-    val isNowUsingGps = app.setBooleanPref(KEY_GPS_NEEDED, !wasUsingGps)
-
-    if (isNowUsingGps) {
-      Log.d(TAG, "onPinButtonClicked: Starting GPS updates.")
-      gpsUtil.requestUpdates()
-      setPinMenuItemIconAndTitle(item, true)
-    } else {
-      Log.d(TAG, "onPinButtonClicked: Stopping GPS updates.")
-      gpsUtil.stopRequestingUpdates()
-      pagerItemUtil.disableCurrentLocation()
-      setPinMenuItemIconAndTitle(item, false)
-    }
-    return true
-  }
-
-  private fun setPinMenuItemIconAndTitle(menuItem: MenuItem, isGpsOn: Boolean) {
-    menuItem.let {
-      if (isGpsOn) {
-        it.icon = ContextCompat.getDrawable(this, R.drawable.ic_location_on)
-        it.title = getString(R.string.string_disable_location_services)
-      } else {
-        it.icon = ContextCompat.getDrawable(this, R.drawable.ic_location_off)
-        it.title = getString(R.string.string_enable_location_services)
+    findViewById<OpenWeatherCreditView>(R.id.open_weather_credit_view).setOnClickListener {
+      Intent(Intent.ACTION_VIEW).also {
+        it.data = Uri.parse(Constants.URL_OPEN_WEATHER)
+        startActivity(it)
       }
     }
-  }
 
-  private fun onSavedButtonClicked(): Boolean {
-    val intent = Intent(this, SavedActivity::class.java)
-    movePagerResultLauncher.launch(intent)
-    return true
-  }
-
-  private fun onAddButtonClicked(): Boolean {
-    autocompleteUtil.getPlaceFromAutocomplete()
-    return true
+    prefs.registerOnSharedPreferenceChangeListener(this)
   }
 
 
@@ -190,28 +118,16 @@ class DetailActivity :
     app = application as BaseApplication
     viewModel = ViewModelProvider(this).get(BaseViewModel::class.java)
 
-    initViews()
-    loadInstanceState(savedInstanceState)
+    initFields()
     injectFields()
-    initListeners()
-    initViewPager()
+    initPager()
+    loadInstanceState(savedInstanceState)
   }
 
-  private fun initViews() {
-    supportActionBar?.setDisplayShowTitleEnabled(false)
+  private fun initFields() {
+    prefs = PreferenceManager.getDefaultSharedPreferences(this)
     backgroundImage = findViewById(R.id.background_image_view)
     instructionsTextView = findViewById(R.id.instructions_text_view)
-
-    findViewById<OpenWeatherCreditView>(R.id.open_weather_credit_view).setOnClickListener {
-      Intent(Intent.ACTION_VIEW).also {
-        it.data = Uri.parse(Constants.URL_OPEN_WEATHER)
-        startActivity(it)
-      }
-    }
-  }
-
-  private fun loadInstanceState(savedInstanceState: Bundle?) {
-    Log.d(TAG, "loadInstanceState: no state loaded from bundle ($savedInstanceState)")
   }
 
   private fun injectFields() {
@@ -223,19 +139,17 @@ class DetailActivity :
     component.inject(this)
   }
 
-  private fun initListeners() {
-    weatherUtil.setWeatherDetailsListener(this)
-    gpsUtil.setOnGpsUpdateListener(this)
-  }
-
-  private fun initViewPager() {
+  private fun initPager() {
     viewPager = findViewById(R.id.view_pager)
     pagerAdapter = DetailPagerAdapter(this)
     pagerAdapter.setItemCountChangeListener(this)
     viewPager.adapter = pagerAdapter
 
-    pagerItemUtil =
-      PagerItemUtil(this, viewModel.getLiveLocations(), liveWeather, weatherUtil)
+    pagerItemUtil = PagerItemUtil(
+      this,
+      viewModel.getLiveLocations(),
+      liveLocationToWeatherMap,
+      weatherUtil)
 
     pagerItemUtil.dataLive.observe(this) {
       pagerAdapter.setData(it)
@@ -243,8 +157,114 @@ class DetailActivity :
     }
   }
 
+  private fun loadInstanceState(savedInstanceState: Bundle?) {
+    Log.d(TAG, "loadInstanceState: no state loaded from bundle ($savedInstanceState)")
+  }
 
-  // ------------------------ LOCATION ------------------------
+
+  // ------------------------ ACTIVITY SLEEP ------------------------
+
+  override fun onPause() {
+    gpsUtil.onPause()
+    unregisterListeners()
+    super.onPause()
+  }
+
+  private fun unregisterListeners() {
+    viewPager.unregisterOnPageChangeCallback(viewPagerPageChangeCallback)
+    prefs.unregisterOnSharedPreferenceChangeListener(this)
+  }
+
+
+  // ------------------------ ACTION MENU ------------------------
+
+  override fun onCreateOptionsMenu(menu: Menu): Boolean {
+    optionsMenu = menu
+    menuInflater.inflate(R.menu.menu_action_bar_detail_activity, menu)
+    supportActionBar?.setDisplayShowTitleEnabled(false)
+
+    onSharedPreferenceChanged(prefs, Constants.KEY_GPS_ENABLED)
+
+    return super.onCreateOptionsMenu(menu)
+  }
+
+  override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    when (item.itemId) {
+      R.id.action_add -> onAddButtonClicked()
+      R.id.action_pin -> onPinButtonClicked()
+      R.id.action_list -> onListButtonClicked()
+      R.id.action_refresh -> onRefreshButtonClicked()
+      else -> return super.onOptionsItemSelected(item)
+    }
+    return true
+  }
+
+  private fun onAddButtonClicked() {
+    autocompleteUtil.getPlaceFromAutocomplete()
+  }
+
+  private fun onPinButtonClicked() {
+    val isGpsEnabled = prefs.getBoolean(Constants.KEY_GPS_ENABLED, false)
+
+    if (!isGpsEnabled) {
+      gpsUtil.requestUpdates()
+    } else {
+      gpsUtil.stopRequestingUpdates()
+      pagerItemUtil.disableCurrentLocation()
+    }
+  }
+
+  private fun setPinIconAsOn(boolean: Boolean) {
+    optionsMenu.findItem(R.id.action_pin)?.let {
+      if (boolean) {
+        it.icon = ContextCompat.getDrawable(this, R.drawable.ic_pin_on)
+        it.title = getString(R.string.string_disable_location_services)
+      } else {
+        it.icon = ContextCompat.getDrawable(this, R.drawable.ic_pin_off)
+        it.title = getString(R.string.string_enable_location_services)
+      }
+      it.icon.setTint(Color.WHITE)
+    }
+  }
+
+  private fun onListButtonClicked() {
+    val intent = Intent(this, SavedActivity::class.java)
+    movePagerResultLauncher.launch(intent)
+  }
+
+  private val movePagerResultLauncher =
+    registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+      val intent = it.data
+
+      if (intent == null) {
+        Log.e(TAG, "movePagerToPosition: missing intent.")
+      } else {
+        when (it.resultCode) {
+          RESULT_CANCELED -> Log.i(TAG, "movePagerToPosition: no place selected.")
+          RESULT_OK -> {}//movePagerToPositionInIntent(intent)
+        }
+      }
+    }
+
+  private fun onRefreshButtonClicked() {
+    pagerItemUtil.refreshWeather()
+  }
+
+
+  // ------------------------ EXTERNAL EVENTS ------------------------
+
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    when (requestCode) {
+      REQUEST_CODE_CHECK_SETTINGS -> gpsUtil.onActivityResult(requestCode, resultCode)
+      else -> super.onActivityResult(requestCode, resultCode, data)
+    }
+  }
+
+  override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+    if (sharedPreferences != null && key == Constants.KEY_GPS_ENABLED) {
+      setPinIconAsOn(sharedPreferences.getBoolean(key, false))
+    }
+  }
 
   override fun onGpsUpdate(address: Address?) {
     if (address == null) {
@@ -262,12 +282,11 @@ class DetailActivity :
     showInstructions(false)
   }
 
-  override fun onWeatherReceived(weatherData: WeatherData, locationEntity: LocationEntity?) {
-    if (isFirstLaunch) {
-      updateBackgroundImageToMatchAdapterAt(viewPager.currentItem)
-      isFirstLaunch = false
-    }
+  private fun showInstructions(b: Boolean) {
+    instructionsTextView.visibility = if (b) View.VISIBLE else View.GONE
+  }
 
+  override fun onWeatherReceived(weatherData: WeatherData, locationEntity: LocationEntity?) {
     if (locationEntity != null) {
       pagerItemUtil.setWeather(locationEntity, weatherData)
     }
@@ -284,12 +303,12 @@ class DetailActivity :
       .into(backgroundImage)
   }
 
+  override fun onDataUpdate() {
+    updateBackgroundImageToMatchAdapterAt(viewPager.currentItem)
+  }
+
 
   // ------------------------ UTIL ------------------------
-
-  private fun showInstructions(b: Boolean) {
-    instructionsTextView.visibility = if (b) View.VISIBLE else View.GONE
-  }
 
   companion object {
     private const val TAG = "GGG DetailActivity"

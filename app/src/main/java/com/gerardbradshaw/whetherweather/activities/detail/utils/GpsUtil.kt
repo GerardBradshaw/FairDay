@@ -11,10 +11,10 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
-import com.gerardbradshaw.whetherweather.Constants.KEY_GPS_NEEDED
+import androidx.preference.PreferenceManager
+import com.gerardbradshaw.whetherweather.Constants
 import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.activities.detail.utils.PermissionUtil.Companion.isGranted
-import com.gerardbradshaw.whetherweather.application.BaseApplication
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
@@ -29,7 +29,7 @@ import javax.inject.Inject
 class GpsUtil @Inject constructor(
   private val activity: AppCompatActivity,
   private val addressUtil: AddressUtil
-  ) {
+) {
 
   private var settingsClient: SettingsClient = LocationServices.getSettingsClient(activity)
   private var fusedLocationClient: FusedLocationProviderClient =
@@ -38,22 +38,12 @@ class GpsUtil @Inject constructor(
   private lateinit var locationCallback: LocationCallback
   private lateinit var locationRequest: LocationRequest
   private lateinit var locationSettingsRequest: LocationSettingsRequest
-  private var listener: GpsUpdateListener? = null
-  private var isGpsNeeded = false
+  private var listener: GpsUtilListener? = null
 
   private val addressChangeListener: AddressUtil.AddressChangeListener =
-      object : AddressUtil.AddressChangeListener {
-        override fun onAddressChanged(address: Address?) {
-          listener?.onGpsUpdate(address)
-        }
-      }
-
-  private val activityResultLauncher =
-    activity.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-      when (it) {
-        true -> onLocationPermissionGranted()
-        false -> Log.e(TAG, "activityResultLauncher: user denied permission")
-        else -> Log.e(TAG, "activityResultLauncher: user ignored permission")
+    object : AddressUtil.AddressChangeListener {
+      override fun onAddressChanged(address: Address?) {
+        listener?.onGpsUpdate(address)
       }
     }
 
@@ -69,8 +59,8 @@ class GpsUtil @Inject constructor(
   private fun createLocationCallback() {
     locationCallback = object : LocationCallback() {
       override fun onLocationResult(locationResult: LocationResult?) {
-        super.onLocationResult(locationResult)
         if (locationResult != null) {
+          super.onLocationResult(locationResult)
           addressUtil.fetchAddress(locationResult.lastLocation, activity, addressChangeListener)
         } else {
           Log.e(TAG, "onLocationResult: locationResult is null")
@@ -92,23 +82,25 @@ class GpsUtil @Inject constructor(
       .addLocationRequest(locationRequest)
       .build()
   }
-  
+
 
   // ------------------------ TO BE CALLED IN ACTIVITY ------------------------
 
   /**
-   * To be called by a registered [GpsUpdateListener] to start location updates if it was
+   * To be called by a registered [GpsUtilListener] to start location updates if it was
    * previously set to receive them. Method is named to indicate its logical position in an
    * [Activity] listener class.
    */
   fun onResume() {
-    val app = activity.application as BaseApplication
-    isGpsNeeded = app.getBooleanPref(KEY_GPS_NEEDED, false)
-    if (isGpsNeeded) startLocationUpdates()
+    val isGpsEnabled =
+      PreferenceManager.getDefaultSharedPreferences(activity)
+        .getBoolean(Constants.KEY_GPS_ENABLED, false)
+
+    if (isGpsEnabled) startLocationUpdates()
   }
 
   /**
-   * To be called by a registered [GpsUpdateListener] to stop requesting location updates.
+   * To be called by a registered [GpsUtilListener] to stop requesting location updates.
    * Method is named to indicate its logical position in an [Activity] listener class.
    */
   fun onPause() {
@@ -116,7 +108,7 @@ class GpsUtil @Inject constructor(
   }
 
   /**
-   * To be called by a registered [GpsUpdateListener] to handle Android settings changes
+   * To be called by a registered [GpsUtilListener] to handle Android settings changes
    * related to permissions.
    *
    * [requestCode], [resultCode], [data] are as per [Activity.onActivityResult].
@@ -137,44 +129,49 @@ class GpsUtil @Inject constructor(
   }
 
   /**
-   * Sets the [GpsUpdateListener] which will hear the location updates.
+   * Sets the [GpsUtilListener] which will hear the location updates.
    */
-  fun setOnGpsUpdateListener(listener: GpsUpdateListener) {
+  fun setOnGpsUpdateListener(listener: GpsUtilListener) {
     this.listener = listener
   }
 
   fun requestUpdates() {
-    isGpsNeeded = true
     startLocationUpdates()
   }
 
   fun stopRequestingUpdates() {
-    isGpsNeeded = false
     requestLocationUpdatesStop()
-  }
-
-  fun isRequestingUpdates(): Boolean {
-    return isGpsNeeded
   }
 
 
   // ------------------------ STARTING ------------------------
 
+  private val activityResultLauncher =
+    activity.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+      if (it == true) onRationaleAccepted()
+      else onRationaleDismissed()
+    }
+
   private fun startLocationUpdates() {
-    if (isGranted(LOCATION_PERMISSION, activity)) onLocationPermissionGranted()
+    if (isGranted(LOCATION_PERMISSION, activity)) onRationaleAccepted()
     else requestLocationPermission()
   }
 
   private fun requestLocationPermission() {
-    PermissionUtil.RequestBuilder(LOCATION_PERMISSION, activity)
-        .setRationaleDialogTitle(activity.resources.getString(R.string.message_location_rationale_title))
-        .setRationaleDialogMessage(activity.resources.getString(R.string.app_name) + activity.resources.getString(R.string.message_location_rationale_body))
-        .setActivityResultLauncher(activityResultLauncher)
-        .setOnPermissionGranted { onLocationPermissionGranted() }
-        .buildAndRequest()
+    PermissionUtil.RationaleDialogBuilder(LOCATION_PERMISSION, activity)
+      .setTitle(activity.resources.getString(R.string.message_location_rationale_title))
+      .setMessage(activity.resources.getString(R.string.app_name) + activity.resources.getString(R.string.message_location_rationale_body))
+      .setActivityResultLauncher(activityResultLauncher)
+      .buildAndRequest()
   }
 
-  private fun onLocationPermissionGranted() {
+  private fun onRationaleDismissed() {
+    PreferenceManager
+      .getDefaultSharedPreferences(activity).edit()
+      .putBoolean(Constants.KEY_GPS_ENABLED, false).apply()
+  }
+
+  private fun onRationaleAccepted() {
     verifyDeviceSettings()
   }
 
@@ -193,6 +190,10 @@ class GpsUtil @Inject constructor(
 
   @RequiresPermission(LOCATION_PERMISSION)
   private fun requestLocationUpdates() {
+    PreferenceManager
+      .getDefaultSharedPreferences(activity).edit()
+      .putBoolean(Constants.KEY_GPS_ENABLED, true).apply()
+
     fusedLocationClient.requestLocationUpdates(
       locationRequest,
       locationCallback,
@@ -225,11 +226,15 @@ class GpsUtil @Inject constructor(
   // ------------------------ STOPPING ------------------------
 
   private fun requestLocationUpdatesStop() {
+    PreferenceManager
+      .getDefaultSharedPreferences(activity).edit()
+      .putBoolean(Constants.KEY_GPS_ENABLED, false).apply()
+
     fusedLocationClient
-        .removeLocationUpdates(locationCallback)
-        .addOnCompleteListener(activity) { onLocationUpdatesStopped() }
+      .removeLocationUpdates(locationCallback)
+      .addOnCompleteListener(activity) { onLocationUpdatesStopped() }
   }
-  
+
   private fun onLocationUpdatesStopped() {
     Log.i(TAG, "onLocationUpdatesStopped: updates stopped")
   }
@@ -238,22 +243,22 @@ class GpsUtil @Inject constructor(
     Log.e(TAG, logMsg)
 
     Toast.makeText(
-        activity,
-        activity.resources.getString(R.string.string_unable_to_determine_location),
-        Toast.LENGTH_SHORT).show()
+      activity,
+      activity.resources.getString(R.string.string_unable_to_determine_location),
+      Toast.LENGTH_SHORT).show()
   }
 
 
   // ------------------------ UTIL ------------------------
 
-  interface GpsUpdateListener {
+  interface GpsUtilListener {
     fun onGpsUpdate(address: Address?)
   }
 
   companion object {
     private const val TAG = "GGG GpsUtil"
     private const val LOCATION_PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION
-    
+
     private val DEFAULT_LOCATION_UPDATE_INTERVAL_MS =  TimeUnit.MINUTES.toMillis(30)
     private val FASTEST_LOCATION_UPDATE_INTERVAL_MS = TimeUnit.MINUTES.toMillis(30)
 

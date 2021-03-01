@@ -23,7 +23,7 @@
 
         <ImageView
             android:id="@+id/location_pin_icon"
-            android:src="@drawable/ic_location_on"
+            android:src="@drawable/ic_pin_on"
             android:contentDescription="@string/cd_location_pin_icon"
             app:tint="@android:color/white"
             android:padding="8dp"

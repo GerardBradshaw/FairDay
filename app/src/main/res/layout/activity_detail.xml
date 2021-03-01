@@ -25,7 +25,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:paddingTop="120dp"
-        android:text="@string/string_press_plus_to_add_a_new_location"/>
+        android:text="@string/string_press_plus_to_add_a_new_location"
+        android:textSize="24sp"/>
 
     <!-- OPAQUE IMAGE FILTER -->
     <FrameLayout

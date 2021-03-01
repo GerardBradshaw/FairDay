@@ -15,12 +15,15 @@ interface LocationDao {
   @Update
   fun updateLocation(location: LocationEntity)
 
-  @Query("select * from weather_table")
+  @Query("select * from location_table")
   fun getLocationDataSet(): List<LocationEntity>
 
-  @Query("select * from weather_table")
+  @Query("select * from location_table")
   fun getLiveLocations(): LiveData<List<LocationEntity>>
 
-  @Query("select * from weather_table")
+  @Query("select * from location_table")
   fun getLocations(): List<LocationEntity>
+
+  @Query("delete from location_table")
+  fun deleteAll()
 }

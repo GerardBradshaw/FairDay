@@ -2,19 +2,21 @@ package com.gerardbradshaw.whetherweather.application
 
 import android.app.Application
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.preference.PreferenceManager
+import com.gerardbradshaw.whetherweather.Constants
 import com.gerardbradshaw.whetherweather.application.di.AppComponent
 import com.gerardbradshaw.whetherweather.application.di.DaggerAppComponent
 import com.gerardbradshaw.whetherweather.retrofit.OpenWeatherApi
 import com.gerardbradshaw.whetherweather.room.Repository
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import org.jetbrains.annotations.TestOnly
 import retrofit2.Retrofit
 import javax.inject.Inject
 
 class BaseApplication : Application() {
   private lateinit var component: AppComponent
-  private lateinit var prefs: SharedPreferences
 
   lateinit var openWeatherApi: OpenWeatherApi
     private set
@@ -34,7 +36,6 @@ class BaseApplication : Application() {
   // ------------------------ INIT ------------------------
 
   private fun initApp() {
-    prefs = PreferenceManager.getDefaultSharedPreferences(this)
     component = DaggerAppComponent
       .builder()
       .setApplication(this)
@@ -42,18 +43,22 @@ class BaseApplication : Application() {
       .setHttpUrl(OPEN_WEATHER_URL.toHttpUrl())
       .build()
 
+//    val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+//
+//    if (!prefs.contains(Constants.KEY_GPS_ENABLED)) {
+//      prefs.edit().putBoolean(Constants.KEY_GPS_ENABLED, false).apply()
+//    }
+
     component.inject(this)
     openWeatherApi = retrofit.create(OpenWeatherApi::class.java)
+    Log.d(TAG, "initApp: retrofit is using ${retrofit.baseUrl()}")
   }
 
 
   // ------------------------ PUBLIC FUNCTIONS ------------------------
 
-  fun prepareForTests(
-    mockWebServer: HttpUrl,
-    resetPrefs: Boolean = true,
-    wipeLocalDb: Boolean = true
-  ) {
+  @TestOnly
+  fun prepareForTests(mockWebServer: HttpUrl) {
     component = DaggerAppComponent
       .builder()
       .setApplication(this)
@@ -61,24 +66,21 @@ class BaseApplication : Application() {
       .setHttpUrl(mockWebServer)
       .build()
 
-    if (wipeLocalDb) repository.wipeLocalDb()
-    if (resetPrefs) prefs.edit().clear().apply()
+    PreferenceManager.getDefaultSharedPreferences(this).edit().clear().apply()
 
     component.inject(this)
     openWeatherApi = retrofit.create(OpenWeatherApi::class.java)
+    Log.d(TAG, "initApp: retrofit is using ${retrofit.baseUrl()}")
   }
 
   fun getAppComponent(): AppComponent {
     return component
   }
 
-  fun setBooleanPref(key: String, b: Boolean): Boolean {
-    prefs.edit().putBoolean(key, b).apply()
-    return b
-  }
-
-  fun getBooleanPref(key: String, default: Boolean): Boolean {
-    return prefs.getBoolean(key, default)
+  @TestOnly
+  fun wipeDb() {
+    Log.i(TAG, "wipeDb: Wiping database...")
+    repository.wipeDb()
   }
 
   companion object {

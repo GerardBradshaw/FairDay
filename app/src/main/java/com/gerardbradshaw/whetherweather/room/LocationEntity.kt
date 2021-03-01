@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlin.math.roundToInt
 
-@Entity(tableName = "weather_table")
+@Entity(tableName = "location_table")
 class LocationEntity(
   @PrimaryKey @ColumnInfo(name = "locality") var locality: String,
   @ColumnInfo(name = "lat") var lat: Float,
