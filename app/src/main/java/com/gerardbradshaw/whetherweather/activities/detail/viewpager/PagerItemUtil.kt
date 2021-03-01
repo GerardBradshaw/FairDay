@@ -71,8 +71,10 @@ class PagerItemUtil(
       for (key in dataCached.keys) {
         val isCurrentLocation = dataCached[key]?.isCurrentLocation ?: false
         dataCached[key] = DetailPagerItem(key, null, isCurrentLocation)
-        postUpdates()
       }
+      postUpdates()
+
+      for (location in dataCached.keys) weatherUtil.requestWeatherFor(location)
     }
   }
 

@@ -2,7 +2,6 @@ package com.gerardbradshaw.weatherinfoview
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -50,21 +49,14 @@ class WeatherInfoView : FrameLayout {
     lastUpdateTime = root.findViewById(R.id.last_update_time_text_view)
   }
 
-  fun setLocation(locality: String, weather: WeatherData?, isCurrentLocation: Boolean = false) {
-    if (weather != null) {
-      setName(locality, isCurrentLocation)
-      setTemperatures(weather.currentTemp, weather.minTemp, weather.maxTemp)
-      setConditions(weather.condition, weather.description, weather.conditionIconId)
-      setOtherInfo(weather)
-      setLastUpdateTime(weather.timeUpdated)
-    } else {
-      setName(context.getString(R.string.string_loading))
-      Log.i(TAG, "setLocation: location is null")
-    }
-  }
+  fun setData(locality: String, weatherData: WeatherData?, isCurrentLocation: Boolean = false) {
+    val weather = weatherData ?: WeatherData.getEmptyInstance()
 
-  fun setLocationName(name: String, isCurrentLocation: Boolean) {
-    setName(name, isCurrentLocation)
+    setName(locality, isCurrentLocation)
+    setTemperatures(weather.currentTemp, weather.minTemp, weather.maxTemp)
+    setConditions(weather.condition, weather.description, weather.conditionIconId)
+    setOtherInfo(weather)
+    setLastUpdateTime(weather.timeUpdated)
   }
 
   private fun setName(location: String?, isCurrentLocation: Boolean = false) {
