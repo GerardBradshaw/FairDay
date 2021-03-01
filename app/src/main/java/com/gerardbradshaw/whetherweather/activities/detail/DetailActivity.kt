@@ -38,15 +38,13 @@ import com.gerardbradshaw.whetherweather.activities.detail.viewpager.DetailPager
 import com.gerardbradshaw.whetherweather.activities.detail.viewpager.PagerItemUtil
 import java.util.LinkedHashMap
 import javax.inject.Inject
-import kotlin.math.min
 
 class DetailActivity :
   AppCompatActivity(),
   GpsUtil.GpsUtilListener,
   WeatherUtil.WeatherDetailsListener,
   DetailPagerAdapter.DataChangeListener,
-  SharedPreferences.OnSharedPreferenceChangeListener
-{
+  SharedPreferences.OnSharedPreferenceChangeListener {
   private lateinit var app: BaseApplication
   private lateinit var viewModel: BaseViewModel
   private lateinit var backgroundImage: ImageView
@@ -56,30 +54,18 @@ class DetailActivity :
   private lateinit var optionsMenu: Menu
   private lateinit var prefs: SharedPreferences
 
-  @Inject lateinit var pagerAdapter: DetailPagerAdapter
-  @Inject lateinit var gpsUtil: GpsUtil
-  @Inject lateinit var weatherUtil: WeatherUtil
-  @Inject lateinit var glideInstance: RequestManager
-  @Inject lateinit var autocompleteUtil: AutocompleteUtil
+  @Inject
+  lateinit var pagerAdapter: DetailPagerAdapter
+  @Inject
+  lateinit var gpsUtil: GpsUtil
+  @Inject
+  lateinit var weatherUtil: WeatherUtil
+  @Inject
+  lateinit var glideInstance: RequestManager
+  @Inject
+  lateinit var autocompleteUtil: AutocompleteUtil
 
-  private val liveLocationToWeatherMap = MutableLiveData<LinkedHashMap<LocationEntity, WeatherData>>()
 
-  private val viewPagerPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
-    override fun onPageSelected(position: Int) {
-      updateBackgroundImageToMatchAdapterAt(viewPager.currentItem)
-      super.onPageSelected(position)
-    }
-  }
-
-  private fun movePagerToPositionInIntent(intent: Intent) {
-    if (!intent.hasExtra(EXTRA_PAGER_POSITION)) {
-      Log.e(TAG, "movePagerToPositionInIntent: no position received.")
-    } else {
-      val divisor = min(1, pagerAdapter.itemCount)
-      val pos = intent.getIntExtra(EXTRA_PAGER_POSITION, 0) % divisor
-      viewPager.setCurrentItem(pos, true)
-    }
-  }
 
 
   // ------------------------ ACTIVITY WAKE ------------------------
@@ -109,6 +95,13 @@ class DetailActivity :
     }
 
     prefs.registerOnSharedPreferenceChangeListener(this)
+  }
+
+  private val viewPagerPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
+    override fun onPageSelected(position: Int) {
+      updateBackgroundImageToMatchAdapterAt(viewPager.currentItem)
+      super.onPageSelected(position)
+    }
   }
 
 
@@ -148,7 +141,7 @@ class DetailActivity :
     pagerItemUtil = PagerItemUtil(
       this,
       viewModel.getLiveLocations(),
-      liveLocationToWeatherMap,
+      MutableLiveData(),
       weatherUtil)
 
     pagerItemUtil.dataLive.observe(this) {
@@ -229,22 +222,24 @@ class DetailActivity :
 
   private fun onListButtonClicked() {
     val intent = Intent(this, SavedActivity::class.java)
-    movePagerResultLauncher.launch(intent)
+    savedActivityResultLauncher.launch(intent)
   }
 
-  private val movePagerResultLauncher =
+  private val savedActivityResultLauncher =
     registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-      val intent = it.data
-
-      if (intent == null) {
-        Log.e(TAG, "movePagerToPosition: missing intent.")
-      } else {
-        when (it.resultCode) {
-          RESULT_CANCELED -> Log.i(TAG, "movePagerToPosition: no place selected.")
-          RESULT_OK -> {}//movePagerToPositionInIntent(intent)
+      when (it.resultCode) {
+        RESULT_CANCELED -> Log.i(TAG, "movePagerToPosition: no place selected.")
+        RESULT_OK -> {
+          val position = it.data?.getIntExtra(EXTRA_PAGER_POSITION, -1) ?: -1
+          updatePagerPosition(position)
         }
       }
     }
+
+  private fun updatePagerPosition(position: Int) {
+    if (position != -1) viewPager.setCurrentItem(position, true)
+    else Log.i(TAG, "updatePagerPosition: no update as position was null")
+  }
 
   private fun onRefreshButtonClicked() {
     pagerItemUtil.refreshWeather()

@@ -74,11 +74,14 @@ class SavedActivity : AppCompatActivity() {
     recyclerView.adapter = locationListAdapter
     recyclerView.layoutManager = LinearLayoutManager(this)
 
-    locationListAdapter.setLocationClickedListener(object : LocationListAdapter.LocationClickedListener {
+    locationListAdapter.setLocationClickedListener(object :
+      LocationListAdapter.LocationClickedListener {
       override fun onLocationClicked(position: Int) {
-        val returnIntent = Intent()
-        returnIntent.putExtra(DetailActivity.EXTRA_PAGER_POSITION, position)
-        setResult(RESULT_OK, returnIntent)
+        val intent = Intent().also {
+          it.putExtra(DetailActivity.EXTRA_PAGER_POSITION, position)
+        }
+
+        setResult(RESULT_OK, intent)
         finish()
       }
     })
