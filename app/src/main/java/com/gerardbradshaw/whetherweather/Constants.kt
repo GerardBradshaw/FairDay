@@ -16,6 +16,7 @@ object Constants {
   const val RECEIVER = "$PACKAGE_NAME.RECEIVER"
 
   const val URL_OPEN_WEATHER = "https://openweathermap.org"
+  const val URL_PLAY_STORE = "https://play.google.com/store/apps/developer?id=Gerard+Bradshaw"
 
   const val RESULT_SUCCESS = 0
   const val RESULT_FAILURE = 1

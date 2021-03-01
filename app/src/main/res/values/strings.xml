@@ -22,7 +22,8 @@
     <string name="string_waiting">Waiting…</string>
     <string name="string_enable_location_services">Enable location services</string>
     <string name="string_disable_location_services">Disable location services</string>
-
+    <string name="string_refresh">Refresh</string>
+    <string name="string_more_by_gerard">More by Gerard</string>
 
     <!-- CONTENT DESCRIPTIONS -->
     <string name="cd_add_new_location_button">Add new location button</string>
@@ -38,5 +39,4 @@
     <!-- CONDITION ICON URL -->
     <string name="condition_url_prefix">https://openweathermap.org/img/wn/</string>
     <string name="condition_url_suffix">\@2x.png</string>
-    <string name="string_refresh">Refresh</string>
 </resources>

@@ -187,6 +187,7 @@ class DetailActivity :
       R.id.action_pin -> onPinButtonClicked()
       R.id.action_list -> onListButtonClicked()
       R.id.action_refresh -> onRefreshButtonClicked()
+      R.id.action_more_apps -> onMoreAppsButtonClicked()
       else -> return super.onOptionsItemSelected(item)
     }
     return true
@@ -243,6 +244,13 @@ class DetailActivity :
 
   private fun onRefreshButtonClicked() {
     pagerItemUtil.refreshWeather()
+  }
+
+  private fun onMoreAppsButtonClicked() {
+    Intent(Intent.ACTION_VIEW).also {
+      it.data = Uri.parse(Constants.URL_PLAY_STORE)
+      startActivity(it)
+    }
   }
 
 

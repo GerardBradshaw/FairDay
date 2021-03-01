@@ -30,4 +30,12 @@
     android:title="@string/string_refresh"
     app:showAsAction="ifRoom"
     android:icon="@drawable/ic_refresh"/>
+
+  <item
+    android:id="@+id/action_more_apps"
+    android:orderInCategory="500"
+    android:title="@string/string_more_by_gerard"
+    app:showAsAction="never"
+    android:icon="@drawable/ic_link" />
+
 </menu>
