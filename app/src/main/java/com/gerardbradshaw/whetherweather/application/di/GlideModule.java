@@ -17,9 +17,7 @@ public abstract class GlideModule {
   @Singleton
   @Provides
   static RequestOptions provideGlideRequestOptions() {
-    return RequestOptions
-        .placeholderOf(R.drawable.img_clear_day)
-        .error(R.drawable.img_clear_day);
+    return new RequestOptions().error(R.drawable.img_clear_day);
   }
   
   @Singleton

@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import com.gerardbradshaw.weatherinfoview.datamodels.WeatherData
 import com.gerardbradshaw.whetherweather.activities.detail.utils.WeatherUtil
 import com.gerardbradshaw.whetherweather.room.LocationEntity
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.LinkedHashMap
 
@@ -18,7 +17,7 @@ class PagerItemUtil(
   private val weatherUtil: WeatherUtil
 ) {
   private var dataCached = LinkedHashMap<LocationEntity, DetailPagerItem>()
-  val dataLive = MutableLiveData<LinkedList<DetailPagerItem>>()
+  val dataLive = MutableLiveData<ArrayList<DetailPagerItem>>()
 
   init {
     liveLocations.observe(activity) { syncLocations(it) }
@@ -27,31 +26,37 @@ class PagerItemUtil(
 
   private fun syncLocations(locations: List<LocationEntity>) {
     synchronized(this) {
-      val newCache = LinkedHashMap<LocationEntity, DetailPagerItem>()
-      val requestList = ArrayList<LocationEntity>()
-
-      for (location in locations) {
-        val weatherData = dataCached[location]?.weatherData
-        if (weatherData == null) requestList.add(location)
-        newCache[location] = dataCached[location] ?: DetailPagerItem(location, weatherData)
+      for (location in  dataCached.keys.toList()) {
+        if (!locations.contains(location)) {
+          dataCached.remove(location)
+        }
       }
 
-      dataCached = newCache
+      val weatherRequestList = ArrayList<LocationEntity>()
+      for (location in locations) {
+        if (!dataCached.containsKey(location)) {
+          dataCached[location] = DetailPagerItem(location, null)
+          weatherRequestList.add(location)
+        }
+      }
+
       postUpdates()
 
-      for (location in requestList) weatherUtil.requestWeatherFor(location)
+      for (location in weatherRequestList) {
+        weatherUtil.requestWeatherFor(location)
+      }
     }
   }
 
   private fun syncWeather(weatherMap: LinkedHashMap<LocationEntity, WeatherData>) {
     synchronized(this) {
       for (entry in weatherMap) {
-        val location = entry.key
-        val weather = entry.value
+        val entity = entry.key
+        val weatherData = entry.value
 
-        dataCached[location] =
-          if (dataCached[location]?.weatherData == weather) dataCached[location]!!
-          else DetailPagerItem(location, weather)
+        dataCached[entity] =
+          if (dataCached[entity]?.weatherData == weatherData) dataCached[entity]!!
+          else DetailPagerItem(entity, weatherData)
       }
 
       postUpdates()
@@ -60,17 +65,19 @@ class PagerItemUtil(
 
   fun setWeather(location: LocationEntity, weather: WeatherData) {
     synchronized(this) {
-      val isCurrentLocation = dataCached[location]?.isCurrentLocation ?: false
-      dataCached[location] = DetailPagerItem(location, weather, isCurrentLocation)
-      postUpdates()
+      if (dataCached.containsKey(location)) {
+        dataCached[location]?.weatherData = weather
+        postUpdates()
+      } else {
+        Log.e(TAG, "setWeather: ${location.locality} does not exist - no weather can be set.")
+      }
     }
   }
 
   fun refreshWeather() {
     synchronized(this) {
-      for (key in dataCached.keys) {
-        val isCurrentLocation = dataCached[key]?.isCurrentLocation ?: false
-        dataCached[key] = DetailPagerItem(key, null, isCurrentLocation)
+      for (location in dataCached.keys) {
+        dataCached[location]?.weatherData = null
       }
       postUpdates()
 
@@ -78,50 +85,43 @@ class PagerItemUtil(
     }
   }
 
-  fun setCurrentLocation(currentLocation: LocationEntity) {
+  fun setCurrentLocation(location: LocationEntity) {
     synchronized(this) {
-      val newCache = LinkedHashMap<LocationEntity, DetailPagerItem>()
+      val isSameLocation = dataCached[location]?.isCurrentLocation ?: false
 
-      newCache[currentLocation] = DetailPagerItem(currentLocation, null, true)
+      if (isSameLocation) return
+      else {
+        val newCache = LinkedHashMap<LocationEntity, DetailPagerItem>()
+        newCache[location] = DetailPagerItem(location, null, true)
 
-      for (entry in dataCached) {
-        val location = entry.key
-        val item = entry.value
+        for (entry in dataCached) {
+          if (newCache[entry.key]?.isCurrentLocation == true) continue
+          newCache[entry.key] = entry.value
+        }
 
-        if (!item.isCurrentLocation) newCache[location] = item
-      }
+        dataCached = newCache
+        postUpdates()
 
-      dataCached = newCache
-      postUpdates()
-
-      if (dataCached[currentLocation]?.weatherData == null) {
-        weatherUtil.requestWeatherFor(currentLocation)
+        weatherUtil.requestWeatherFor(location)
       }
     }
   }
 
   fun disableCurrentLocation() {
     synchronized(this) {
-      val removeList = ArrayList<LocationEntity>()
-
       for (entry in dataCached) {
         if (entry.value.isCurrentLocation) {
-          removeList.add(entry.key)
+          dataCached.remove(entry.key)
+          postUpdates()
+          break
         }
-      }
-
-      if (removeList.isNotEmpty()) {
-        for (r in removeList) {
-          dataCached.remove(r)
-        }
-        postUpdates()
       }
     }
   }
 
   private fun postUpdates() {
     Log.d(TAG, "postUpdates: posting updates")
-    dataLive.value = LinkedList(dataCached.values.toList())
+    dataLive.value = ArrayList(dataCached.values.toList())
   }
 
   companion object {

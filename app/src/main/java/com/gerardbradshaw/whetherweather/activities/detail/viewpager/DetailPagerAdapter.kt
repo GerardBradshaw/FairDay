@@ -13,12 +13,13 @@ import com.gerardbradshaw.whetherweather.R
 import java.util.*
 import javax.inject.Inject
 import kotlin.IndexOutOfBoundsException
+import kotlin.collections.ArrayList
 
 class DetailPagerAdapter @Inject constructor(private val context: Context) :
     RecyclerView.Adapter<DetailPagerAdapter.DetailViewHolder>()
 {
   private val inflater = LayoutInflater.from(context)
-  private var data: LinkedList<DetailPagerItem> = LinkedList()
+  private var data: ArrayList<DetailPagerItem> = ArrayList()
   private var listener: DataChangeListener? = null
 
 
@@ -50,7 +51,7 @@ class DetailPagerAdapter @Inject constructor(private val context: Context) :
     this.listener = listener
   }
 
-  fun setData(data: LinkedList<DetailPagerItem>) {
+  fun setData(data: ArrayList<DetailPagerItem>) {
     val diffResult = DiffUtil.calculateDiff(MyDiffCallback(this.data, data))
     this.data = data
     diffResult.dispatchUpdatesTo(this)
@@ -75,8 +76,8 @@ class DetailPagerAdapter @Inject constructor(private val context: Context) :
   }
 
   private class MyDiffCallback(
-    private val oldList: LinkedList<DetailPagerItem>,
-    private val newList: LinkedList<DetailPagerItem>
+    private val oldList: List<DetailPagerItem>,
+    private val newList: List<DetailPagerItem>
   ) : DiffUtil.Callback() {
 
     override fun getOldListSize() = oldList.size

@@ -49,17 +49,18 @@ class WeatherInfoView : FrameLayout {
     lastUpdateTime = root.findViewById(R.id.last_update_time_text_view)
   }
 
-  fun setData(locality: String, weatherData: WeatherData?, isCurrentLocation: Boolean = false) {
-    val weather = weatherData ?: WeatherData.getEmptyInstance()
+  fun setData(locality: String, weather: WeatherData?, isCurrentLocation: Boolean = false) {
+    setLocality(locality, isCurrentLocation)
 
-    setName(locality, isCurrentLocation)
-    setTemperatures(weather.currentTemp, weather.minTemp, weather.maxTemp)
-    setConditions(weather.condition, weather.description, weather.conditionIconId)
-    setOtherInfo(weather)
-    setLastUpdateTime(weather.timeUpdated)
+    if (weather != null) {
+      setTemperatures(weather.currentTemp, weather.minTemp, weather.maxTemp)
+      setConditions(weather.condition, weather.description, weather.conditionIconId)
+      setOtherInfo(weather)
+      setLastUpdateTime(weather.timeUpdated)
+    }
   }
 
-  private fun setName(location: String?, isCurrentLocation: Boolean = false) {
+  private fun setLocality(location: String?, isCurrentLocation: Boolean = false) {
     locationTextView.text = location ?: "Unknown location"
 
     locationPinIcon.visibility =

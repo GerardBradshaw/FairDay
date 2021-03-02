@@ -23,7 +23,7 @@ object WeatherDataUtil {
       gmtOffset = weatherFile.gmtOffset?.times(1000),
       sunrise = weatherFile.sys?.sunrise?.times(1000),
       sunset = weatherFile.sys?.sunset?.times(1000),
-      locationName = weatherFile.name,
+      name = weatherFile.name,
       latitude = weatherFile.coordinates?.lat,
       longitude = weatherFile.coordinates?.lon)
   }

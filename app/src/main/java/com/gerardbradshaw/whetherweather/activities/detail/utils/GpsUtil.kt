@@ -39,7 +39,8 @@ class GpsUtil @Inject constructor(
   private lateinit var locationRequest: LocationRequest
   private lateinit var locationSettingsRequest: LocationSettingsRequest
 
-  private var isGpsEnabled = false
+  var isGpsEnabled = false
+    private set
 
   private var isGpsRequestedSharedPref: Boolean
     get() = PreferenceManager.getDefaultSharedPreferences(activity)
@@ -97,10 +98,10 @@ class GpsUtil @Inject constructor(
 
   /**
    * To be called by a registered [GpsUtilListener] to start location updates if it was
-   * previously set to receive them. Method is named to indicate its logical position in an
-   * [Activity] listener class.
+   * previously set to receive them. It is suggested that this method is run during the listening
+   * Activity / Fragment onCreate() or onResume().
    */
-  fun onResume() {
+  fun start() {
     if (isGpsRequestedSharedPref) startLocationUpdates()
   }
 
@@ -108,7 +109,7 @@ class GpsUtil @Inject constructor(
    * To be called by a registered [GpsUtilListener] to stop requesting location updates.
    * Method is named to indicate its logical position in an [Activity] listener class.
    */
-  fun onPause() {
+  fun stop() {
     requestLocationUpdatesStop()
   }
 

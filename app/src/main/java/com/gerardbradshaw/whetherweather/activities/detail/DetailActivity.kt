@@ -36,7 +36,6 @@ import com.gerardbradshaw.whetherweather.activities.detail.utils.OpenWeatherCred
 import com.gerardbradshaw.whetherweather.activities.detail.utils.WeatherUtil
 import com.gerardbradshaw.whetherweather.activities.detail.viewpager.DetailPagerAdapter
 import com.gerardbradshaw.whetherweather.activities.detail.viewpager.PagerItemUtil
-import java.util.concurrent.locks.ReentrantLock
 import javax.inject.Inject
 
 class DetailActivity :
@@ -77,9 +76,9 @@ class DetailActivity :
   }
 
   override fun onResume() {
-    gpsUtil.onResume()
-    initListeners()
     viewPager.registerOnPageChangeCallback(viewPagerPageChangeCallback)
+    initListeners()
+    gpsUtil.start()
     super.onResume()
   }
 
@@ -158,7 +157,7 @@ class DetailActivity :
   // ------------------------ ACTIVITY SLEEP ------------------------
 
   override fun onPause() {
-    gpsUtil.onPause()
+    gpsUtil.stop()
     unregisterListeners()
     super.onPause()
   }
@@ -228,8 +227,11 @@ class DetailActivity :
       when (it.resultCode) {
         RESULT_CANCELED -> Log.i(TAG, "movePagerToPosition: no place selected.")
         RESULT_OK -> {
-          val position = it.data?.getIntExtra(EXTRA_PAGER_POSITION, -1) ?: -1
-          updatePagerPosition(position)
+          val intentPos = it.data?.getIntExtra(EXTRA_PAGER_POSITION, -1) ?: -1
+          if (intentPos == -1) return@registerForActivityResult
+
+          val offset = if (prefs.getBoolean(Constants.KEY_GPS_REQUESTED, false)) 1 else 0
+          updatePagerPosition(intentPos + offset)
         }
       }
     }
