@@ -17,21 +17,25 @@ class TemperatureView : FrameLayout {
   private val minTempTextView: TextView
 
   fun setTemps(current: Int?, min: Int?, max: Int?) {
+    visibility =
+      if (current == null && min == null && max == null) View.INVISIBLE
+      else View.VISIBLE
+
     setCurrentTemp(current)
     setMinTemp(min)
     setMaxTemp(max)
   }
 
   private fun setCurrentTemp(current: Int?) {
-    currentTempTextView.text = "${current ?: ""}"
+    currentTempTextView.text = "${current ?: "-"}"
   }
 
   private fun setMinTemp(min: Int?) {
-    minTempTextView.text = "${min ?: ""}"
+    minTempTextView.text = "${min ?: "-"}"
   }
 
   private fun setMaxTemp(max: Int?) {
-    maxTempTextView.text = "${max ?: ""}"
+    maxTempTextView.text = "${max ?: "-"}"
   }
 
   init {

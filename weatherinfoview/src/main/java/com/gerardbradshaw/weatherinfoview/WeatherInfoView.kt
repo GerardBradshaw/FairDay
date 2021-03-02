@@ -50,14 +50,16 @@ class WeatherInfoView : FrameLayout {
   }
 
   fun setData(locality: String, weather: WeatherData?, isCurrentLocation: Boolean = false) {
-    setLocality(locality, isCurrentLocation)
+    val locationName =
+      if (weather == null) context.getString(R.string.string_loading)
+      else locality
 
-    if (weather != null) {
-      setTemperatures(weather.currentTemp, weather.minTemp, weather.maxTemp)
-      setConditions(weather.condition, weather.description, weather.conditionIconId)
-      setOtherInfo(weather)
-      setLastUpdateTime(weather.timeUpdated)
-    }
+    setLocality(locationName, isCurrentLocation)
+
+    setTemperatures(weather?.currentTemp, weather?.minTemp, weather?.maxTemp)
+    setConditions(weather?.condition, weather?.description, weather?.conditionIconId)
+    setOtherInfo(weather)
+    setLastUpdateTime(weather?.timeUpdated)
   }
 
   private fun setLocality(location: String?, isCurrentLocation: Boolean = false) {
@@ -80,15 +82,15 @@ class WeatherInfoView : FrameLayout {
     TODO()
   }
 
-  private fun setOtherInfo(location: WeatherData) {
-    sunriseView.setInfo("Sunrise", getTimeString(location.sunrise, location.gmtOffset))
-    sunsetView.setInfo("Sunset", getTimeString(location.sunset, location.gmtOffset))
-    cloudinessView.setInfo("Cloudiness", "${location.cloudiness}%")
-    humidityView.setInfo("Humidity", "${location.humidity}%")
-    windSpeedView.setInfo("Wind speed", "${location.windSpeed} m/s")
-    windDirectionView.setInfo("Wind direction", meteorologicalToCardinal(location.windDirection))
-    rainLastHourView.setInfo("Rain last hr", "${location.rainLastHour ?: "-"} mm")
-    rainLastThreeHourView.setInfo("Rain last 3 hrs", "${location.rainLastThreeHours ?: "-"} mm")
+  private fun setOtherInfo(location: WeatherData?) {
+    sunriseView.setInfo("Sunrise", getTimeString(location?.sunrise, location?.gmtOffset))
+    sunsetView.setInfo("Sunset", getTimeString(location?.sunset, location?.gmtOffset))
+    cloudinessView.setInfo("Cloudiness", "${location?.cloudiness}%")
+    humidityView.setInfo("Humidity", "${location?.humidity ?: "-"}%")
+    windSpeedView.setInfo("Wind speed", "${location?.windSpeed ?: "-"} m/s")
+    windDirectionView.setInfo("Wind direction", meteorologicalToCardinal(location?.windDirection))
+    rainLastHourView.setInfo("Rain last hr", "${location?.rainLastHour ?: "0"} mm")
+    rainLastThreeHourView.setInfo("Rain last 3 hrs", "${location?.rainLastThreeHours ?: "0"} mm")
   }
 
   private fun setLastUpdateTime(time: Long?) {

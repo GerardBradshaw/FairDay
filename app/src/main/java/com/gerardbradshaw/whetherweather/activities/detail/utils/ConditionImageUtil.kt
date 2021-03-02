@@ -6,7 +6,7 @@ abstract class ConditionImageUtil {
   companion object {
     @JvmStatic
     fun getResId(conditionId: String?): Int {
-      if (conditionId == null|| conditionId.length < 3) return R.drawable.img_clear_day
+      if (conditionId == null|| conditionId.length < 3) return R.drawable.img_blank
 
       val number = Integer.parseInt(conditionId.substring(0,2))
       val isDay = conditionId.substring(3) == "d"
