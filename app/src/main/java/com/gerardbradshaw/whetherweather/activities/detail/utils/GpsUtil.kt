@@ -38,6 +38,15 @@ class GpsUtil @Inject constructor(
   private lateinit var locationCallback: LocationCallback
   private lateinit var locationRequest: LocationRequest
   private lateinit var locationSettingsRequest: LocationSettingsRequest
+
+  private var isGpsEnabled = false
+
+  private var isGpsRequestedSharedPref: Boolean
+    get() = PreferenceManager.getDefaultSharedPreferences(activity)
+      .getBoolean(Constants.KEY_GPS_REQUESTED, false)
+    set(value) = PreferenceManager.getDefaultSharedPreferences(activity).edit()
+      .putBoolean(Constants.KEY_GPS_REQUESTED, value).apply()
+
   private var listener: GpsUtilListener? = null
 
   private val addressChangeListener: AddressUtil.AddressChangeListener =
@@ -92,11 +101,7 @@ class GpsUtil @Inject constructor(
    * [Activity] listener class.
    */
   fun onResume() {
-    val isGpsEnabled =
-      PreferenceManager.getDefaultSharedPreferences(activity)
-        .getBoolean(Constants.KEY_GPS_ENABLED, false)
-
-    if (isGpsEnabled) startLocationUpdates()
+    if (isGpsRequestedSharedPref) startLocationUpdates()
   }
 
   /**
@@ -143,6 +148,15 @@ class GpsUtil @Inject constructor(
     requestLocationUpdatesStop()
   }
 
+  /**
+   * Returns the new (toggled) state of this.isGpsEnabled
+   */
+  fun toggleUpdateState(): Boolean {
+    if (isGpsEnabled) stopRequestingUpdates()
+    else requestUpdates()
+    return isGpsEnabled
+  }
+
 
   // ------------------------ STARTING ------------------------
 
@@ -166,9 +180,7 @@ class GpsUtil @Inject constructor(
   }
 
   private fun onRationaleDismissed() {
-    PreferenceManager
-      .getDefaultSharedPreferences(activity).edit()
-      .putBoolean(Constants.KEY_GPS_ENABLED, false).apply()
+    isGpsRequestedSharedPref = false
   }
 
   private fun onRationaleAccepted() {
@@ -190,9 +202,7 @@ class GpsUtil @Inject constructor(
 
   @RequiresPermission(LOCATION_PERMISSION)
   private fun requestLocationUpdates() {
-    PreferenceManager
-      .getDefaultSharedPreferences(activity).edit()
-      .putBoolean(Constants.KEY_GPS_ENABLED, true).apply()
+    isGpsEnabled = true
 
     fusedLocationClient.requestLocationUpdates(
       locationRequest,
@@ -219,6 +229,7 @@ class GpsUtil @Inject constructor(
 
   private fun onSettingsChangeUnavailable() {
     toastLocationErrorAndLog("onSettingsChangeUnavailable: location settings change unavailable")
+    isGpsRequestedSharedPref = false
     stopRequestingUpdates()
   }
 
@@ -226,9 +237,7 @@ class GpsUtil @Inject constructor(
   // ------------------------ STOPPING ------------------------
 
   private fun requestLocationUpdatesStop() {
-    PreferenceManager
-      .getDefaultSharedPreferences(activity).edit()
-      .putBoolean(Constants.KEY_GPS_ENABLED, false).apply()
+    isGpsEnabled = false
 
     fusedLocationClient
       .removeLocationUpdates(locationCallback)

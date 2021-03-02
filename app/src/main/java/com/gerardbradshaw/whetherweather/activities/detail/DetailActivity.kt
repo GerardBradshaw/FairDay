@@ -36,7 +36,7 @@ import com.gerardbradshaw.whetherweather.activities.detail.utils.OpenWeatherCred
 import com.gerardbradshaw.whetherweather.activities.detail.utils.WeatherUtil
 import com.gerardbradshaw.whetherweather.activities.detail.viewpager.DetailPagerAdapter
 import com.gerardbradshaw.whetherweather.activities.detail.viewpager.PagerItemUtil
-import java.util.LinkedHashMap
+import java.util.concurrent.locks.ReentrantLock
 import javax.inject.Inject
 
 class DetailActivity :
@@ -176,7 +176,7 @@ class DetailActivity :
     menuInflater.inflate(R.menu.menu_action_bar_detail_activity, menu)
     supportActionBar?.setDisplayShowTitleEnabled(false)
 
-    onSharedPreferenceChanged(prefs, Constants.KEY_GPS_ENABLED)
+    onSharedPreferenceChanged(prefs, Constants.KEY_GPS_REQUESTED)
 
     return super.onCreateOptionsMenu(menu)
   }
@@ -198,14 +198,11 @@ class DetailActivity :
   }
 
   private fun onPinButtonClicked() {
-    val isGpsEnabled = prefs.getBoolean(Constants.KEY_GPS_ENABLED, false)
+    val isGpsRequestedOldPref = prefs.getBoolean(Constants.KEY_GPS_REQUESTED, false)
+    prefs.edit().putBoolean(Constants.KEY_GPS_REQUESTED, !isGpsRequestedOldPref).apply()
 
-    if (!isGpsEnabled) {
-      gpsUtil.requestUpdates()
-    } else {
-      gpsUtil.stopRequestingUpdates()
-      pagerItemUtil.disableCurrentLocation()
-    }
+    val isGpsEnabled = gpsUtil.toggleUpdateState()
+    if (!isGpsEnabled) pagerItemUtil.disableCurrentLocation()
   }
 
   private fun setPinIconAsOn(boolean: Boolean) {
@@ -264,7 +261,7 @@ class DetailActivity :
   }
 
   override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-    if (sharedPreferences != null && key == Constants.KEY_GPS_ENABLED) {
+    if (sharedPreferences != null && key == Constants.KEY_GPS_REQUESTED) {
       setPinIconAsOn(sharedPreferences.getBoolean(key, false))
     }
   }
