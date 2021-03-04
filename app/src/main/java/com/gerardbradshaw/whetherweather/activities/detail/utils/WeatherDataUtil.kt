@@ -25,6 +25,7 @@ object WeatherDataUtil {
       sunset = weatherFile.sys?.sunset?.times(1000),
       name = weatherFile.name,
       latitude = weatherFile.coordinates?.lat,
-      longitude = weatherFile.coordinates?.lon)
+      longitude = weatherFile.coordinates?.lon,
+      weatherId = weatherFile.weather?.get(0)?.id)
   }
 }

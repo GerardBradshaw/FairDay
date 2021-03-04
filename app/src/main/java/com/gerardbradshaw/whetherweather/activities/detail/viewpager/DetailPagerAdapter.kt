@@ -58,11 +58,7 @@ class DetailPagerAdapter @Inject constructor(private val context: Context) :
     listener?.onDataUpdate()
   }
 
-  fun getConditionIdFor(position: Int): String? {
-    return getWeatherDataFor(position)?.conditionIconId
-  }
-
-  private fun getWeatherDataFor(position: Int): WeatherData? {
+  fun getWeatherDataFor(position: Int): WeatherData? {
     return try {
       data[position].weatherData
     } catch (e: IndexOutOfBoundsException) {

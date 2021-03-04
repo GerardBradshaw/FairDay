@@ -20,7 +20,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.RequestManager
-import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.gerardbradshaw.weatherinfoview.datamodels.WeatherData
 import com.gerardbradshaw.whetherweather.Constants
 import com.gerardbradshaw.whetherweather.application.BaseApplication
@@ -28,7 +28,7 @@ import com.gerardbradshaw.whetherweather.R
 import com.gerardbradshaw.whetherweather.activities.utils.AutocompleteUtil
 import com.gerardbradshaw.whetherweather.room.LocationEntity
 import com.gerardbradshaw.whetherweather.activities.utils.BaseViewModel
-import com.gerardbradshaw.whetherweather.activities.detail.utils.ConditionImageUtil
+import com.gerardbradshaw.whetherweather.activities.detail.utils.ConditionUtil
 import com.gerardbradshaw.whetherweather.activities.detail.utils.GpsUtil
 import com.gerardbradshaw.whetherweather.activities.saved.SavedActivity
 import com.gerardbradshaw.whetherweather.activities.detail.utils.GpsUtil.Companion.REQUEST_CODE_CHECK_SETTINGS
@@ -36,6 +36,9 @@ import com.gerardbradshaw.whetherweather.activities.detail.utils.OpenWeatherCred
 import com.gerardbradshaw.whetherweather.activities.detail.utils.WeatherUtil
 import com.gerardbradshaw.whetherweather.activities.detail.viewpager.DetailPagerAdapter
 import com.gerardbradshaw.whetherweather.activities.detail.viewpager.PagerItemUtil
+import com.gerardbradshaw.whetherweather.activities.utils.DrawableAlwaysCrossFadeFactory
+import com.github.matteobattilana.weather.PrecipType
+import com.github.matteobattilana.weather.WeatherView
 import javax.inject.Inject
 
 class DetailActivity :
@@ -48,6 +51,7 @@ class DetailActivity :
   private lateinit var viewModel: BaseViewModel
   private lateinit var backgroundImage: ImageView
   private lateinit var instructionsTextView: TextView
+  private lateinit var weatherViewAnim: WeatherView
   private lateinit var viewPager: ViewPager2
   private lateinit var pagerItemUtil: PagerItemUtil
   private lateinit var optionsMenu: Menu
@@ -98,7 +102,7 @@ class DetailActivity :
 
   private val viewPagerPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
     override fun onPageSelected(position: Int) {
-      updateBackgroundImageToMatchAdapterAt(viewPager.currentItem)
+      pagerAdapter.getWeatherDataFor(position)?.let { updateBackgroundViews(it) }
       super.onPageSelected(position)
     }
   }
@@ -120,6 +124,7 @@ class DetailActivity :
     prefs = PreferenceManager.getDefaultSharedPreferences(this)
     backgroundImage = findViewById(R.id.background_image_view)
     instructionsTextView = findViewById(R.id.instructions_text_view)
+    weatherViewAnim = findViewById(R.id.weather_view)
   }
 
   private fun injectFields() {
@@ -294,19 +299,42 @@ class DetailActivity :
     }
   }
 
-  private fun updateBackgroundImageToMatchAdapterAt(position: Int) {
-    val conditionId = pagerAdapter.getConditionIdFor(position)
-    val resId = ConditionImageUtil.getResId(conditionId)
+  private fun updateBackgroundViews(weatherData: WeatherData?) {
+    updateBackgroundImage(weatherData)
+    updateWeatherView(weatherData)
+  }
+
+  private fun updateBackgroundImage(weatherData: WeatherData?) {
+    val conditionImageResId =
+      if (weatherData == null) R.drawable.img_blank
+      else ConditionUtil.getConditionImageResId(weatherData.conditionIconId)
 
     glideInstance
-      .asBitmap()
-      .load(resId)
-      .transition(BitmapTransitionOptions.withCrossFade())
+      .load(conditionImageResId)
+      .transition(DrawableTransitionOptions.with(DrawableAlwaysCrossFadeFactory()))
       .into(backgroundImage)
   }
 
+  private fun updateWeatherView(weatherData: WeatherData?) {
+    val precipType =
+      if (weatherData == null) PrecipType.CLEAR
+      else ConditionUtil.getPrecipType(weatherData.weatherId)
+
+    weatherViewAnim.setWeatherData(precipType)
+
+    if (weatherData != null) {
+      val windSpeed = weatherData.windSpeed ?: 0f
+      val speedFactor = if (windSpeed / 20f > 1f) 1f else windSpeed / 20f
+      val windDirection = (weatherData.windDirection?.toInt() ?: 0) % 360
+
+      val angle = speedFactor * if (windDirection <= 180) 60 else -60
+      Log.d(TAG, "updateWeatherView: angle is $angle")
+      weatherViewAnim.angle = angle.toInt()
+    }
+  }
+
   override fun onDataUpdate() {
-    updateBackgroundImageToMatchAdapterAt(viewPager.currentItem)
+    pagerAdapter.getWeatherDataFor(viewPager.currentItem)?.let { updateBackgroundViews(it) }
   }
 
 
