@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.gerardbradshaw.weatherinfoview.datamodels.WeatherData
 import com.gerardbradshaw.weatherinfoview.subviews.conditions.ConditionsView
@@ -17,36 +18,35 @@ class WeatherInfoView : FrameLayout {
   constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
   constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
-  private val locationTextView: TextView
-  private val locationPinIcon: ImageView
-  private val conditionsView: ConditionsView
-  private val temperatureView: TemperatureView
-
-  private val sunriseView: SmallDetailView
-  private val sunsetView: SmallDetailView
   private val cloudinessView: SmallDetailView
+  private val conditionsView: ConditionsView
   private val humidityView: SmallDetailView
-  private val windSpeedView: SmallDetailView
-  private val windDirectionView: SmallDetailView
+  private val lastUpdateTime: TextView
+  private val locationPinIcon: ImageView
+  private val locationTextView: TextView
   private val rainLastHourView: SmallDetailView
   private val rainLastThreeHourView: SmallDetailView
-  private val lastUpdateTime: TextView
+  private val sunriseView: SmallDetailView
+  private val sunsetView: SmallDetailView
+  private val temperatureView: TemperatureView
+  private val windDirectionView: SmallDetailView
+  private val windSpeedView: SmallDetailView
 
   init {
     val root = View.inflate(context, R.layout.view_info, this)
-    locationTextView = root.findViewById(R.id.location_text_view)
-    locationPinIcon = root.findViewById(R.id.location_pin_icon)
-    temperatureView = root.findViewById(R.id.temperature_view)
-    conditionsView = root.findViewById(R.id.conditions_view)
-    sunriseView = root.findViewById(R.id.sunrise_detail_view)
-    sunsetView = root.findViewById(R.id.sunset_detail_view)
     cloudinessView = root.findViewById(R.id.cloudiness_detail_view)
+    conditionsView = root.findViewById(R.id.conditions_view)
     humidityView = root.findViewById(R.id.humidity_detail_view)
-    windSpeedView = root.findViewById(R.id.wind_speed_detail_view)
-    windDirectionView = root.findViewById(R.id.wind_direction_detail_view)
+    lastUpdateTime = root.findViewById(R.id.last_update_time_text_view)
+    locationPinIcon = root.findViewById(R.id.location_pin_icon)
+    locationTextView = root.findViewById(R.id.location_text_view)
     rainLastHourView = root.findViewById(R.id.rain_last_hour_detail_view)
     rainLastThreeHourView = root.findViewById(R.id.rain_last_three_hour_detail_view)
-    lastUpdateTime = root.findViewById(R.id.last_update_time_text_view)
+    sunriseView = root.findViewById(R.id.sunrise_detail_view)
+    sunsetView = root.findViewById(R.id.sunset_detail_view)
+    temperatureView = root.findViewById(R.id.temperature_view)
+    windDirectionView = root.findViewById(R.id.wind_direction_detail_view)
+    windSpeedView = root.findViewById(R.id.wind_speed_detail_view)
   }
 
   fun setData(locality: String, weather: WeatherData?, isCurrentLocation: Boolean = false) {

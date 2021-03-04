@@ -43,5 +43,6 @@ data class WeatherData constructor(
   val sunset: Long? = null,
   val name: String? = null,
   val latitude: Float? = null,
-  val longitude: Float? = null
+  val longitude: Float? = null,
+  val weatherId: Int? = null
 )
