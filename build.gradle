@@ -71,7 +71,7 @@ ext {
             minSdkVersion: 21,
             targetSdkVersion: 30,
             compileSdkVersion: 30]
-    rootPackageName = 'com.gerardbradshaw.whetherweather'
+    rootPackageName = 'com.gerardbradshaw.fairday'
     miscVersionInformation = [androidBuildToolsVersion: '30.0.3']
     mavenReleaseInformation = [groupId: 'com.gerardbradshaw']
 }

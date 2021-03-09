@@ -1,6 +1,6 @@
 <resources>
     <!-- APP & ACTIVITIES -->
-    <string name="app_name">Whether Weather</string>
+    <string name="app_name">Fair Day</string>
     <string name="title_activity_locations">LocationsActivity</string>
 
     <!-- STRINGS -->

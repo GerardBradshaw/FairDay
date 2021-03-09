@@ -54,7 +54,7 @@
             android:layout_weight="1"/>
 
         <!-- OPEN WEATHER CREDIT -->
-        <com.gerardbradshaw.whetherweather.activities.detail.utils.OpenWeatherCreditView
+        <com.gerardbradshaw.fairday.activities.detail.utils.OpenWeatherCreditView
             android:id="@+id/open_weather_credit_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
