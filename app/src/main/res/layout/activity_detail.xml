@@ -34,9 +34,14 @@
         android:layout_height="match_parent"
         android:background="#40FFFFFF"/>
 
-    <!-- WEATHER VIEW (ANIMATIONS) -->
+    <!-- WEATHER VIEW (PRECIPITATION) -->
     <com.github.matteobattilana.weather.WeatherView
         android:id="@+id/weather_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <FrameLayout
+        android:id="@+id/cloud_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 

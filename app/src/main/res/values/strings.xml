@@ -5,7 +5,7 @@
 
     <!-- STRINGS -->
     <string name="string_add">Add</string>
-    <string name="string_data_provided_by_openweathermap_dot_org">Data provided by openweathermap.org</string>
+    <string name="string_data_provided_by_openweathermap_dot_org">Weather data from openweathermap.org</string>
     <string name="string_enter_city_or_zip">Enter City or ZIP</string>
     <string name="string_loading">Loading…</string>
     <string name="string_locations">Locations</string>

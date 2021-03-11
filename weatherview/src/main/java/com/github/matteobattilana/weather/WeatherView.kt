@@ -51,18 +51,18 @@ class WeatherView(context: Context, attrs: AttributeSet?) : FrameLayout(context,
       updateEmissionRate()
     }
 
-  var precipType: PrecipType = PrecipType.CLEAR
+  var precipitationType: PrecipitationType = PrecipitationType.CLEAR
     set(value) {
       field = value
-      confettoInfo.precipType = value
+      confettoInfo.precipitationType = value
     }
 
   fun setCustomBitmap(bitmap: Bitmap) {
-    confettoInfo.precipType = PrecipType.CUSTOM
+    confettoInfo.precipitationType = PrecipitationType.CUSTOM
     confettoInfo.customBitmap = bitmap
   }
 
-  private val confettoInfo = ConfettoInfo(PrecipType.CLEAR, 1.0f)
+  private val confettoInfo = ConfettoInfo(PrecipitationType.CLEAR, 1.0f)
 
   init {
     confettiSource = MutableRectSource(0, 0)
@@ -80,7 +80,7 @@ class WeatherView(context: Context, attrs: AttributeSet?) : FrameLayout(context,
   }
 
   fun setWeatherData(weatherData: WeatherData) {
-    precipType = weatherData.precipType
+    precipitationType = weatherData.precipitationType
     emissionRate = weatherData.emissionRate
     speed = weatherData.speed
     resetWeather()

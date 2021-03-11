@@ -3,7 +3,7 @@ package com.github.matteobattilana.weather
 /**
  * Created by Mitchell on 7/6/2017.
  */
-enum class PrecipType : WeatherData {
+enum class PrecipitationType : WeatherData {
   CLEAR {
     override val emissionRate: Float = 0f
     override val speed: Int = 0
@@ -52,7 +52,7 @@ enum class PrecipType : WeatherData {
   };
 
   @Suppress("LeakingThis") // enum types are actually final, this warning is incorrect. Check if fixed in next plugin update
-  override val precipType: PrecipType = this
+  override val precipitationType: PrecipitationType = this
 }
 
 private object EnumConstants {

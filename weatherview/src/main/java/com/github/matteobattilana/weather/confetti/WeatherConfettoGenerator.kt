@@ -3,7 +3,7 @@ package com.github.matteobattilana.weather.confetti
 import android.graphics.*
 import com.github.jinatonic.confetti.ConfettoGenerator
 import com.github.jinatonic.confetti.confetto.Confetto
-import com.github.matteobattilana.weather.PrecipType
+import com.github.matteobattilana.weather.PrecipitationType
 import java.util.*
 
 /**
@@ -42,14 +42,14 @@ class MotionBlurBitmapConfetto(val confettoInfo: ConfettoInfo) : Confetto() {
     rotation: Float,
     percentageAnimated: Float
   ) {
-    when (confettoInfo.precipType) {
-      PrecipType.CLEAR -> { /* Do nothing */ }
-      PrecipType.RAIN,
-      PrecipType.DRIZZLE,
-      PrecipType.LIGHT_RAIN,
-      PrecipType.HEAVY_RAIN,
-      PrecipType.EXTREME_RAIN,
-      PrecipType.VERY_HEAVY_RAIN -> {
+    when (confettoInfo.precipitationType) {
+      PrecipitationType.CLEAR -> { /* Do nothing */ }
+      PrecipitationType.RAIN,
+      PrecipitationType.DRIZZLE,
+      PrecipitationType.LIGHT_RAIN,
+      PrecipitationType.HEAVY_RAIN,
+      PrecipitationType.EXTREME_RAIN,
+      PrecipitationType.VERY_HEAVY_RAIN -> {
         val rainStretch = RAIN_STRETCH * (confettoInfo.scaleFactor + 1.0f) / 2f;
         val dX = currentVelocityX
         val dY = currentVelocityY
@@ -66,7 +66,7 @@ class MotionBlurBitmapConfetto(val confettoInfo: ConfettoInfo) : Confetto() {
 
         canvas.drawLine(x1, y1, x2, y2, paint)
       }
-      PrecipType.SNOW -> {
+      PrecipitationType.SNOW -> {
         val sigmoid = (1f / (1f + Math.pow(Math.E, -(confettoInfo.scaleFactor.toDouble() - 1f)))).toFloat()
         paint.shader = RadialGradient(x, y, SNOW_RADIUS * confettoInfo.scaleFactor,
           intArrayOf(Color.WHITE, Color.WHITE, transparentWhite, transparentWhite),
@@ -75,7 +75,7 @@ class MotionBlurBitmapConfetto(val confettoInfo: ConfettoInfo) : Confetto() {
 
         canvas.drawCircle(x, y, SNOW_RADIUS * confettoInfo.scaleFactor, paint)
       }
-      PrecipType.CUSTOM -> {
+      PrecipitationType.CUSTOM -> {
         matrix.preTranslate(x, y)
         matrix.preRotate(rotation,
           confettoInfo.customBitmap!!.width / 2f,

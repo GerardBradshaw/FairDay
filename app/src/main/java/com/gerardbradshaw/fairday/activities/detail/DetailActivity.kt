@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.location.Address
 import android.net.Uri
 import android.os.*
-import android.util.JsonReader
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -39,7 +38,7 @@ import com.gerardbradshaw.fairday.activities.detail.utils.WeatherUtil
 import com.gerardbradshaw.fairday.activities.detail.viewpager.DetailPagerAdapter
 import com.gerardbradshaw.fairday.activities.detail.viewpager.PagerItemUtil
 import com.gerardbradshaw.fairday.activities.utils.DrawableAlwaysCrossFadeFactory
-import com.github.matteobattilana.weather.PrecipType
+import com.github.matteobattilana.weather.PrecipitationType
 import com.github.matteobattilana.weather.WeatherView
 import java.io.IOException
 import java.io.InputStream
@@ -55,7 +54,7 @@ class DetailActivity :
   private lateinit var viewModel: BaseViewModel
   private lateinit var backgroundImage: ImageView
   private lateinit var instructionsTextView: TextView
-  private lateinit var weatherViewAnim: WeatherView
+  private lateinit var precipitationAnimationView: WeatherView
   private lateinit var viewPager: ViewPager2
   private lateinit var pagerItemUtil: PagerItemUtil
   private lateinit var optionsMenu: Menu
@@ -128,7 +127,7 @@ class DetailActivity :
     prefs = PreferenceManager.getDefaultSharedPreferences(this)
     backgroundImage = findViewById(R.id.background_image_view)
     instructionsTextView = findViewById(R.id.instructions_text_view)
-    weatherViewAnim = findViewById(R.id.weather_view)
+    precipitationAnimationView = findViewById(R.id.weather_view)
   }
 
   private fun injectFields() {
@@ -214,15 +213,19 @@ class DetailActivity :
     if (!isGpsEnabled) pagerItemUtil.disableCurrentLocation()
   }
 
-  private fun setPinIconAsOn(boolean: Boolean) {
+  private fun setPinIconState(state: PinState) {
     optionsMenu.findItem(R.id.action_pin)?.let {
-      if (boolean) {
-        it.icon = ContextCompat.getDrawable(this, R.drawable.ic_pin_on)
-        it.title = getString(R.string.string_disable_location_services)
-      } else {
-        it.icon = ContextCompat.getDrawable(this, R.drawable.ic_pin_off)
-        it.title = getString(R.string.string_enable_location_services)
+      when (state) {
+        PinState.PIN_ENABLED -> {
+          it.icon = ContextCompat.getDrawable(this, R.drawable.ic_pin_on)
+          it.title = getString(R.string.string_disable_location_services)
+        }
+        PinState.PIN_DISABLED -> {
+          it.icon = ContextCompat.getDrawable(this, R.drawable.ic_pin_off)
+          it.title = getString(R.string.string_enable_location_services)
+        }
       }
+
       it.icon.setTint(Color.WHITE)
     }
   }
@@ -302,7 +305,9 @@ class DetailActivity :
 
   override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
     if (sharedPreferences != null && key == Constants.KEY_GPS_REQUESTED) {
-      setPinIconAsOn(sharedPreferences.getBoolean(key, false))
+      val isLocationOn = sharedPreferences.getBoolean(key, false)
+      val pinState = if (isLocationOn) PinState.PIN_ENABLED else PinState.PIN_DISABLED
+      setPinIconState(pinState)
     }
   }
 
@@ -334,26 +339,27 @@ class DetailActivity :
 
   private fun updateBackgroundViews(weatherData: WeatherData?) {
     updateBackgroundImage(weatherData)
-    updateWeatherView(weatherData)
+    updatePrecipitationView(weatherData)
+    updateCloudView(weatherData)
   }
 
   private fun updateBackgroundImage(weatherData: WeatherData?) {
-    val conditionImageResId =
-      if (weatherData == null) R.drawable.img_blank
-      else ConditionUtil.getConditionImageResId(weatherData.conditionIconId)
+    val conditionImageResId = ConditionUtil.getConditionImageResId(weatherData?.conditionIconId)
 
     glideInstance
       .load(conditionImageResId)
       .transition(DrawableTransitionOptions.with(DrawableAlwaysCrossFadeFactory()))
       .into(backgroundImage)
+
+    Log.d(TAG, "updateBackgroundImage: updated image for ${weatherData?.name}")
   }
 
-  private fun updateWeatherView(weatherData: WeatherData?) {
-    val precipType =
-      if (weatherData == null) PrecipType.CLEAR
-      else ConditionUtil.getPrecipType(weatherData.weatherId)
+  private fun updatePrecipitationView(weatherData: WeatherData?) {
+    val precipitationType =
+      if (weatherData == null) PrecipitationType.CLEAR
+      else ConditionUtil.getPrecipitationType(weatherData.weatherId)
 
-    weatherViewAnim.setWeatherData(precipType)
+    precipitationAnimationView.setWeatherData(precipitationType)
 
     if (weatherData != null) {
       val windSpeed = weatherData.windSpeed ?: 0f
@@ -361,9 +367,14 @@ class DetailActivity :
       val windDirection = (weatherData.windDirection?.toInt() ?: 0) % 360
 
       val angle = speedFactor * if (windDirection <= 180) 60 else -60
-      Log.d(TAG, "updateWeatherView: angle is $angle")
-      weatherViewAnim.angle = angle.toInt()
+      precipitationAnimationView.angle = angle.toInt()
     }
+  }
+
+  private fun updateCloudView(weatherData: WeatherData?) {
+    val cloudType = ConditionUtil.getCloudType(weatherData?.conditionIconId)
+
+    // cloudView.setType(cloudType)
   }
 
   override fun onDataUpdate() {
@@ -372,6 +383,10 @@ class DetailActivity :
 
 
   // ------------------------ UTIL ------------------------
+
+  enum class PinState {
+    PIN_ENABLED, PIN_DISABLED
+  }
 
   companion object {
     private const val TAG = "GGG DetailActivity"
