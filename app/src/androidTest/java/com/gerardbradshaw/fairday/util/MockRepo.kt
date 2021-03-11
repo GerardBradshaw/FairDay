@@ -35,7 +35,7 @@ class MockRepo {
     MockResponse().let {
       Log.i(TAG, "enqueueWeatherResultFor: enqueueing Location${location.ordinal}")
       it.setResponseCode(HttpsURLConnection.HTTP_OK)
-      it.setBody(FileUtils.readTestResourceFile("weather${location.ordinal}.txt"))
+      it.setBody(FileUtils.readTextResourceFile("weather${location.ordinal}.txt"))
       mockWebServer.enqueue(it)
     }
   }

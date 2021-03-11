@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.location.Address
 import android.net.Uri
 import android.os.*
+import android.util.JsonReader
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -13,6 +14,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
@@ -39,6 +41,8 @@ import com.gerardbradshaw.fairday.activities.detail.viewpager.PagerItemUtil
 import com.gerardbradshaw.fairday.activities.utils.DrawableAlwaysCrossFadeFactory
 import com.github.matteobattilana.weather.PrecipType
 import com.github.matteobattilana.weather.WeatherView
+import java.io.IOException
+import java.io.InputStream
 import javax.inject.Inject
 
 class DetailActivity :
@@ -192,6 +196,7 @@ class DetailActivity :
       R.id.action_list -> onListButtonClicked()
       R.id.action_refresh -> onRefreshButtonClicked()
       R.id.action_more_apps -> onMoreAppsButtonClicked()
+      R.id.action_libraries_used -> onLibrariesUsedButtonClicked()
       else -> return super.onOptionsItemSelected(item)
     }
     return true
@@ -254,6 +259,34 @@ class DetailActivity :
     Intent(Intent.ACTION_VIEW).also {
       it.data = Uri.parse(Constants.URL_PLAY_STORE)
       startActivity(it)
+    }
+  }
+
+  private fun onLibrariesUsedButtonClicked() {
+    val text = readFile(resources.openRawResource(R.raw.open_source_libraries_used))
+
+    val layout = layoutInflater.inflate(R.layout.dialog_libraries_used, null)
+    val textView: TextView = layout.findViewById(R.id.libraries_used_text_view)
+    textView.text = text
+
+    val dialog = AlertDialog.Builder(this)
+      .setTitle(getString(R.string.string_open_source_libraries_used))
+      .setView(layout)
+      .setPositiveButton("OK", null)
+      .create()
+
+    dialog.show()
+  }
+
+  private fun readFile(inputStream: InputStream): String {
+    try {
+      val bytes = ByteArray(inputStream.available())
+      inputStream.read(bytes, 0, bytes.size)
+      return String(bytes)
+
+    } catch (e: IOException) {
+      Log.e(TAG, "readFile: failed to read file.", e)
+      return "An error occurred"
     }
   }
 

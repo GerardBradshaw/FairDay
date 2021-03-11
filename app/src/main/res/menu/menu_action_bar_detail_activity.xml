@@ -38,4 +38,12 @@
     app:showAsAction="never"
     android:icon="@drawable/ic_link" />
 
+  <item
+      android:id="@+id/action_libraries_used"
+      android:orderInCategory="600"
+      android:title="@string/string_open_source_libraries_used"
+      app:showAsAction="never"
+      android:icon="@drawable/ic_library"
+    />
+
 </menu>
