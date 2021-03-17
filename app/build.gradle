@@ -74,6 +74,9 @@ dependencies {
     // AppCompat
     implementation "androidx.appcompat:appcompat:$rootProject.appcompat_version"
 
+    // CloudView
+    implementation "com.github.GerardBradshaw:CloudView:$rootProject.cloud_view_version"
+
     // Constraint Layout
     implementation "androidx.constraintlayout:constraintlayout:$rootProject.constraint_layout_version"
 

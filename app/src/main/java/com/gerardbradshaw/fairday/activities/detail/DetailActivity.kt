@@ -38,6 +38,7 @@ import com.gerardbradshaw.fairday.activities.detail.utils.WeatherUtil
 import com.gerardbradshaw.fairday.activities.detail.viewpager.DetailPagerAdapter
 import com.gerardbradshaw.fairday.activities.detail.viewpager.PagerItemUtil
 import com.gerardbradshaw.fairday.activities.utils.DrawableAlwaysCrossFadeFactory
+import com.gerardbradshaw.library.CloudView
 import com.github.matteobattilana.weather.PrecipitationType
 import com.github.matteobattilana.weather.WeatherView
 import java.io.IOException
@@ -70,7 +71,6 @@ class DetailActivity :
   lateinit var glideInstance: RequestManager
   @Inject
   lateinit var autocompleteUtil: AutocompleteUtil
-
 
 
 
@@ -372,9 +372,7 @@ class DetailActivity :
   }
 
   private fun updateCloudView(weatherData: WeatherData?) {
-    val cloudType = ConditionUtil.getCloudType(weatherData?.conditionIconId)
-
-    // cloudView.setType(cloudType)
+    // TODO
   }
 
   override fun onDataUpdate() {

@@ -68,24 +68,6 @@ abstract class ConditionUtil {
     }
 
     @JvmStatic
-    fun getCloudType(conditionId: String?): CloudType {
-      val conditionInfo = getConditionInfo(conditionId)
-
-      return when (conditionInfo?.idNumber) {
-        1 -> CloudType.CLEAR
-        2 -> CloudType.FEW
-        3 -> CloudType.SCATTERED
-        4 -> CloudType.BROKEN
-        9 -> CloudType.SHOWER_RAIN
-        10 -> CloudType.RAIN
-        11 -> CloudType.THUNDERSTORM
-        13 -> CloudType.SNOW
-        50 -> CloudType.MIST
-        else -> CloudType.CLEAR
-      }
-    }
-
-    @JvmStatic
     fun getPrecipitationType(weatherId: Int?): PrecipitationType {
       if (weatherId == null) return PrecipitationType.CLEAR
 
