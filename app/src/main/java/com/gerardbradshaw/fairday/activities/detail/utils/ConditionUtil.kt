@@ -18,6 +18,19 @@ abstract class ConditionUtil {
       val isDay = conditionId.last() == 'd'
 
       return ConditionInfo(idNumber, isDay)
+
+        /*
+        Codes:
+          1 -> clear sky
+          2 -> few clouds
+          3 -> scattered clouds
+          4 -> broken clouds
+          9 -> shower rain
+          10 -> rain
+          11 -> thunderstorm
+          13 -> snow
+          50 -> mist
+       */
     }
 
     @JvmStatic
@@ -29,42 +42,37 @@ abstract class ConditionUtil {
           in 1..4 -> R.drawable.img_day_clear
           in 9..11 -> R.drawable.img_day_rain
           13 -> R.drawable.img_day_snow
-          50 -> TODO() // mist
-          else -> TODO()
+          50 -> R.drawable.img_day_rain // mist
+          else -> R.drawable.img_day_clear
         }
       } else {
         when (conditionInfo.idNumber) {
           in 1..4 -> R.drawable.img_night_clear
           in 9..11 -> R.drawable.img_night_rain
           13 -> R.drawable.img_night_snow
-          50 -> TODO() // mist
-          else -> TODO()
+          50 -> R.drawable.img_night_rain // mist
+          else -> R.drawable.img_night_clear
         }
       }
 
-      /*
-      Codes:
-        1 -> clear sky
-        2 -> few clouds
-        3 -> scattered clouds
-        4 -> broken clouds
-        9 -> shower rain
-        10 -> rain
-        11 -> thunderstorm
-        13 -> snow
-        50 -> mist
-       */
 
-//      return when (conditionInfo.idNumber) {
-//        2, 4 -> if (conditionInfo.isDay) R.drawable.img_broken_and_few_clouds_day else R.drawable.img_broken_and_few_clouds_night
-//        3 -> if (conditionInfo.isDay) R.drawable.img_scattered_clouds_day else R.drawable.img_scattered_clouds_night
-//        9 -> if (conditionInfo.isDay) R.drawable.img_shower_day else R.drawable.img_shower_night
-//        10 -> R.drawable.img_rain_both
-//        11 -> R.drawable.img_storm_both
-//        13 -> if (conditionInfo.isDay) R.drawable.img_snow_day else R.drawable.img_snow_night
-//        50 -> if (conditionInfo.isDay) R.drawable.img_clear_day else R.drawable.img_clear_night
-//        else -> if (conditionInfo.isDay) R.drawable.img_mist_day else R.drawable.img_mist_night
-//      }
+    }
+
+    @JvmStatic
+    @Deprecated("Use getConditionImageResId() instead.")
+    fun getConditionPhotoResId(conditionId: String?): Int {
+      val conditionInfo = getConditionInfo(conditionId) ?: return R.drawable.img_blank
+
+      return when (conditionInfo.idNumber) {
+        2, 4 -> if (conditionInfo.isDay) R.drawable.img_broken_and_few_clouds_day else R.drawable.img_broken_and_few_clouds_night
+        3 -> if (conditionInfo.isDay) R.drawable.img_scattered_clouds_day else R.drawable.img_scattered_clouds_night
+        9 -> if (conditionInfo.isDay) R.drawable.img_shower_day else R.drawable.img_shower_night
+        10 -> R.drawable.img_rain_both
+        11 -> R.drawable.img_storm_both
+        13 -> if (conditionInfo.isDay) R.drawable.img_snow_day else R.drawable.img_snow_night
+        50 -> if (conditionInfo.isDay) R.drawable.img_clear_day else R.drawable.img_clear_night
+        else -> if (conditionInfo.isDay) R.drawable.img_mist_day else R.drawable.img_mist_night
+      }
     }
 
     @JvmStatic
@@ -81,6 +89,22 @@ abstract class ConditionUtil {
         504 -> PrecipitationType.EXTREME_RAIN
         in 600..622 -> PrecipitationType.SNOW
         else -> PrecipitationType.CLEAR
+      }
+    }
+
+    @JvmStatic
+    fun getCloudType(conditionId: String?): CloudType {
+      val conditionInfo = getConditionInfo(conditionId) ?: return CloudType.CLEAR
+
+      return when (conditionInfo.idNumber) {
+        1 -> CloudType.CLEAR
+        2 -> CloudType.FEW
+        3 -> CloudType.SCATTERED
+        4 -> CloudType.BROKEN
+        9 -> CloudType.SHOWER
+        10 -> CloudType.RAIN
+        11 -> CloudType.THUNDERSTORM
+        else -> CloudType.CLEAR
       }
     }
 

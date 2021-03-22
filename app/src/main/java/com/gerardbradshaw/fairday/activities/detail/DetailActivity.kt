@@ -26,15 +26,12 @@ import com.gerardbradshaw.weatherinfoview.datamodels.WeatherData
 import com.gerardbradshaw.fairday.Constants
 import com.gerardbradshaw.fairday.application.BaseApplication
 import com.gerardbradshaw.fairday.R
+import com.gerardbradshaw.fairday.activities.detail.utils.*
 import com.gerardbradshaw.fairday.activities.utils.AutocompleteUtil
 import com.gerardbradshaw.fairday.room.LocationEntity
 import com.gerardbradshaw.fairday.activities.utils.BaseViewModel
-import com.gerardbradshaw.fairday.activities.detail.utils.ConditionUtil
-import com.gerardbradshaw.fairday.activities.detail.utils.GpsUtil
 import com.gerardbradshaw.fairday.activities.saved.SavedActivity
 import com.gerardbradshaw.fairday.activities.detail.utils.GpsUtil.Companion.REQUEST_CODE_CHECK_SETTINGS
-import com.gerardbradshaw.fairday.activities.detail.utils.OpenWeatherCreditView
-import com.gerardbradshaw.fairday.activities.detail.utils.WeatherUtil
 import com.gerardbradshaw.fairday.activities.detail.viewpager.DetailPagerAdapter
 import com.gerardbradshaw.fairday.activities.detail.viewpager.PagerItemUtil
 import com.gerardbradshaw.fairday.activities.utils.DrawableAlwaysCrossFadeFactory
@@ -55,7 +52,8 @@ class DetailActivity :
   private lateinit var viewModel: BaseViewModel
   private lateinit var backgroundImage: ImageView
   private lateinit var instructionsTextView: TextView
-  private lateinit var precipitationAnimationView: WeatherView
+  private lateinit var precipitationView: WeatherView
+  private lateinit var cloudView: CloudView
   private lateinit var viewPager: ViewPager2
   private lateinit var pagerItemUtil: PagerItemUtil
   private lateinit var optionsMenu: Menu
@@ -127,7 +125,8 @@ class DetailActivity :
     prefs = PreferenceManager.getDefaultSharedPreferences(this)
     backgroundImage = findViewById(R.id.background_image_view)
     instructionsTextView = findViewById(R.id.instructions_text_view)
-    precipitationAnimationView = findViewById(R.id.weather_view)
+    precipitationView = findViewById(R.id.weather_view)
+    cloudView = findViewById(R.id.cloud_view)
   }
 
   private fun injectFields() {
@@ -359,7 +358,7 @@ class DetailActivity :
       if (weatherData == null) PrecipitationType.CLEAR
       else ConditionUtil.getPrecipitationType(weatherData.weatherId)
 
-    precipitationAnimationView.setWeatherData(precipitationType)
+    precipitationView.setWeatherData(precipitationType)
 
     if (weatherData != null) {
       val windSpeed = weatherData.windSpeed ?: 0f
@@ -367,12 +366,21 @@ class DetailActivity :
       val windDirection = (weatherData.windDirection?.toInt() ?: 0) % 360
 
       val angle = speedFactor * if (windDirection <= 180) 60 else -60
-      precipitationAnimationView.angle = angle.toInt()
+      precipitationView.angle = angle.toInt()
     }
   }
 
   private fun updateCloudView(weatherData: WeatherData?) {
-    // TODO
+    val cloudType =
+      if (weatherData == null) CloudType.CLEAR
+      else ConditionUtil.getCloudType(weatherData.conditionIconId)
+
+    if (cloudType == CloudType.CLEAR) {
+      cloudView.stopAnimations()
+    } else {
+      cloudView.cloudCount = cloudType.cloudCount
+      cloudView.startAnimation()
+    }
   }
 
   override fun onDataUpdate() {

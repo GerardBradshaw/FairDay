@@ -40,6 +40,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <!-- CLOUD VIEW -->
+    <com.gerardbradshaw.library.CloudView
+        android:background="@android:color/transparent"
+        android:id="@+id/cloud_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
     <!-- DATA AND CREDIT -->
     <LinearLayout
         android:layout_width="match_parent"
