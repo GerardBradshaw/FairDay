@@ -79,6 +79,7 @@ class GpsUtil @Inject constructor(
     }
   }
 
+  @Suppress("DEPRECATION") // TODO replace
   private fun createLocationRequest() {
     locationRequest = LocationRequest()
       .setInterval(DEFAULT_LOCATION_UPDATE_INTERVAL_MS)

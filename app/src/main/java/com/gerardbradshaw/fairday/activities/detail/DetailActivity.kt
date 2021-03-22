@@ -295,6 +295,7 @@ class DetailActivity :
 
   // ------------------------ EXTERNAL EVENTS ------------------------
 
+  @Suppress("DEPRECATION") // TODO remove
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
     when (requestCode) {
       REQUEST_CODE_CHECK_SETTINGS -> gpsUtil.onActivityResult(requestCode, resultCode)

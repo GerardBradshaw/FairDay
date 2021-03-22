@@ -140,19 +140,15 @@
                 android:background="@drawable/img_fade_out_up"
                 android:layout_width="match_parent"
                 android:layout_height="12dp"/>
-
-
         </LinearLayout>
 
 
-
-
         <!-- FORECAST -->
-        <com.gerardbradshaw.weatherinfoview.subviews.forecast.ForecastView
-            android:id="@+id/forecast_view"
-            tools:layout_height="72dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+<!--        <com.gerardbradshaw.weatherinfoview.subviews.forecast.ForecastView-->
+<!--            android:id="@+id/forecast_view"-->
+<!--            tools:layout_height="72dp"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"/>-->
 
         <!--        <FrameLayout style="@style/BasicWhiteLineStyle" />-->
 
