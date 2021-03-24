@@ -1,7 +1,7 @@
 package com.gerardbradshaw.fairday.activities.detail.utils
 
 import com.gerardbradshaw.fairday.R
-import com.github.matteobattilana.weather.PrecipitationType
+import com.github.matteobattilana.precipitationview.PrecipitationType
 
 abstract class ConditionUtil {
 

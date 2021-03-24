@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    tools:background="@android:color/holo_blue_bright">
+
+    <!-- TEMPERATURE -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Current Temp -->
+        <TextView
+            android:id="@+id/current_text_view"
+            style="@style/TemperatureStyle"
+            android:text="@string/symbol_hyphen"
+            tools:text="19"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            style="@style/TemperatureStyle"
+            android:paddingStart="0dp"
+            android:paddingEnd="12dp"
+            android:text="@string/symbol_degree"
+            app:layout_constraintStart_toEndOf="@id/current_text_view"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- MIN TEMP -->
+        <LinearLayout
+            style="@style/TemperatureBoundContainerStyle"
+            app:layout_constraintBottom_toBottomOf="@id/current_text_view"
+            app:layout_constraintEnd_toStartOf="@id/current_text_view">
+
+            <TextView
+                style="@style/TemperatureBoundStyle"
+                android:text="@string/symbol_low" />
+
+            <TextView
+                android:id="@+id/min_text_view"
+                style="@style/TemperatureBoundStyle"
+                tools:text="7"
+                android:text="@string/symbol_hyphen" />
+
+            <TextView
+                style="@style/TemperatureBoundStyle"
+                android:text="@string/symbol_degree"/>
+        </LinearLayout>
+
+        <!-- MAX TEMP -->
+        <LinearLayout
+            style="@style/TemperatureBoundContainerStyle"
+            app:layout_constraintBottom_toBottomOf="@id/current_text_view"
+            app:layout_constraintStart_toEndOf="@id/current_text_view">
+
+            <TextView
+                style="@style/TemperatureBoundStyle"
+                android:text="@string/symbol_high" />
+
+            <TextView
+                android:id="@+id/max_text_view"
+                style="@style/TemperatureBoundStyle"
+                tools:text="27"
+                android:text="@string/symbol_hyphen" />
+
+            <TextView
+                style="@style/TemperatureBoundStyle"
+                android:text="@string/symbol_degree" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Min and Max Temp -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+
+
+        <Space
+            android:layout_width="56dp"
+            android:layout_height="wrap_content"/>
+
+
+
+    </LinearLayout>
+</LinearLayout>

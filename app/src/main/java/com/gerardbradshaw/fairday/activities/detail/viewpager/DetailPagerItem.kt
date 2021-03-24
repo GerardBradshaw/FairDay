@@ -1,6 +1,6 @@
 package com.gerardbradshaw.fairday.activities.detail.viewpager
 
-import com.gerardbradshaw.weatherinfoview.datamodels.WeatherData
+import com.gerardbradshaw.weatherview.datamodels.WeatherData
 import com.gerardbradshaw.fairday.room.LocationEntity
 
 class DetailPagerItem(

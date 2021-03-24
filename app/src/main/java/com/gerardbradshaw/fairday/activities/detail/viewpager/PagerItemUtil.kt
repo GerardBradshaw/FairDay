@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.gerardbradshaw.weatherinfoview.datamodels.WeatherData
+import com.gerardbradshaw.weatherview.datamodels.WeatherData
 import com.gerardbradshaw.fairday.activities.detail.utils.WeatherUtil
 import com.gerardbradshaw.fairday.room.LocationEntity
 import kotlin.collections.ArrayList

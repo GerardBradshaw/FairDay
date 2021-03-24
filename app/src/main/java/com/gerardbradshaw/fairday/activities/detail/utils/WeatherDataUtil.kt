@@ -1,11 +1,10 @@
 package com.gerardbradshaw.fairday.activities.detail.utils
 
 import com.gerardbradshaw.fairday.retrofit.OneCallWeatherFile
-import com.gerardbradshaw.weatherinfoview.datamodels.WeatherData
+import com.gerardbradshaw.weatherview.datamodels.WeatherData
 import com.gerardbradshaw.fairday.retrofit.WeatherFile
 
 object WeatherDataUtil {
-
   fun getWeatherDataFromWeatherFile(weatherFile: WeatherFile): WeatherData {
     return WeatherData(
       condition = weatherFile.weather?.get(0)?.main,

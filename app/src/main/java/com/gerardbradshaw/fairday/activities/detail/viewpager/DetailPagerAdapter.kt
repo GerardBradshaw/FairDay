@@ -7,8 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.gerardbradshaw.weatherinfoview.datamodels.WeatherData
-import com.gerardbradshaw.weatherinfoview.WeatherInfoView
+import com.gerardbradshaw.weatherview.datamodels.WeatherData
+import com.gerardbradshaw.weatherview.WeatherView
 import com.gerardbradshaw.fairday.R
 import javax.inject.Inject
 import kotlin.IndexOutOfBoundsException
@@ -67,7 +67,7 @@ class DetailPagerAdapter @Inject constructor(private val context: Context) :
   }
 
   class DetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    val weatherView: WeatherInfoView = itemView.findViewById(R.id.list_item_weather_view)
+    val weatherView: WeatherView = itemView.findViewById(R.id.list_item_weather_view)
   }
 
   private class MyDiffCallback(

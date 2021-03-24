@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.gerardbradshaw.weatherinfoview.WeatherInfoView
+    <com.gerardbradshaw.weatherview.WeatherView
         android:id="@+id/list_item_weather_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

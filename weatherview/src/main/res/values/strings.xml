@@ -1,3 +1,25 @@
 <resources>
-    <string name="app_name">library</string>
+    <!-- STRINGS -->
+    <string name="string_invalid_location">Invalid location</string>
+    <string name="string_add">Add</string>
+    <string name="string_locations">Locations</string>
+    <string name="string_open_weather_logo">Open Weather logo</string>
+    <string name="string_loading">Loading…</string>
+
+    <!-- CONTENT DESCRIPTIONS -->
+    <string name="cd_condition_description_prefix">\"Graphic of \"</string>
+    <string name="cd_condition_description_suffix">\" conditions\"</string>
+    <string name="cd_location_pin_icon">Pin indicating current location</string>v
+
+    <!-- SYMBOLS -->
+    <string name="symbol_high">"H: "</string>
+    <string name="symbol_low">"L: "</string>
+    <string name="symbol_hyphen">-</string>
+    <string name="symbol_degree">°</string>
+
+    <!-- CONDITION URL -->
+    <string name="condition_url_prefix">https://openweathermap.org/img/wn/</string>
+    <string name="condition_url_suffix">\@2x.png</string>
+
+
 </resources>

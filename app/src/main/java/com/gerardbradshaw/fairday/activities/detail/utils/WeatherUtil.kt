@@ -2,7 +2,7 @@ package com.gerardbradshaw.fairday.activities.detail.utils
 
 import android.content.Context
 import android.util.Log
-import com.gerardbradshaw.weatherinfoview.datamodels.WeatherData
+import com.gerardbradshaw.weatherview.datamodels.WeatherData
 import com.gerardbradshaw.fairday.application.BaseApplication
 import com.gerardbradshaw.fairday.BuildConfig
 import com.gerardbradshaw.fairday.retrofit.WeatherFile

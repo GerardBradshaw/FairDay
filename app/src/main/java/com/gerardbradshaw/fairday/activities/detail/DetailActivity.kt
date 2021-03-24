@@ -22,7 +22,7 @@ import androidx.preference.PreferenceManager
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.gerardbradshaw.weatherinfoview.datamodels.WeatherData
+import com.gerardbradshaw.weatherview.datamodels.WeatherData
 import com.gerardbradshaw.fairday.Constants
 import com.gerardbradshaw.fairday.application.BaseApplication
 import com.gerardbradshaw.fairday.R
@@ -36,8 +36,8 @@ import com.gerardbradshaw.fairday.activities.detail.viewpager.DetailPagerAdapter
 import com.gerardbradshaw.fairday.activities.detail.viewpager.PagerItemUtil
 import com.gerardbradshaw.fairday.activities.utils.DrawableAlwaysCrossFadeFactory
 import com.gerardbradshaw.library.CloudView
-import com.github.matteobattilana.weather.PrecipitationType
-import com.github.matteobattilana.weather.WeatherView
+import com.github.matteobattilana.precipitationview.PrecipitationType
+import com.github.matteobattilana.precipitationview.PrecipitationView
 import java.io.IOException
 import java.io.InputStream
 import javax.inject.Inject
@@ -52,7 +52,7 @@ class DetailActivity :
   private lateinit var viewModel: BaseViewModel
   private lateinit var backgroundImage: ImageView
   private lateinit var instructionsTextView: TextView
-  private lateinit var precipitationView: WeatherView
+  private lateinit var precipitationView: PrecipitationView
   private lateinit var cloudView: CloudView
   private lateinit var viewPager: ViewPager2
   private lateinit var pagerItemUtil: PagerItemUtil

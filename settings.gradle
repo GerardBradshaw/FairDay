@@ -1,4 +1,4 @@
+include ':precipitationview'
 include ':weatherview'
-include ':weatherinfoview'
 include ':app'
 rootProject.name = "Fair Day"
