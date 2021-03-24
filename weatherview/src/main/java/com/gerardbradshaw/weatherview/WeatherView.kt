@@ -4,13 +4,12 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.ImageView
 import android.widget.TextView
 import com.gerardbradshaw.weatherview.datamodels.WeatherData
-import com.gerardbradshaw.weatherview.subviews.conditions.ConditionsView
 import com.gerardbradshaw.weatherview.subviews.detail.SmallDetailView
-import com.gerardbradshaw.weatherview.subviews.temperature.TemperatureView
+import java.lang.StringBuilder
 import java.util.*
+import kotlin.math.roundToInt
 
 class WeatherView : FrameLayout {
   constructor(context: Context) : super(context)
@@ -18,6 +17,7 @@ class WeatherView : FrameLayout {
   constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
   private val headlineView: WeatherHeadlineView
+  private val hourlyTempTextView: TextView
   private val cloudinessView: SmallDetailView
   private val humidityView: SmallDetailView
   private val lastUpdateTime: TextView
@@ -31,6 +31,8 @@ class WeatherView : FrameLayout {
   init {
     val root = View.inflate(context, R.layout.view_weather_view, this)
     headlineView = root.findViewById(R.id.headline_view)
+    hourlyTempTextView = root.findViewById(R.id.hourly_temp_text_view)
+    
     cloudinessView = root.findViewById(R.id.cloudiness_detail_view)
     humidityView = root.findViewById(R.id.humidity_detail_view)
     lastUpdateTime = root.findViewById(R.id.last_update_time_text_view)
@@ -47,20 +49,33 @@ class WeatherView : FrameLayout {
       if (weather == null) context.getString(R.string.string_loading)
       else locality
 
-    setLocality(locationName, isCurrentLocation)
-
-    setTemperatures(weather?.currentTemp, weather?.minTemp, weather?.maxTemp)
-    setConditions(weather?.condition, weather?.description, weather?.conditionIconId)
+    setHeadline(locationName, isCurrentLocation, weather)
+    setHourlyDetails(weather)
+    setConditions(weather?.conditionName, weather?.conditionDescription, weather?.conditionIconId)
     setOtherInfo(weather)
-    setLastUpdateTime(weather?.timeUpdated)
+    setLastUpdateTime(weather?.time)
   }
-
-  private fun setLocality(location: String?, isCurrentLocation: Boolean = false) {
+  
+  private fun setHeadline(location: String?, isCurrentLocation: Boolean = false, weather: WeatherData?) {
     headlineView.setLocation(location, isCurrentLocation)
-  }
 
-  private fun setTemperatures(current: Int?, min: Int?, max: Int?) {
-    headlineView.setTemps(current, min, max)
+    headlineView.setTemps(
+      weather?.tempC?.roundToInt(),
+      weather?.tempMinC?.roundToInt(),
+      weather?.tempMaxC?.roundToInt())
+  }
+  
+  private fun setHourlyDetails(weather: WeatherData?) {
+    val hourlyData = weather?.hourlyData
+
+    if (hourlyData != null) {
+      val strb = StringBuilder()
+      val iterator = hourlyData.iterator()
+      while (iterator.hasNext()) {
+        strb.append(iterator.next().toString()).append(" --- ")
+      }
+      hourlyTempTextView.text = strb.toString()
+    }
   }
 
   private fun setConditions(condition: String?, description: String?, conditionIconId: String?) {

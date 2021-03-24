@@ -351,7 +351,7 @@ class DetailActivity :
       .transition(DrawableTransitionOptions.with(DrawableAlwaysCrossFadeFactory()))
       .into(backgroundImage)
 
-    Log.d(TAG, "updateBackgroundImage: updated image for ${weatherData?.name}")
+    Log.d(TAG, "updateBackgroundImage: updated image for ${weatherData?.locationName}")
   }
 
   private fun updatePrecipitationView(weatherData: WeatherData?) {

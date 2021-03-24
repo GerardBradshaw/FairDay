@@ -2,45 +2,64 @@ package com.gerardbradshaw.weatherview.datamodels
 
 /**
  * Represents the weather at a location.
- * @param condition Condition name (e.g. rain, snow, extreme, etc).
+ * @param conditionName Condition name (e.g. rain, snow, extreme, etc).
  * @param conditionIconId Condition icon ID.
- * @param description Condition description.
- * @param currentTemp Temperature in Celsius.
- * @param minTemp Minimum temperature in Celsius.
- * @param maxTemp Maximum temperature in Celsius.
+ * @param conditionDescription Condition description.
+ * @param tempC Temperature in Celsius.
+ * @param tempMinC Minimum temperature in Celsius.
+ * @param tempMaxC Maximum temperature in Celsius.
  * @param humidity Humidity %.
  * @param windSpeed Wind speed in meters/sec.
  * @param windDirection Direction of wind in meteorological degrees.
  * @param cloudiness Cloudiness %.
  * @param rainLastHour Rainfall in the last hour in mm.
  * @param rainLastThreeHours Rainfall in the last 3 hours in mm.
- * @param timeUpdated Time data was last updated.
+ * @param time Time data was last updated.
  * @param gmtOffset GMT offset.
  * @param sunrise Sunrise time UTC.
  * @param sunset Sunset time UTC.
- * @param name Location name.
+ * @param locationName Location name.
  * @param latitude Latitude of location.
  * @param longitude Longitude of location.
+ * @param weatherId the ID of the weather conditions
+ * @param hourlyData a list of weather conditions over the next few hours
+ * @param dailyData a list of weather conditions over the next few days
  */
 data class WeatherData constructor(
-  val condition: String? = null,
+  val conditionName: String? = null,
   val conditionIconId: String? = null,
-  val description: String? = null,
-  val currentTemp: Int? = null,
-  val minTemp: Int? = null,
-  val maxTemp: Int? = null,
+  val conditionDescription: String? = null,
+  val tempC: Float? = null,
+  val tempMinC: Float? = null,
+  val tempMaxC: Float? = null,
   val humidity: Float? = null,
   val windSpeed: Float? = null,
   val windDirection: Float? = null,
   val cloudiness: Float? = null,
   val rainLastHour: Float? = null,
   val rainLastThreeHours: Float? = null,
-  val timeUpdated: Long? = null,
+  val time: Long? = null,
   val gmtOffset: Long? = null,
   val sunrise: Long? = null,
   val sunset: Long? = null,
-  val name: String? = null,
+  val locationName: String? = null,
   val latitude: Float? = null,
   val longitude: Float? = null,
-  val weatherId: Int? = null
-)
+  val weatherId: Int? = null,
+  val hourlyData: List<Hourly>? = null,
+  val dailyData: List<Daily>? = null
+) {
+
+  data class Hourly constructor(
+    val time: Long? = null,
+    val tempC: Float? = null,
+    val conditionIconId: String? = null
+  )
+
+  data class Daily constructor(
+    val time: Long? = null,
+    val tempMinC: Float? = null,
+    val tempMaxC: Float? = null,
+    val conditionIconId: String? = null
+  )
+}
