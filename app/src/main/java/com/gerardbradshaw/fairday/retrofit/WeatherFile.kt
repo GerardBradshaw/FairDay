@@ -2,6 +2,7 @@ package com.gerardbradshaw.fairday.retrofit
 
 import com.google.gson.annotations.SerializedName
 
+@Deprecated("Use OneCallWeatherFile instead")
 class WeatherFile {
   @SerializedName("coord") var coordinates: Coordinates? = null
   var weather: List<Weather>? = null

@@ -25,6 +25,7 @@
     <string name="string_refresh">Refresh</string>
     <string name="string_more_by_gerard">More by Gerard</string>
     <string name="string_open_source_libraries_used">Open-source libraries used</string>
+    <string name="string_are_you_sure_you_want_to_remove">Are you sure you want to remove </string>
 
     <!-- CONTENT DESCRIPTIONS -->
     <string name="cd_add_new_location_button">Add new location button</string>

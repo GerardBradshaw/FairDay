@@ -43,7 +43,7 @@ class PagerItemUtil(
       postUpdates()
 
       for (location in weatherRequestList) {
-        weatherUtil.requestWeatherFor(location)
+        weatherUtil.requestFullWeatherFor(location)
       }
     }
   }
@@ -81,7 +81,7 @@ class PagerItemUtil(
       }
       postUpdates()
 
-      for (location in dataCached.keys) weatherUtil.requestWeatherFor(location)
+      for (location in dataCached.keys) weatherUtil.requestFullWeatherFor(location)
     }
   }
 
@@ -102,7 +102,7 @@ class PagerItemUtil(
         dataCached = newCache
         postUpdates()
 
-        weatherUtil.requestWeatherFor(location)
+        weatherUtil.requestFullWeatherFor(location)
       }
     }
   }

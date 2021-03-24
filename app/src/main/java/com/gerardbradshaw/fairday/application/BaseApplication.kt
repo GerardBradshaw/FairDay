@@ -38,7 +38,7 @@ class BaseApplication : Application() {
       .builder()
       .setApplication(this)
       .setIsTest(false)
-      .setHttpUrl(OPEN_WEATHER_URL.toHttpUrl())
+      .setHttpUrl(OPEN_WEATHER_BASE_URL.toHttpUrl())
       .build()
 
 //    val prefs = PreferenceManager.getDefaultSharedPreferences(this)
@@ -83,6 +83,6 @@ class BaseApplication : Application() {
 
   companion object {
     private const val TAG = "GGG BaseApplication"
-    const val OPEN_WEATHER_URL = "https://api.openweathermap.org/data/2.5/"
+    const val OPEN_WEATHER_BASE_URL = "https://api.openweathermap.org/data/2.5/"
   }
 }

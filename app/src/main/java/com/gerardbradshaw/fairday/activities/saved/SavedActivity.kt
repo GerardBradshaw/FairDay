@@ -118,7 +118,7 @@ class SavedActivity : AppCompatActivity() {
       return
     }
 
-    val msg = "Remove ${entityToDelete.locality} from ${getString(R.string.app_name)}"
+    val msg = getString(R.string.string_are_you_sure_you_want_to_remove) + "${entityToDelete.locality}?"
 
     AlertDialog.Builder(this).let {
       it.setMessage(msg)
