@@ -20,6 +20,7 @@
     <!-- CONDITION URL -->
     <string name="condition_url_prefix">https://openweathermap.org/img/wn/</string>
     <string name="condition_url_suffix">\@2x.png</string>
+    <string name="string_now">Now</string>
 
 
 </resources>

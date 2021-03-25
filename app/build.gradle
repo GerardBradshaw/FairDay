@@ -109,7 +109,6 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$rootProject.android_junit_version"
 
     // Kotlin
-//    implementation "org.jetbrains.kotlin:kotlin-stdlib:$rootProject.kotlin_version"
     implementation "androidx.core:core-ktx:$rootProject.android_core_ktx_version"
 
     // Location Services

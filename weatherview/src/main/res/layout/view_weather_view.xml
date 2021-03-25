@@ -1,127 +1,145 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
+    android:fillViewport="true"
     tools:background="@android:color/holo_green_light">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/weather_view_ui"
         android:layout_width="match_parent"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="84dp"/>
-
-        <!-- HEADLINE -->
-        <com.gerardbradshaw.weatherview.WeatherHeadlineView
-            android:id="@+id/headline_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <TextView
-            android:id="@+id/hourly_temp_text_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <!-- SMALL DETAILS -->
         <LinearLayout
-            android:layout_marginTop="48dp"
-            android:orientation="vertical"
             android:layout_width="match_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
             android:layout_height="wrap_content">
 
-            <FrameLayout
-                android:background="@drawable/img_fade_out_down"
-                android:layout_width="match_parent"
-                android:layout_height="12dp"/>
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="84dp"/>
 
+            <!-- HEADLINE -->
+            <com.gerardbradshaw.weatherview.WeatherHeadlineView
+                android:id="@+id/headline_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <!-- SHADED AREA -->
             <LinearLayout
-                android:id="@+id/small_details_holder"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/opaqueBlack"
+                android:layout_marginTop="48dp"
                 android:orientation="vertical"
-                android:paddingHorizontal="12dp">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-                <!-- SUNRISE AND SUNSET -->
-                <LinearLayout
-                    android:orientation="horizontal"
+                <FrameLayout
+                    android:background="@drawable/img_fade_out_down"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
+                    android:layout_height="12dp"/>
 
-                    <com.gerardbradshaw.weatherview.subviews.detail.SmallDetailView
-                        android:id="@+id/sunrise_detail_view"
-                        style="@style/SmallDetailStyle"/>
+                <LinearLayout
+                    android:id="@+id/small_details_holder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/opaqueBlack"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="12dp">
 
-                    <com.gerardbradshaw.weatherview.subviews.detail.SmallDetailView
-                        android:id="@+id/sunset_detail_view"
-                        style="@style/SmallDetailStyle"/>
+                    <!-- SUNRISE AND SUNSET -->
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" >
+
+                        <com.gerardbradshaw.weatherview.subviews.detail.SmallDetailView
+                            android:id="@+id/sunrise_detail_view"
+                            style="@style/SmallDetailStyle"/>
+
+                        <com.gerardbradshaw.weatherview.subviews.detail.SmallDetailView
+                            android:id="@+id/sunset_detail_view"
+                            style="@style/SmallDetailStyle"/>
+                    </LinearLayout>
+
+                    <!-- CLOUD -->
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" >
+
+                        <com.gerardbradshaw.weatherview.subviews.detail.SmallDetailView
+                            android:id="@+id/cloudiness_detail_view"
+                            style="@style/SmallDetailStyle"/>
+
+                        <com.gerardbradshaw.weatherview.subviews.detail.SmallDetailView
+                            android:id="@+id/humidity_detail_view"
+                            style="@style/SmallDetailStyle"/>
+                    </LinearLayout>
+
+                    <!-- WIND -->
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" >
+
+                        <com.gerardbradshaw.weatherview.subviews.detail.SmallDetailView
+                            android:id="@+id/wind_speed_detail_view"
+                            style="@style/SmallDetailStyle"/>
+
+                        <com.gerardbradshaw.weatherview.subviews.detail.SmallDetailView
+                            android:id="@+id/wind_direction_detail_view"
+                            style="@style/SmallDetailStyle"/>
+                    </LinearLayout>
+
+                    <!-- RAIN -->
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" >
+
+                        <com.gerardbradshaw.weatherview.subviews.detail.SmallDetailView
+                            android:id="@+id/rain_last_hour_detail_view"
+                            style="@style/SmallDetailStyle"/>
+
+                        <com.gerardbradshaw.weatherview.subviews.detail.SmallDetailView
+                            android:id="@+id/rain_last_three_hour_detail_view"
+                            style="@style/SmallDetailStyle"/>
+                    </LinearLayout>
+
+                    <!-- HOURLY GRAPH -->
+                    <com.jjoe64.graphview.GraphView
+                        android:visibility="gone"
+                        android:id="@+id/hourly_graph_view"
+                        android:layout_marginEnd="12dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"/>
+
                 </LinearLayout>
 
-                <!-- CLOUD -->
-                <LinearLayout
-                    android:orientation="horizontal"
+                <FrameLayout
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/img_fade_out_up"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
-
-                    <com.gerardbradshaw.weatherview.subviews.detail.SmallDetailView
-                        android:id="@+id/cloudiness_detail_view"
-                        style="@style/SmallDetailStyle"/>
-
-                    <com.gerardbradshaw.weatherview.subviews.detail.SmallDetailView
-                        android:id="@+id/humidity_detail_view"
-                        style="@style/SmallDetailStyle"/>
-                </LinearLayout>
-
-                <!-- WIND -->
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
-
-                    <com.gerardbradshaw.weatherview.subviews.detail.SmallDetailView
-                        android:id="@+id/wind_speed_detail_view"
-                        style="@style/SmallDetailStyle"/>
-
-                    <com.gerardbradshaw.weatherview.subviews.detail.SmallDetailView
-                        android:id="@+id/wind_direction_detail_view"
-                        style="@style/SmallDetailStyle"/>
-                </LinearLayout>
-
-                <!-- RAIN -->
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
-
-                    <com.gerardbradshaw.weatherview.subviews.detail.SmallDetailView
-                        android:id="@+id/rain_last_hour_detail_view"
-                        style="@style/SmallDetailStyle"/>
-
-                    <com.gerardbradshaw.weatherview.subviews.detail.SmallDetailView
-                        android:id="@+id/rain_last_three_hour_detail_view"
-                        style="@style/SmallDetailStyle"/>
-                </LinearLayout>
+                    android:layout_height="12dp"/>
 
             </LinearLayout>
 
-            <FrameLayout
-                android:layout_marginBottom="12dp"
-                android:background="@drawable/img_fade_out_up"
-                android:layout_width="match_parent"
-                android:layout_height="12dp"/>
+            <TextView
+                tools:text="last updated xyz"
+                android:id="@+id/last_update_time_text_view"
+                style="@style/BasicWhiteTextWithShadowStyle" />
         </LinearLayout>
 
-        <TextView
-            tools:text="last updated xyz"
-            android:id="@+id/last_update_time_text_view"
-            style="@style/BasicWhiteTextWithShadowStyle" />
+    </androidx.core.widget.NestedScrollView>
 
-    </LinearLayout>
-
-</ScrollView>
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_gravity="center"
+        tools:visibility="visible"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+</FrameLayout>

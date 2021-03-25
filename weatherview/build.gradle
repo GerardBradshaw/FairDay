@@ -42,6 +42,9 @@ dependencies {
     implementation "com.github.bumptech.glide:glide:$rootProject.glide_version"
     annotationProcessor "com.github.bumptech.glide:compiler:$rootProject.glide_version"
 
+    // Graph Views
+    implementation "com.jjoe64:graphview:$rootProject.graph_view_version"
+
     // Constraint Layout
     implementation "androidx.constraintlayout:constraintlayout:$rootProject.constraint_layout_version"
 }
