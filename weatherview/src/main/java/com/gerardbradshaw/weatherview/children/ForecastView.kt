@@ -1,4 +1,4 @@
-package com.gerardbradshaw.weatherview.subviews.forecast
+package com.gerardbradshaw.weatherview.children
 
 import android.content.Context
 import android.util.AttributeSet
@@ -15,19 +15,17 @@ internal class ForecastView : FrameLayout {
   constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
   private val recyclerView: RecyclerView
+  private val adapter: ForecastListAdapter
 
   init {
-    View.inflate(context, R.layout.view_forecast_info, this)
-
-    recyclerView = findViewById(R.id.forecast_recycler)
+    val root = View.inflate(context, R.layout.view_forecast, this)
+    recyclerView = root.findViewById(R.id.forecast_recycler)
+    adapter = ForecastListAdapter(context)
+    recyclerView.adapter = adapter
+    recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
   }
 
-  fun setForecastData(data: List<ForecastData>) {
-    val adapter = ForecastListAdapter(context, data)
-
-    recyclerView.adapter = adapter
-
-    recyclerView.layoutManager =
-      LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+  fun setData(data: ArrayList<ForecastData>) {
+    adapter.setData(data)
   }
 }

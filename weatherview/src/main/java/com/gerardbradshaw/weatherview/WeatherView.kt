@@ -9,13 +9,16 @@ import android.widget.*
 import androidx.core.widget.NestedScrollView
 import com.gerardbradshaw.weatherview.WeatherViewUtils.getHourOnlyTimeString
 import com.gerardbradshaw.weatherview.WeatherViewUtils.getTimeString
+import com.gerardbradshaw.weatherview.children.ForecastView
+import com.gerardbradshaw.weatherview.children.HeadlineView
+import com.gerardbradshaw.weatherview.children.StubView
+import com.gerardbradshaw.weatherview.datamodels.ForecastData
 import com.gerardbradshaw.weatherview.datamodels.WeatherData
-import com.gerardbradshaw.weatherview.subviews.detail.SmallDetailView
 import com.jjoe64.graphview.DefaultLabelFormatter
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.*
 import java.util.*
-import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -23,28 +26,34 @@ import kotlin.math.roundToInt
 class WeatherView : FrameLayout {
   constructor(context: Context) : super(context)
   constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
-  constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
+  constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+    context,
+    attrs,
+    defStyleAttr
+  )
 
   private val progressBar: ProgressBar
   private val viewUi: NestedScrollView
-  private val headlineView: WeatherHeadlineView
+  private val headlineView: HeadlineView
+  private val forecastView: ForecastView
   private val hourlyGraphView: GraphView
 
-  private val cloudinessView: SmallDetailView
-  private val humidityView: SmallDetailView
+  private val cloudinessView: StubView
+  private val humidityView: StubView
   private val lastUpdateTime: TextView
-  private val rainLastHourView: SmallDetailView
-  private val rainLastThreeHourView: SmallDetailView
-  private val sunriseView: SmallDetailView
-  private val sunsetView: SmallDetailView
-  private val windDirectionView: SmallDetailView
-  private val windSpeedView: SmallDetailView
+  private val rainLastHourView: StubView
+  private val rainLastThreeHourView: StubView
+  private val sunriseView: StubView
+  private val sunsetView: StubView
+  private val windDirectionView: StubView
+  private val windSpeedView: StubView
 
   init {
-    val root = View.inflate(context, R.layout.view_weather_view, this)
+    val root = View.inflate(context, R.layout.view_main, this)
     progressBar = root.findViewById(R.id.progress_bar)
     viewUi = root.findViewById(R.id.weather_view_ui)
     headlineView = root.findViewById(R.id.headline_view)
+    forecastView = root.findViewById(R.id.forecast_view)
     hourlyGraphView = root.findViewById(R.id.hourly_graph_view)
 
     cloudinessView = root.findViewById(R.id.cloudiness_detail_view)
@@ -66,8 +75,8 @@ class WeatherView : FrameLayout {
       else locality
 
     setHeadline(locationName, isCurrentLocation, weather)
-    setHourlyGraph(weather)
     setWeeklyForecast(weather)
+    setHourlyGraph(weather)
     setConditions(weather?.conditionName, weather?.conditionDescription, weather?.conditionIconId)
     setOtherInfo(weather)
     setLastUpdateTime(weather?.time)
@@ -85,13 +94,47 @@ class WeatherView : FrameLayout {
     }
   }
   
-  private fun setHeadline(location: String?, isCurrentLocation: Boolean = false, weather: WeatherData?) {
+  private fun setHeadline(
+    location: String?,
+    isCurrentLocation: Boolean = false,
+    weather: WeatherData?
+  ) {
     headlineView.setLocation(location, isCurrentLocation)
 
     headlineView.setTemps(
       weather?.tempC?.roundToInt(),
       weather?.tempMinC?.roundToInt(),
-      weather?.tempMaxC?.roundToInt())
+      weather?.tempMaxC?.roundToInt()
+    )
+  }
+
+  private fun setWeeklyForecast(weather: WeatherData?) {
+    val dailyData = weather?.dailyData
+
+    if (dailyData == null) {
+      forecastView.visibility = View.GONE
+      Log.i(TAG, "setWeeklyForecast: weather or daily data was null")
+      return
+    }
+
+    val viewData = ArrayList<ForecastData>()
+
+    for (day in dailyData) {
+      val cal = Calendar.getInstance()
+      cal.timeInMillis = day.time!!
+
+      val fd = ForecastData(
+        cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault())!!,
+        day.conditionIconId!!,
+        day.tempMinC!!.roundToInt(),
+        day.tempMaxC!!.roundToInt())
+
+      viewData.add(fd)
+    }
+
+    forecastView.setData(viewData)
+
+    forecastView.visibility = View.VISIBLE
   }
   
   private fun setHourlyGraph(weather: WeatherData?) {
@@ -172,10 +215,6 @@ class WeatherView : FrameLayout {
         visibility = View.VISIBLE
       }
     }
-  }
-
-  private fun setWeeklyForecast(weather: WeatherData?) {
-    // TODO
   }
 
   private fun setConditions(condition: String?, description: String?, conditionIconId: String?) {

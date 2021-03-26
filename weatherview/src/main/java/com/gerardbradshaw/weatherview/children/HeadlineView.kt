@@ -1,4 +1,4 @@
-package com.gerardbradshaw.weatherview
+package com.gerardbradshaw.weatherview.children
 
 import android.content.Context
 import android.util.AttributeSet
@@ -6,10 +6,9 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
-import com.gerardbradshaw.weatherview.subviews.conditions.ConditionsView
-import com.gerardbradshaw.weatherview.subviews.temperature.TemperatureView
+import com.gerardbradshaw.weatherview.R
 
-class WeatherHeadlineView : FrameLayout {
+internal class HeadlineView : FrameLayout {
   constructor(context: Context) : super(context)
   constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
   constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
@@ -20,7 +19,7 @@ class WeatherHeadlineView : FrameLayout {
   private val conditionView: ConditionsView
 
   init {
-    View.inflate(context, R.layout.view_weather_headline_view, this)
+    View.inflate(context, R.layout.view_headline, this)
 
     locationNameTextView = findViewById(R.id.headline_location_text_view)
     pinImageView = findViewById(R.id.headline_location_pin_icon)

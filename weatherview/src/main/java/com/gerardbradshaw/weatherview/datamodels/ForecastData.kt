@@ -1,3 +1,3 @@
 package com.gerardbradshaw.weatherview.datamodels
 
-data class ForecastData(val temperature: Int, val condition: String, val time: Int)
+data class ForecastData(val day: String, val conditionIconId: String, val minTemp: Int, val maxTemp: Int)

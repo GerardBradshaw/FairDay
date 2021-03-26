@@ -1,4 +1,4 @@
-package com.gerardbradshaw.weatherview.subviews.conditions
+package com.gerardbradshaw.weatherview.children
 
 import android.content.Context
 import android.util.AttributeSet
@@ -18,7 +18,7 @@ internal class ConditionsView : FrameLayout {
   private var descriptionTextView: TextView
 
   init {
-    View.inflate(context, R.layout.view_conditions_info, this)
+    View.inflate(context, R.layout.view_conditions, this)
 
     conditionIcon = findViewById(R.id.condition_icon)
     descriptionTextView = findViewById(R.id.description_text_view)

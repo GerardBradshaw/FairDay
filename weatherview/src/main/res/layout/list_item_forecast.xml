@@ -7,34 +7,43 @@
     android:gravity="center_horizontal"
     android:minWidth="48dp"
     android:orientation="vertical"
-    android:padding="6dp">
+    android:padding="8dp"
+    tools:background="@android:color/holo_purple">
 
     <TextView
-        android:id="@+id/forecast_time_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="Now"/>
+        android:id="@+id/forecast_day_name"
+        style="@style/BasicWhiteTextWithShadowStyle"
+        tools:text="Fri"/>
 
-    <TextView
-        android:id="@+id/forecast_condition_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="☁️"/>
+    <ImageView
+        android:id="@+id/forecast_condition_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        tools:src="@drawable/img_clear_day"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/forecast_temperature_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/forecast_min_temperature"
+            style="@style/BasicWhiteTextWithShadowStyle"
             tools:text="15"/>
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/BasicWhiteTextWithShadowStyle"
+            android:paddingHorizontal="4sp"
+            android:text="@string/symbol_hyphen"/>
+
+        <TextView
+            android:id="@+id/forecast_max_temperature"
+            style="@style/BasicWhiteTextWithShadowStyle"
+            tools:text="32"/>
+
+        <TextView
+            style="@style/BasicWhiteTextWithShadowStyle"
             android:text="@string/symbol_degree"/>
+
     </LinearLayout>
 
 

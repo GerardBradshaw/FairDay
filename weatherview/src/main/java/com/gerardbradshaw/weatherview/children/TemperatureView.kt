@@ -1,4 +1,4 @@
-package com.gerardbradshaw.weatherview.subviews.temperature
+package com.gerardbradshaw.weatherview.children
 
 import android.content.Context
 import android.util.AttributeSet
@@ -39,7 +39,7 @@ internal class TemperatureView : FrameLayout {
   }
 
   init {
-    View.inflate(context, R.layout.view_temp_info, this)
+    View.inflate(context, R.layout.view_temperature, this)
 
     currentTempTextView = findViewById(R.id.current_text_view)
     maxTempTextView = findViewById(R.id.max_text_view)

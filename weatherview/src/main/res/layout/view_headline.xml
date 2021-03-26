@@ -33,13 +33,13 @@
     </LinearLayout>
 
     <!-- CONDITIONS -->
-    <com.gerardbradshaw.weatherview.subviews.conditions.ConditionsView
+    <com.gerardbradshaw.weatherview.children.ConditionsView
         android:id="@+id/headline_conditions_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <!-- TEMPERATURE -->
-    <com.gerardbradshaw.weatherview.subviews.temperature.TemperatureView
+    <com.gerardbradshaw.weatherview.children.TemperatureView
         android:id="@+id/headline_temperature_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
