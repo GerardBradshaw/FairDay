@@ -10,7 +10,9 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -152,7 +154,7 @@ class DetailActivity :
 
     pagerItemUtil.dataLive.observe(this) {
       pagerAdapter.setData(it)
-      showInstructions(it.isEmpty())
+      setIsInstructionsVisible(it.isEmpty())
     }
   }
 
@@ -324,11 +326,11 @@ class DetailActivity :
 
     pagerItemUtil.setCurrentLocation(currentLocationEntity)
 
-    showInstructions(false)
+    setIsInstructionsVisible(false)
   }
 
-  private fun showInstructions(b: Boolean) {
-    instructionsTextView.visibility = if (b) View.VISIBLE else View.GONE
+  private fun setIsInstructionsVisible(isInstructionsVisible: Boolean) {
+    instructionsTextView.visibility = if (isInstructionsVisible) View.VISIBLE else View.GONE
   }
 
   override fun onWeatherReceived(weatherData: WeatherData, locationEntity: LocationEntity?) {

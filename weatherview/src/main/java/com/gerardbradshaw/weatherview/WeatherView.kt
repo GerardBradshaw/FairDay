@@ -60,25 +60,25 @@ class WeatherView : FrameLayout {
   fun setData(locality: String, weather: WeatherData?, isCurrentLocation: Boolean = false) {
     setIsUiVisible(false)
 
-    val locationName =
-      if (weather == null) context.getString(R.string.weather_view_string_loading)
-      else locality
-
-    setHeadline(locationName, isCurrentLocation, weather)
+    setHeadline(locality, isCurrentLocation, weather)
     setWeeklyForecast(weather)
     setHourlyGraph(weather)
     setConditions(weather?.conditionName, weather?.conditionDescription, weather?.conditionIconId)
     setStubInfo(weather)
     setLastUpdateTime(weather?.time)
 
-    setIsUiVisible(true)
+    if (weather != null) {
+      setIsUiVisible(true)
+    } else {
+      Log.i(TAG, "setData: no weather data")
+    }
   }
 
-  private fun setIsUiVisible(isVisible: Boolean) {
-    if (isVisible) {
+  private fun setIsUiVisible(isUiVisible: Boolean) {
+    if (isUiVisible && viewUi.visibility != View.VISIBLE) {
       viewUi.visibility = View.VISIBLE
       progressBar.visibility = View.GONE
-    } else {
+    } else if (!isUiVisible && viewUi.visibility == View.VISIBLE) {
       viewUi.visibility = View.INVISIBLE
       progressBar.visibility = View.VISIBLE
     }
@@ -159,6 +159,7 @@ class WeatherView : FrameLayout {
 
       with(hourlyGraph) {
         visibility = View.INVISIBLE
+        removeAllSeries()
         refreshDrawableState()
 
         viewport.setMinY(minTemp)
