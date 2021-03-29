@@ -19,7 +19,7 @@
         <ImageView
             android:id="@+id/headline_location_pin_icon"
             android:src="@drawable/ic_pin_on"
-            android:contentDescription="@string/cd_location_pin_icon"
+            android:contentDescription="@string/weather_view_cd_location_pin_icon"
             app:tint="@android:color/white"
             android:padding="8dp"
             android:layout_width="wrap_content"
@@ -29,7 +29,7 @@
             android:id="@+id/headline_location_text_view"
             style="@style/LocationStyle"
             tools:text="San Francisco"
-            android:text="@string/string_invalid_location" />
+            android:text="@string/weather_view_string_invalid_location" />
     </LinearLayout>
 
     <!-- CONDITIONS -->

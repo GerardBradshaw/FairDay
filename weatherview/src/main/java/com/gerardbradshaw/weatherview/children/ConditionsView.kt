@@ -29,16 +29,16 @@ internal class ConditionsView : FrameLayout {
       visibility = View.VISIBLE
 
       if (conditionIconId != null) {
-        val url = context.getString(R.string.condition_url_prefix) +
-            conditionIconId + context.getString(R.string.condition_url_suffix)
+        val url = context.getString(R.string.weather_view_condition_url_prefix) +
+            conditionIconId + context.getString(R.string.weather_view_condition_url_suffix)
 
         Glide
           .with(context)
           .load(url)
           .into(conditionIcon)
 
-        conditionIcon.contentDescription = context.getString(R.string.cd_condition_description_prefix) +
-            description + context.getString(R.string.cd_condition_description_suffix)
+        conditionIcon.contentDescription = context.getString(R.string.weather_view_cd_condition_description_prefix) +
+            description + context.getString(R.string.weather_view_cd_condition_description_suffix)
       }
 
       descriptionTextView.text = description

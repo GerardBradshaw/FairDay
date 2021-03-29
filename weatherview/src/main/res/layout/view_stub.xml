@@ -1,28 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal"
     android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="horizontal"
     android:padding="12dp"
-    tools:background="@android:color/holo_blue_light"
-    android:layout_height="wrap_content">
+    tools:background="@android:color/holo_blue_light">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:minWidth="140dp"
+        android:orientation="vertical">
 
         <TextView
-            android:id="@+id/small_detail_title"
-            tools:text="Sunrise"
+            android:id="@+id/stub_title_one"
             style="@style/BasicWhiteTextWithShadowStyle"
-            android:textColor="#eeeeee"/>
+            android:layout_gravity="right"
+            tools:text="Sunrise"/>
 
         <TextView
-            android:id="@+id/small_detail_detail"
-            tools:text="6:01 am"
+            android:id="@+id/stub_body_one"
+            style="@style/BasicWhiteTextWithShadowStyle"
+            android:layout_gravity="right"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            style="@style/BasicWhiteTextWithShadowStyle"/>
+            tools:text="6:01 am"/>
     </LinearLayout>
 
+    <Space
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:minWidth="140dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/stub_title_two"
+            style="@style/BasicWhiteTextWithShadowStyle"
+            tools:text="Sunset"/>
+
+        <TextView
+            android:id="@+id/stub_body_two"
+            style="@style/BasicWhiteTextWithShadowStyle"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            tools:text="7:21 pm"/>
+    </LinearLayout>
 </LinearLayout>

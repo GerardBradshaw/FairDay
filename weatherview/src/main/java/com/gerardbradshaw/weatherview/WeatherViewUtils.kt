@@ -6,34 +6,41 @@ internal object WeatherViewUtils {
   fun getTimeString(time: Long?, gmtOffset: Long? = null): String {
     if (time == null) return "-"
 
-    val cal = Calendar.getInstance()
-    val localGmtOffset = cal.timeZone.getOffset(cal.timeInMillis)
+    with(Calendar.getInstance()) {
+      val localGmtOffset = timeZone.getOffset(timeInMillis)
+      timeInMillis = time + if (gmtOffset != null) gmtOffset - localGmtOffset else 0
 
-    cal.timeInMillis = time + if (gmtOffset != null) gmtOffset - localGmtOffset else 0
+      val minute = get(Calendar.MINUTE)
+      val minuteString = if (minute < 10) "0$minute" else minute.toString()
 
-    val minute = cal.get(Calendar.MINUTE)
-    val minuteString = if (minute < 10) "0$minute" else "$minute"
+      val hour = get(Calendar.HOUR)
+      val hourString = if (hour == 0) "12" else hour.toString()
 
-    val amPm = if (cal.get(Calendar.AM_PM) == 0) "am" else "pm"
+      val amPm = if (get(Calendar.AM_PM) == 0) "am" else "pm"
 
-    return "${cal.get(Calendar.HOUR)}:$minuteString $amPm"
+      return "$hourString:$minuteString $amPm"
+      // TODO use device setting (12 or 24 hour time)
+    }
   }
 
-  fun getHourOnlyTimeString(time: Long?, gmtOffset: Long? = null): String {
+  /**
+   * Returns the hour (e.g. 6 am) for a given time. Does not round up (e.g. an input of 6:40 pm will
+   * return 6 pm (not 7 pm).
+   */
+  fun getTimeStringHourOnly(time: Long?, gmtOffset: Long? = null): String {
     if (time == null) return "-"
 
-    val cal = Calendar.getInstance()
-    val localGmtOffset = cal.timeZone.getOffset(cal.timeInMillis)
+    with(Calendar.getInstance()) {
+      val localGmtOffset = timeZone.getOffset(timeInMillis)
+      timeInMillis = time + if (gmtOffset != null) gmtOffset - localGmtOffset else 0
 
-    cal.timeInMillis = time + if (gmtOffset != null) gmtOffset - localGmtOffset else 0
+      val hour = get(Calendar.HOUR)
+      val hourString = if (hour == 0) "12" else hour.toString()
 
-    val amPm = if (cal.get(Calendar.AM_PM) == 0) "am" else "pm"
+      val amPm = if (get(Calendar.AM_PM) == 0) "am" else "pm"
 
-    val hour = cal.get(Calendar.HOUR)
-
-    return when {
-      hour == 0 -> "12am"
-      else -> "$hour$amPm"
+      return "$hourString$amPm"
+      // TODO use device setting (12 or 24 hour time)
     }
   }
 }

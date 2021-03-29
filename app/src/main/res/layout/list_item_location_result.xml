@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    tools:background="@drawable/img_clear_day">
+    tools:background="@android:color/holo_orange_dark">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"

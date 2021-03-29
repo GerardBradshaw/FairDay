@@ -1,27 +1,38 @@
 <resources>
     <!-- STRINGS -->
-    <string name="string_invalid_location">Invalid location</string>
-    <string name="string_add">Add</string>
-    <string name="string_locations">Locations</string>
-    <string name="string_open_weather_logo">Open Weather logo</string>
-    <string name="string_loading">Loading…</string>
+    <string name="weather_view_string_invalid_location">Invalid location</string>
+    <string name="weather_view_string_add">Add</string>
+    <string name="weather_view_string_locations">Locations</string>
+    <string name="weather_view_string_open_weather_logo">Open Weather logo</string>
+    <string name="weather_view_string_loading">Loading…</string>
+    <string name="weather_view_string_sunrise">Sunrise</string>
+    <string name="weather_view_string_sunset">Sunset</string>
+    <string name="weather_view_string_cloudiness">Cloudiness</string>
+    <string name="weather_view_string_humidity">Humidity</string>
+    <string name="weather_view_string_wind_speed">Wind speed</string>
+    <string name="weather_view_string_wind_direction">Wind direction</string>
+    <string name="weather_view_string_rain_last_hr">Rain last hr</string>
+    <string name="weather_view_string_rain_last_3_hrs">Rain last 3 hrs</string>
+    <string name="weather_view_string_last_updated">Last updated</string>
+    <string name="weather_view_string_now">Now</string>
+
 
     <!-- CONTENT DESCRIPTIONS -->
-    <string name="cd_condition_description_prefix">\"Graphic of \"</string>
-    <string name="cd_condition_description_suffix">\" conditions\"</string>
-    <string name="cd_location_pin_icon">Pin indicating current location</string>v
+    <string name="weather_view_cd_condition_description_prefix">\"Graphic of \"</string>
+    <string name="weather_view_cd_condition_description_suffix">\" conditions\"</string>
+    <string name="weather_view_cd_location_pin_icon">Pin indicating current location</string>v
 
     <!-- SYMBOLS -->
-    <string name="symbol_high">"H: "</string>
-    <string name="symbol_low">"L: "</string>
-    <string name="symbol_hyphen">-</string>
-    <string name="symbol_degree">°</string>
+    <string name="weather_view_symbol_high">"H: "</string>
+    <string name="weather_view_symbol_low">"L: "</string>
+    <string name="weather_view_symbol_hyphen">-</string>
+    <string name="weather_view_symbol_degree">°</string>
 
     <!-- CONDITION URL -->
-    <string name="condition_url_prefix">https://openweathermap.org/img/wn/</string>
-    <string name="condition_url_suffix">\@2x.png</string>
-    <string name="string_now">Now</string>
-    <string name="symbol_forward_slash">/</string>
+    <string name="weather_view_condition_url_prefix">https://openweathermap.org/img/wn/</string>
+    <string name="weather_view_condition_url_suffix">\@2x.png</string>
+    <string name="weather_view_symbol_forward_slash">/</string>
+
 
 
 </resources>

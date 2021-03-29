@@ -19,7 +19,7 @@
         android:id="@+id/forecast_condition_icon"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        tools:src="@drawable/img_clear_day"/>
+        tools:src="@drawable/ic_pin_on"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -33,7 +33,7 @@
         <TextView
             style="@style/BasicWhiteTextWithShadowStyle"
             android:paddingHorizontal="4sp"
-            android:text="@string/symbol_hyphen"/>
+            android:text="@string/weather_view_symbol_hyphen"/>
 
         <TextView
             android:id="@+id/forecast_max_temperature"
@@ -42,7 +42,7 @@
 
         <TextView
             style="@style/BasicWhiteTextWithShadowStyle"
-            android:text="@string/symbol_degree"/>
+            android:text="@string/weather_view_symbol_degree"/>
 
     </LinearLayout>
 

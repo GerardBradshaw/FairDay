@@ -6,7 +6,7 @@
   <item
     android:id="@+id/action_add"
     android:orderInCategory="100"
-    android:title="@string/string_add"
+    android:title="@string/weather_view_string_add"
     app:showAsAction="ifRoom"
     android:icon="@drawable/ic_add" />
 
@@ -20,7 +20,7 @@
   <item
     android:id="@+id/action_list"
     android:orderInCategory="300"
-    android:title="@string/string_locations"
+    android:title="@string/weather_view_string_locations"
     app:showAsAction="ifRoom"
     android:icon="@drawable/ic_list" />
 

@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.gerardbradshaw.weatherview.R
 import com.gerardbradshaw.weatherview.datamodels.ForecastData
-import java.util.*
 import kotlin.collections.ArrayList
 
 internal class ForecastListAdapter(context: Context) :
@@ -38,16 +37,16 @@ internal class ForecastListAdapter(context: Context) :
   override fun onBindViewHolder(holder: ForecastViewHolder, position: Int) {
     val forecast = data[position]
 
-    val url = context.getString(R.string.condition_url_prefix) +
-        forecast.conditionIconId + context.getString(R.string.condition_url_suffix)
+    val url = context.getString(R.string.weather_view_condition_url_prefix) +
+        forecast.conditionIconId + context.getString(R.string.weather_view_condition_url_suffix)
 
     Glide
       .with(context)
       .load(url)
       .into(holder.iconImageView)
 
-    holder.iconImageView.contentDescription = context.getString(R.string.cd_condition_description_prefix) +
-        "${forecast.day}'s" + context.getString(R.string.cd_condition_description_suffix)
+    holder.iconImageView.contentDescription = context.getString(R.string.weather_view_cd_condition_description_prefix) +
+        "${forecast.day}'s" + context.getString(R.string.weather_view_cd_condition_description_suffix)
 
     holder.dayTextView.text = if (position == 0) "Today" else forecast.day
     holder.minTempTextView.text = "${forecast.minTemp}"

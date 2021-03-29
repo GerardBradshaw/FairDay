@@ -55,67 +55,31 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
 
-                    <!-- STUBS SUNRISE AND SUNSET -->
-                    <LinearLayout
+                    <!-- SUNRISE/SET -->
+                    <com.gerardbradshaw.weatherview.children.StubView
+                        android:id="@+id/sunrise_sunset_stub"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal" >
+                        android:layout_height="wrap_content"/>
 
-                        <com.gerardbradshaw.weatherview.children.StubView
-                            android:id="@+id/sunrise_detail_view"
-                            style="@style/SmallDetailStyle"/>
-
-                        <com.gerardbradshaw.weatherview.children.StubView
-                            android:id="@+id/sunset_detail_view"
-                            style="@style/SmallDetailStyle"/>
-                    </LinearLayout>
-
-                    <!-- STUBS CLOUDS -->
-                    <LinearLayout
+                    <!-- CLOUDS/HUMIDITY -->
+                    <com.gerardbradshaw.weatherview.children.StubView
+                        android:id="@+id/clouds_humidity_stub"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal" >
+                        android:layout_height="wrap_content"/>
 
-                        <com.gerardbradshaw.weatherview.children.StubView
-                            android:id="@+id/cloudiness_detail_view"
-                            style="@style/SmallDetailStyle"/>
-
-                        <com.gerardbradshaw.weatherview.children.StubView
-                            android:id="@+id/humidity_detail_view"
-                            style="@style/SmallDetailStyle"/>
-                    </LinearLayout>
-
-                    <!-- STUB WIND -->
-                    <LinearLayout
+                    <!-- WIND -->
+                    <com.gerardbradshaw.weatherview.children.StubView
+                        android:id="@+id/wind_stub"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal" >
+                        android:layout_height="wrap_content"/>
 
-                        <com.gerardbradshaw.weatherview.children.StubView
-                            android:id="@+id/wind_speed_detail_view"
-                            style="@style/SmallDetailStyle"/>
-
-                        <com.gerardbradshaw.weatherview.children.StubView
-                            android:id="@+id/wind_direction_detail_view"
-                            style="@style/SmallDetailStyle"/>
-                    </LinearLayout>
-
-                    <!-- STUB RAIN -->
-                    <LinearLayout
+                    <!-- RAIN -->
+                    <com.gerardbradshaw.weatherview.children.StubView
+                        android:id="@+id/rain_stub"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal" >
+                        android:layout_height="wrap_content"/>
 
-                        <com.gerardbradshaw.weatherview.children.StubView
-                            android:id="@+id/rain_last_hour_detail_view"
-                            style="@style/SmallDetailStyle"/>
-
-                        <com.gerardbradshaw.weatherview.children.StubView
-                            android:id="@+id/rain_last_three_hour_detail_view"
-                            style="@style/SmallDetailStyle"/>
-                    </LinearLayout>
-
-                    <!-- HOURLY GRAPH -->
+                    <!-- HOURLY -->
                     <com.jjoe64.graphview.GraphView
                         android:id="@+id/hourly_graph_view"
                         android:layout_width="match_parent"

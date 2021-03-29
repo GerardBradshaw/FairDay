@@ -4,11 +4,11 @@
     <string name="title_activity_locations">LocationsActivity</string>
 
     <!-- STRINGS -->
-    <string name="string_add">Add</string>
+    <string name="weather_view_string_add">Add</string>
     <string name="string_data_provided_by_openweathermap_dot_org">Weather data from openweathermap.org</string>
     <string name="string_enter_city_or_zip">Enter City or ZIP</string>
-    <string name="string_loading">Loading…</string>
-    <string name="string_locations">Locations</string>
+    <string name="weather_view_string_loading">Loading…</string>
+    <string name="weather_view_string_locations">Locations</string>
     <string name="string_next">Next</string>
     <string name="string_no_data">No data</string>
     <string name="string_not_now">Not now</string>
@@ -30,8 +30,8 @@
     <!-- CONTENT DESCRIPTIONS -->
     <string name="cd_add_new_location_button">Add new location button</string>
     <string name="cd_condition_prefix">\"Graphic of \"</string>
-    <string name="cd_condition_description_suffix">\" conditions\"</string>
-    <string name="cd_location_pin_icon">Pin indicating current location</string>
+    <string name="weather_view_cd_condition_description_suffix">\" conditions\"</string>
+    <string name="weather_view_cd_location_pin_icon">Pin indicating current location</string>
     <string name="cd_open_weather_logo">Open Weather logo</string>
 
     <!-- LOCATION PERMISSION MESSAGES -->
@@ -39,6 +39,6 @@
     <string name="message_location_rationale_title">Please grant location access</string>
 
     <!-- CONDITION ICON URL -->
-    <string name="condition_url_prefix">https://openweathermap.org/img/wn/</string>
-    <string name="condition_url_suffix">\@2x.png</string>
+    <string name="weather_view_condition_url_prefix">https://openweathermap.org/img/wn/</string>
+    <string name="weather_view_condition_url_suffix">\@2x.png</string>
 </resources>

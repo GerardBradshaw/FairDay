@@ -19,7 +19,7 @@
         <TextView
             android:id="@+id/current_text_view"
             style="@style/TemperatureStyle"
-            android:text="@string/symbol_hyphen"
+            android:text="@string/weather_view_symbol_hyphen"
             tools:text="19"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -29,7 +29,7 @@
             style="@style/TemperatureStyle"
             android:paddingStart="0dp"
             android:paddingEnd="12dp"
-            android:text="@string/symbol_degree"
+            android:text="@string/weather_view_symbol_degree"
             app:layout_constraintStart_toEndOf="@id/current_text_view"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -41,17 +41,17 @@
 
             <TextView
                 style="@style/TemperatureBoundStyle"
-                android:text="@string/symbol_low" />
+                android:text="@string/weather_view_symbol_low" />
 
             <TextView
                 android:id="@+id/min_text_view"
                 style="@style/TemperatureBoundStyle"
                 tools:text="7"
-                android:text="@string/symbol_hyphen" />
+                android:text="@string/weather_view_symbol_hyphen" />
 
             <TextView
                 style="@style/TemperatureBoundStyle"
-                android:text="@string/symbol_degree"/>
+                android:text="@string/weather_view_symbol_degree"/>
         </LinearLayout>
 
         <!-- MAX TEMP -->
@@ -62,17 +62,17 @@
 
             <TextView
                 style="@style/TemperatureBoundStyle"
-                android:text="@string/symbol_high" />
+                android:text="@string/weather_view_symbol_high" />
 
             <TextView
                 android:id="@+id/max_text_view"
                 style="@style/TemperatureBoundStyle"
                 tools:text="27"
-                android:text="@string/symbol_hyphen" />
+                android:text="@string/weather_view_symbol_hyphen" />
 
             <TextView
                 style="@style/TemperatureBoundStyle"
-                android:text="@string/symbol_degree" />
+                android:text="@string/weather_view_symbol_degree" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

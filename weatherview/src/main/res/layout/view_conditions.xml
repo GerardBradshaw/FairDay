@@ -10,7 +10,7 @@
 
     <ImageView
         android:id="@+id/condition_icon"
-        tools:src="@drawable/img_broken_and_few_clouds_day"
+        tools:src="@drawable/ic_pin_on"
         android:adjustViewBounds="true"
         android:scaleType="centerInside"
         android:layout_width="24dp"

@@ -7,7 +7,7 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.core.widget.NestedScrollView
-import com.gerardbradshaw.weatherview.WeatherViewUtils.getHourOnlyTimeString
+import com.gerardbradshaw.weatherview.WeatherViewUtils.getTimeStringHourOnly
 import com.gerardbradshaw.weatherview.WeatherViewUtils.getTimeString
 import com.gerardbradshaw.weatherview.children.ForecastView
 import com.gerardbradshaw.weatherview.children.HeadlineView
@@ -36,17 +36,12 @@ class WeatherView : FrameLayout {
   private val viewUi: NestedScrollView
   private val headlineView: HeadlineView
   private val forecastView: ForecastView
-  private val hourlyGraphView: GraphView
-
-  private val cloudinessView: StubView
-  private val humidityView: StubView
+  private val sunriseSunsetStub: StubView
+  private val cloudsHumidityStub: StubView
+  private val windStub: StubView
+  private val rainStub: StubView
+  private val hourlyGraph: GraphView
   private val lastUpdateTime: TextView
-  private val rainLastHourView: StubView
-  private val rainLastThreeHourView: StubView
-  private val sunriseView: StubView
-  private val sunsetView: StubView
-  private val windDirectionView: StubView
-  private val windSpeedView: StubView
 
   init {
     val root = View.inflate(context, R.layout.view_main, this)
@@ -54,31 +49,26 @@ class WeatherView : FrameLayout {
     viewUi = root.findViewById(R.id.weather_view_ui)
     headlineView = root.findViewById(R.id.headline_view)
     forecastView = root.findViewById(R.id.forecast_view)
-    hourlyGraphView = root.findViewById(R.id.hourly_graph_view)
-
-    cloudinessView = root.findViewById(R.id.cloudiness_detail_view)
-    humidityView = root.findViewById(R.id.humidity_detail_view)
+    sunriseSunsetStub = root.findViewById(R.id.sunrise_sunset_stub)
+    cloudsHumidityStub = root.findViewById(R.id.clouds_humidity_stub)
+    windStub = root.findViewById(R.id.wind_stub)
+    rainStub = root.findViewById(R.id.rain_stub)
+    hourlyGraph = root.findViewById(R.id.hourly_graph_view)
     lastUpdateTime = root.findViewById(R.id.last_update_time_text_view)
-    rainLastHourView = root.findViewById(R.id.rain_last_hour_detail_view)
-    rainLastThreeHourView = root.findViewById(R.id.rain_last_three_hour_detail_view)
-    sunriseView = root.findViewById(R.id.sunrise_detail_view)
-    sunsetView = root.findViewById(R.id.sunset_detail_view)
-    windDirectionView = root.findViewById(R.id.wind_direction_detail_view)
-    windSpeedView = root.findViewById(R.id.wind_speed_detail_view)
   }
 
   fun setData(locality: String, weather: WeatherData?, isCurrentLocation: Boolean = false) {
     setIsUiVisible(false)
 
     val locationName =
-      if (weather == null) context.getString(R.string.string_loading)
+      if (weather == null) context.getString(R.string.weather_view_string_loading)
       else locality
 
     setHeadline(locationName, isCurrentLocation, weather)
     setWeeklyForecast(weather)
     setHourlyGraph(weather)
     setConditions(weather?.conditionName, weather?.conditionDescription, weather?.conditionIconId)
-    setOtherInfo(weather)
+    setStubInfo(weather)
     setLastUpdateTime(weather?.time)
 
     setIsUiVisible(true)
@@ -148,7 +138,7 @@ class WeatherView : FrameLayout {
       val dataPoints = Array(12) {
         if (!iterator.hasNext()) {
           Log.e(TAG, "setHourlyDetails: error setting hourly data")
-          hourlyGraphView.visibility = View.GONE
+          hourlyGraph.visibility = View.GONE
           return
         }
 
@@ -158,7 +148,7 @@ class WeatherView : FrameLayout {
 
         if (time == null || temp == null) {
           Log.e(TAG, "setHourlyDetails: error setting hourly data")
-          hourlyGraphView.visibility = View.GONE
+          hourlyGraph.visibility = View.GONE
           return
         }
 
@@ -167,7 +157,7 @@ class WeatherView : FrameLayout {
         DataPoint(it.toDouble(), temp)
       }
 
-      with(hourlyGraphView) {
+      with(hourlyGraph) {
         visibility = View.INVISIBLE
         refreshDrawableState()
 
@@ -185,10 +175,10 @@ class WeatherView : FrameLayout {
             val intValue = value.roundToInt()
             return when {
               isValueX && intValue in 0..11 -> {
-                getHourOnlyTimeString(hourlyData[intValue].time!!)
+                getTimeStringHourOnly(hourlyData[intValue].time!!, weather.gmtOffset)
               }
               isValueX -> "."
-              else -> super.formatLabel(value, isValueX) + context.getString(R.string.symbol_degree)
+              else -> super.formatLabel(value, isValueX) + context.getString(R.string.weather_view_symbol_degree)
             }
           }
         }
@@ -204,8 +194,8 @@ class WeatherView : FrameLayout {
           if (dataPoint != null) {
             val time = hourlyData[dataPoint.x.roundToInt()].time!!
             val temp = dataPoint.y
-            val text = "${temp.toInt()}" + context.getString(R.string.symbol_degree) + " at " +
-                getHourOnlyTimeString(time)
+            val text = "${temp.toInt()}" + context.getString(R.string.weather_view_symbol_degree) + " at " +
+                getTimeStringHourOnly(time, weather.gmtOffset)
 
             Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
           }
@@ -221,19 +211,26 @@ class WeatherView : FrameLayout {
     headlineView.setConditions(condition, description, conditionIconId)
   }
 
-  private fun setOtherInfo(location: WeatherData?) {
-    sunriseView.setInfo("Sunrise", getTimeString(location?.sunrise, location?.gmtOffset))
-    sunsetView.setInfo("Sunset", getTimeString(location?.sunset, location?.gmtOffset))
-    cloudinessView.setInfo("Cloudiness", "${location?.cloudiness}%")
-    humidityView.setInfo("Humidity", "${location?.humidity ?: "-"}%")
-    windSpeedView.setInfo("Wind speed", "${location?.windSpeed ?: "-"} m/s")
-    windDirectionView.setInfo("Wind direction", meteorologicalToCardinal(location?.windDirection))
-    rainLastHourView.setInfo("Rain last hr", "${location?.rainLastHour ?: "0"} mm")
-    rainLastThreeHourView.setInfo("Rain last 3 hrs", "${location?.rainLastThreeHours ?: "0"} mm")
+  private fun setStubInfo(location: WeatherData?) {
+    sunriseSunsetStub.setBoth(
+      context.getString(R.string.weather_view_string_sunrise), getTimeString(location?.sunrise, location?.gmtOffset),
+      context.getString(R.string.weather_view_string_sunset), getTimeString(location?.sunset, location?.gmtOffset))
+
+    cloudsHumidityStub.setBoth(
+      context.getString(R.string.weather_view_string_cloudiness), "${location?.cloudiness}%",
+      context.getString(R.string.weather_view_string_humidity), "${location?.humidity ?: "-"}%")
+
+    windStub.setBoth(
+      context.getString(R.string.weather_view_string_wind_speed), "${location?.windSpeed ?: "-"} m/s",
+      context.getString(R.string.weather_view_string_wind_direction), meteorologicalToCardinal(location?.windDirection))
+
+    rainStub.setBoth(
+      context.getString(R.string.weather_view_string_rain_last_hr), "${location?.rainLastHour ?: "0"} mm",
+      context.getString(R.string.weather_view_string_rain_last_3_hrs), "${location?.rainLastThreeHours ?: "0"} mm")
   }
 
   private fun setLastUpdateTime(time: Long?) {
-    val lastUpdatedTimeText = "Last updated ${getTimeString(time, null)}"
+    val lastUpdatedTimeText = context.getString(R.string.weather_view_string_last_updated) + " " + getTimeString(time, null)
     lastUpdateTime.text = lastUpdatedTimeText
   }
 
