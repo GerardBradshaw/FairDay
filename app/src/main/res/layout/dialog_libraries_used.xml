@@ -7,6 +7,7 @@
 
     <TextView
         android:id="@+id/libraries_used_text_view"
+        android:autoLink="web"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
