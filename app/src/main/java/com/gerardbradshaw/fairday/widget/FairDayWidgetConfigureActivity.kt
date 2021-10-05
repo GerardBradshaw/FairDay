@@ -15,13 +15,14 @@ import com.gerardbradshaw.fairday.databinding.FairDayWidgetConfigureBinding
  */
 class FairDayWidgetConfigureActivity : Activity() {
   private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
-  private lateinit var appWidgetText: EditText
-  private var onClickListener = View.OnClickListener {
+  private lateinit var editText: EditText
+
+  private var doneButtonOnClickListener = View.OnClickListener {
     val context = this@FairDayWidgetConfigureActivity
 
     // When the button is clicked, store the string locally
-    val widgetText = appWidgetText.text.toString()
-    saveTitlePref(context, appWidgetId, widgetText)
+    val widgetText = editText.text.toString()
+    saveTitleToSharedPref(context, appWidgetId, widgetText)
 
     // It is the responsibility of the configuration activity to update the app widget
     val appWidgetManager = AppWidgetManager.getInstance(context)
@@ -33,6 +34,7 @@ class FairDayWidgetConfigureActivity : Activity() {
     setResult(RESULT_OK, resultValue)
     finish()
   }
+
   private lateinit var binding: FairDayWidgetConfigureBinding
 
   public override fun onCreate(icicle: Bundle?) {
@@ -45,8 +47,8 @@ class FairDayWidgetConfigureActivity : Activity() {
     binding = FairDayWidgetConfigureBinding.inflate(layoutInflater)
     setContentView(binding.root)
 
-    appWidgetText = binding.appwidgetText as EditText
-    binding.addButton.setOnClickListener(onClickListener)
+    editText = binding.appwidgetText as EditText
+    binding.addButton.setOnClickListener(doneButtonOnClickListener)
 
     // Find the widget id from the intent.
     val intent = intent
@@ -63,7 +65,7 @@ class FairDayWidgetConfigureActivity : Activity() {
       return
     }
 
-    appWidgetText.setText(loadTitlePref(this@FairDayWidgetConfigureActivity, appWidgetId))
+    editText.setText(loadTitleSharedPref(this@FairDayWidgetConfigureActivity, appWidgetId))
   }
 
 }
@@ -71,23 +73,22 @@ class FairDayWidgetConfigureActivity : Activity() {
 private const val PREFS_NAME = "com.gerardbradshaw.fairday.FairDayWidget"
 private const val PREF_PREFIX_KEY = "appwidget_"
 
-// Write the prefix to the SharedPreferences object for this widget
-internal fun saveTitlePref(context: Context, appWidgetId: Int, text: String) {
-  val prefs = context.getSharedPreferences(PREFS_NAME, 0).edit()
-  prefs.putString(PREF_PREFIX_KEY + appWidgetId, text)
-  prefs.apply()
+internal fun saveTitleToSharedPref(context: Context, appWidgetId: Int, text: String) {
+  context.getSharedPreferences(PREFS_NAME, 0).edit().apply {
+    putString(PREF_PREFIX_KEY + appWidgetId, text)
+    apply()
+  }
 }
 
-// Read the prefix from the SharedPreferences object for this widget.
-// If there is no preference saved, get the default from a resource
-internal fun loadTitlePref(context: Context, appWidgetId: Int): String {
+internal fun loadTitleSharedPref(context: Context, appWidgetId: Int): String {
   val prefs = context.getSharedPreferences(PREFS_NAME, 0)
   val titleValue = prefs.getString(PREF_PREFIX_KEY + appWidgetId, null)
   return titleValue ?: context.getString(R.string.app_widget_description)
 }
 
-internal fun deleteTitlePref(context: Context, appWidgetId: Int) {
-  val prefs = context.getSharedPreferences(PREFS_NAME, 0).edit()
-  prefs.remove(PREF_PREFIX_KEY + appWidgetId)
-  prefs.apply()
+internal fun deleteTitleSharedPref(context: Context, appWidgetId: Int) {
+  context.getSharedPreferences(PREFS_NAME, 0).edit().apply {
+    remove(PREF_PREFIX_KEY + appWidgetId)
+    apply()
+  }
 }

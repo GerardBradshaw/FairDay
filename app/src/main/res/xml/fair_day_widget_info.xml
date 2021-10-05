@@ -4,9 +4,10 @@
     android:description="@string/app_widget_description"
     android:initialKeyguardLayout="@layout/fair_day_widget"
     android:initialLayout="@layout/fair_day_widget"
-    android:minWidth="80dp"
-    android:minHeight="40dp"
-    android:previewImage="@drawable/example_appwidget_preview"
+    android:minWidth="100dp"
+    android:minHeight="50dp"
+    android:previewImage="@drawable/ic_launcher_background"
     android:resizeMode="none"
     android:updatePeriodMillis="3600000"
     android:widgetCategory="home_screen" />
+

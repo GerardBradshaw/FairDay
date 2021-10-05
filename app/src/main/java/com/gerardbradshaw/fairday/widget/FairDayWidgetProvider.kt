@@ -8,16 +8,16 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.location.Address
-import android.location.Location
 import android.os.IBinder
 import android.os.Looper
-import android.text.format.Time
 import android.util.Log
 import android.widget.RemoteViews
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.AppWidgetTarget
 import com.gerardbradshaw.fairday.R
 import com.gerardbradshaw.fairday.activities.detail.DetailActivity
 import com.gerardbradshaw.fairday.activities.detail.utils.AddressUtil
-import com.gerardbradshaw.fairday.activities.detail.utils.GpsUtil
+import com.gerardbradshaw.fairday.activities.detail.utils.ConditionUtil
 import com.gerardbradshaw.fairday.activities.detail.utils.WeatherUtil
 import com.gerardbradshaw.fairday.room.LocationEntity
 import com.gerardbradshaw.weatherview.datamodels.WeatherData
@@ -30,18 +30,14 @@ import kotlin.math.roundToInt
  * App Widget Configuration implemented in [FairDayWidgetConfigureActivity]
  */
 class FairDayWidgetProvider : AppWidgetProvider() {
-
   private lateinit var appWidgetManager: AppWidgetManager
-  private lateinit var fusedLocationClient: FusedLocationProviderClient
 
   override fun onUpdate(
     context: Context,
     appWidgetManager: AppWidgetManager,
     appWidgetIds: IntArray
   ) {
-    Log.d(TAG, "onUpdate: preparing widget")
     this.appWidgetManager = appWidgetManager
-    fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
     for (appWidgetId in appWidgetIds) {
       updateAppWidget(context, appWidgetId)
@@ -49,18 +45,17 @@ class FairDayWidgetProvider : AppWidgetProvider() {
   }
 
   private fun updateAppWidget(context: Context, appWidgetId: Int) {
-    val pendingIntent: PendingIntent = Intent(context, DetailActivity::class.java)
+    val openAppPendingIntent: PendingIntent = Intent(context, DetailActivity::class.java)
       .let {
         PendingIntent.getActivity(context, 0, it, 0)
       }
 
     // Set listener so Widget opens the app when clicked
     val views = RemoteViews(context.packageName, R.layout.fair_day_widget)
-    views.setOnClickPendingIntent(R.id.widget_top_level_view, pendingIntent)
+    views.setOnClickPendingIntent(R.id.widget_top_level_view, openAppPendingIntent)
     appWidgetManager.updateAppWidget(appWidgetId, views)
 
-    // Start a service to first get the GPS coordinates, then locale, then weather info
-    Log.d(TAG, "updateAppWidget: calling service")
+    // Start service to update widget
     context.startService(
       Intent(context.applicationContext, FairDayWidgetUpdateService::class.java).apply {
         putExtra(EXTRA_WIDGET_ID, appWidgetId)
@@ -71,7 +66,7 @@ class FairDayWidgetProvider : AppWidgetProvider() {
   override fun onDeleted(context: Context, appWidgetIds: IntArray) {
     // When the user deletes the widget, delete the preference associated with it.
     for (appWidgetId in appWidgetIds) {
-      deleteTitlePref(context, appWidgetId)
+      deleteTitleSharedPref(context, appWidgetId)
     }
   }
 
@@ -159,15 +154,17 @@ class FairDayWidgetProvider : AppWidgetProvider() {
       val locationName = locationEntity?.locality ?: "Unknown location"
       Log.d(TAG, "onWeatherReceived: $temperature at $locationName")
 
-      val pendingIntent: PendingIntent = Intent(this, DetailActivity::class.java)
+      val launchAppPendingIntent: PendingIntent = Intent(this, DetailActivity::class.java)
         .let {
           PendingIntent.getActivity(this, 0, it, 0)
         }
 
       val views = RemoteViews(this.packageName, R.layout.fair_day_widget).apply {
-        setOnClickPendingIntent(R.id.widget_top_level_view, pendingIntent)
+        setOnClickPendingIntent(R.id.widget_top_level_view, launchAppPendingIntent)
         setTextViewText(R.id.widget_current_temp, temperature)
         setTextViewText(R.id.widget_location_name, locationName)
+        loadConditionImage(this, weatherData)
+        loadBackgroundGradient(this, weatherData)
       }
 
       if (widgetId != -1) {
@@ -175,6 +172,42 @@ class FairDayWidgetProvider : AppWidgetProvider() {
       } else {
         Log.d(TAG, "missing widget ID")
       }
+    }
+
+    private fun loadConditionImage(views: RemoteViews, weatherData: WeatherData) {
+      val url = applicationContext.getString(R.string.weather_view_condition_url_prefix) +
+          weatherData.conditionIconId +
+          applicationContext.getString(R.string.weather_view_condition_url_suffix)
+
+      val conditionImageTarget =
+        AppWidgetTarget(applicationContext, R.id.widget_image, views, widgetId)
+
+      Glide
+        .with(applicationContext)
+        .asBitmap()
+        .load(url)
+        .into(conditionImageTarget)
+
+      val cd =
+        applicationContext.getString(R.string.weather_view_cd_condition_description_prefix) +
+            weatherData.conditionDescription +
+            applicationContext.getString(R.string.weather_view_cd_condition_description_suffix)
+
+      views.setContentDescription(R.id.widget_image, cd)
+    }
+
+    private fun loadBackgroundGradient(views: RemoteViews, weatherData: WeatherData) {
+      val backgroundId = ConditionUtil.getConditionImageResId(weatherData.conditionIconId)
+
+      val backgroundTarget =
+        AppWidgetTarget(applicationContext, R.id.widget_background, views, widgetId)
+
+      Glide
+        .with(applicationContext)
+        .asBitmap()
+        .override(100, 50)
+        .load(backgroundId)
+        .into(backgroundTarget)
     }
 
     override fun onAddressChanged(address: Address?) {
@@ -195,7 +228,7 @@ class FairDayWidgetProvider : AppWidgetProvider() {
   companion object {
     const val EXTRA_WIDGET_ID = "com.gerardbradshaw.fairday.widget.FairDayWidgetProvider.EXTRA_WIDGET_ID"
     private const val TAG = "GGG WidgetProvider"
-    private val DEFAULT_LOCATION_UPDATE_INTERVAL_MS =  TimeUnit.HOURS.toMillis(1)
+    private val DEFAULT_LOCATION_UPDATE_INTERVAL_MS = TimeUnit.HOURS.toMillis(1)
     private val FASTEST_LOCATION_UPDATE_INTERVAL_MS = TimeUnit.MINUTES.toMillis(5)
   }
 }

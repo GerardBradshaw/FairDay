@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="../../../../../layout/custom_preview.xml" value="0.3509259259259259" />
+        <entry key="app/src/main/res/layout/fair_day_widget.xml" value="1.0" />
+        <entry key="app/src/main/res/layout/fair_day_widget_configure.xml" value="1.5071428571428571" />
+        <entry key="app/src/main/res/layout/list_item_weather_detail.xml" value="0.375" />
+        <entry key="weatherview/src/main/res/drawable/img_day_clear.xml" value="1.3392857142857142" />
+      </map>
+    </option>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
