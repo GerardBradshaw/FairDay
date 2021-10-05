@@ -358,8 +358,9 @@ class DetailActivityAndroidTests {
 
       @JvmStatic
       fun checkWeatherIsDisplayedForCurrentLocation() {
-        onView(allOf(withId(R.id.location_pin_icon), isDisplayed()))
-          .check(matches(isDisplayed()))
+        fail()
+//        onView(allOf(withId(R.id.location_pin_icon), isDisplayed()))
+//          .check(matches(isDisplayed()))
       }
 
       @JvmStatic

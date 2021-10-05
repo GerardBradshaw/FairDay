@@ -16,19 +16,19 @@
 
 buildscript {
     ext {
-        activity_version = '1.2.1'
-        android_core_ktx_version = '1.3.2'
-        android_junit_version = '1.1.2'
-        androidxtest_version = '1.3.0'
-        appcompat_version = '1.2.0'
+        activity_version = '1.3.1'
+        android_core_ktx_version = '1.6.0'
+        android_junit_version = '1.1.3'
+        androidxtest_version = '1.4.0'
+        appcompat_version = '1.3.1'
         cloud_view_version = '1.0.2'
-        constraint_layout_version = '2.0.4'
+        constraint_layout_version = '2.1.1'
         coroutines_version = '1.3.7'
         dagger_version = '2.28.3'
-        espresso_version = '3.3.0'
-        fragment_version = '1.3.2'
+        espresso_version = '3.4.0'
+        fragment_version = '1.3.6'
         glide_version = '4.11.0'
-        gradle_version = '4.1.3'
+        gradle_version = '7.0.2'
         graph_view_version = '4.2.2'
         gson_version = '2.8.6'
         junit_version = '4.13.2'
@@ -40,14 +40,14 @@ buildscript {
         location_services_version = '18.0.0'
         material_version = '1.3.0'
         mockito_version = '3.6.0'
-        navigation_version = '2.3.4'
+        navigation_version = '2.3.5'
         okhttp_version = '4.9.0'
         places_version = '2.4.0'
         preferences_version = '1.1.1'
-        recycler_view_version = '1.1.0'
+        recycler_view_version = '1.2.1'
         retrofit_version = '2.9.0'
         robolectric_version = '4.4'
-        room_version = '2.2.6'
+        room_version = '2.3.0'
         viewpager2_version = '1.0.0'
     }
 
@@ -57,7 +57,7 @@ buildscript {
     }
     dependencies {
         classpath "com.android.tools.build:gradle:$gradle_version"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31"
     }
 }
 

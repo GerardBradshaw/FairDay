@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:configure="com.gerardbradshaw.fairday.widget.FairDayWidgetConfigureActivity"
+    android:description="@string/app_widget_description"
+    android:initialKeyguardLayout="@layout/fair_day_widget"
+    android:initialLayout="@layout/fair_day_widget"
+    android:minWidth="80dp"
+    android:minHeight="40dp"
+    android:previewImage="@drawable/example_appwidget_preview"
+    android:resizeMode="none"
+    android:updatePeriodMillis="3600000"
+    android:widgetCategory="home_screen" />

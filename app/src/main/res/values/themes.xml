@@ -1,8 +1,19 @@
 <resources>
-  <style name="AppTheme.ActionBar.Transparent.NoActionBar" >
-  <item name="windowActionBar">false</item>
-  <item name="windowNoTitle">true</item>
-</style>
-  <style name="AppTheme.ActionBar.Transparent.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-  <style name="AppTheme.ActionBar.Transparent.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="AppTheme.ActionBar.Transparent.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.ActionBar.Transparent.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.ActionBar.Transparent.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="AppTheme.ActionBar.Transparent.AppWidgetContainerParent" parent="@android:style/Theme.DeviceDefault">
+        <item name="appWidgetRadius">8dp</item>
+        <item name="appWidgetPadding">4dp</item>
+        <item name="appWidgetInnerRadius">4dp</item>
+    </style>
+
+    <style name="AppTheme.ActionBar.Transparent.AppWidgetContainer" parent="AppTheme.ActionBar.Transparent.AppWidgetContainerParent" />
 </resources>

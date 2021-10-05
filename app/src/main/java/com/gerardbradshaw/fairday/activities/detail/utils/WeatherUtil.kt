@@ -1,6 +1,7 @@
 package com.gerardbradshaw.fairday.activities.detail.utils
 
 import android.content.Context
+import android.location.Location
 import android.util.Log
 import com.gerardbradshaw.weatherview.datamodels.WeatherData
 import com.gerardbradshaw.fairday.application.BaseApplication
@@ -33,6 +34,15 @@ class WeatherUtil @Inject constructor(private val context: Context) {
     params["appId"] = API_KEY_OPEN_WEATHER
 
     enqueueOpenWeatherCall(params, locationEntity)
+  }
+
+  fun requestFullWeatherFor(location: Location) {
+    val params = HashMap<String, String>()
+    params["lat"] = location.latitude.toString()
+    params["lon"] = location.longitude.toString()
+    params["appId"] = API_KEY_OPEN_WEATHER
+
+    enqueueOpenWeatherOneCall(params, null)
   }
 
   fun requestFullWeatherFor(locationEntity: LocationEntity) {

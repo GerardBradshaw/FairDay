@@ -1,5 +1,6 @@
 package com.gerardbradshaw.fairday.activities.detail.utils
 
+import android.content.Context
 import android.content.Intent
 import android.location.Address
 import android.location.Location
@@ -17,16 +18,16 @@ import javax.inject.Inject
 class AddressUtil @Inject constructor(@IsTest private val isTest: Boolean) {
   private var listener: AddressChangeListener? = null
 
-  fun fetchAddress(location: Location, activity: AppCompatActivity, listener: AddressChangeListener) {
+  fun fetchAddress(location: Location, context: Context, listener: AddressChangeListener) {
     this.listener = listener
 
-    val intent = Intent(activity, FetchAddressIntentService::class.java).apply {
+    val intent = Intent(context.applicationContext, FetchAddressIntentService::class.java).apply {
       putExtra(Constants.RECEIVER, AddressResultReceiver(Handler(Looper.getMainLooper())))
       putExtra(Constants.EXTRA_LOCATION_DATA, location)
       putExtra(Constants.EXTRA_IS_TEST, isTest)
     }
 
-    activity.startService(intent)
+    context.startService(intent)
   }
 
   private inner class AddressResultReceiver(handler: Handler) : ResultReceiver(handler) {

@@ -84,7 +84,7 @@ class GpsUtil @Inject constructor(
     locationRequest = LocationRequest()
       .setInterval(DEFAULT_LOCATION_UPDATE_INTERVAL_MS)
       .setFastestInterval(FASTEST_LOCATION_UPDATE_INTERVAL_MS)
-      .setPriority(LocationRequest.PRIORITY_LOW_POWER)
+      .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
   }
 
   private fun buildLocationSettingsRequest() {
@@ -199,11 +199,6 @@ class GpsUtil @Inject constructor(
 
   @RequiresPermission(LOCATION_PERMISSION)
   private fun onDeviceSettingsSatisfied() {
-    requestLocationUpdates()
-  }
-
-  @RequiresPermission(LOCATION_PERMISSION)
-  private fun requestLocationUpdates() {
     isGpsEnabled = true
 
     fusedLocationClient.requestLocationUpdates(
@@ -271,7 +266,7 @@ class GpsUtil @Inject constructor(
     private const val LOCATION_PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION
 
     private val DEFAULT_LOCATION_UPDATE_INTERVAL_MS =  TimeUnit.MINUTES.toMillis(30)
-    private val FASTEST_LOCATION_UPDATE_INTERVAL_MS = TimeUnit.MINUTES.toMillis(30)
+    private val FASTEST_LOCATION_UPDATE_INTERVAL_MS = TimeUnit.MINUTES.toMillis(5)
 
     const val REQUEST_CODE_CHECK_SETTINGS = 101
   }

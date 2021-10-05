@@ -24,5 +24,6 @@ interface AppComponent {
 
   fun getDetailActivityComponentFactory(): DetailActivityComponent.Factory
   fun getSavedActivityComponentFactory(): SavedActivityComponent.Factory
+//  fun getWidgetComponentFactory(): WidgetComponent.Factory
   fun inject(baseApplication: BaseApplication)
 }

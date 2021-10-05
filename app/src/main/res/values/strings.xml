@@ -41,4 +41,9 @@
     <!-- CONDITION ICON URL -->
     <string name="weather_view_condition_url_prefix">https://openweathermap.org/img/wn/</string>
     <string name="weather_view_condition_url_suffix">\@2x.png</string>
+
+    <!-- WIDGET -->
+    <string name="configure">Configure</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">This is an app widget description</string>
 </resources>
