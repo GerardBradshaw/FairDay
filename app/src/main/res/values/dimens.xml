@@ -2,6 +2,7 @@
 <resources>
     <dimen name="text_size_weather_credit">12sp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="top_view_action_bar_padding">120dp</dimen>
 
     <!--
 Refer to App Widget Documentation for margin information

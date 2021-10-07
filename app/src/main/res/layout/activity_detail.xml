@@ -24,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:paddingTop="120dp"
+        android:paddingTop="@dimen/top_view_action_bar_padding"
         android:text="@string/string_press_plus_to_add_a_new_location"
         android:textSize="24sp"/>
 

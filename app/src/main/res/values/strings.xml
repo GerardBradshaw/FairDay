@@ -43,7 +43,8 @@
     <string name="weather_view_condition_url_suffix">\@2x.png</string>
 
     <!-- WIDGET -->
-    <string name="configure">Configure</string>
-    <string name="add_widget">Add widget</string>
+    <string name="string_enter_location">Enter location</string>
+    <string name="string_use_selected_location">Use selected location</string>
+    <string name="string_use_my_location">Use my location</string>
     <string name="app_widget_description">Fair Day widget showing weather at current location</string>
 </resources>

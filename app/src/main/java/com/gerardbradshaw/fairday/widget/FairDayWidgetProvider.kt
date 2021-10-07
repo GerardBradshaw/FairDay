@@ -24,49 +24,30 @@ import com.gerardbradshaw.weatherview.datamodels.WeatherData
 import com.google.android.gms.location.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
+import android.os.Build
+
+
+
 
 /**
  * Implementation of App Widget functionality.
  * App Widget Configuration implemented in [FairDayWidgetConfigureActivity]
  */
 class FairDayWidgetProvider : AppWidgetProvider() {
-  private lateinit var appWidgetManager: AppWidgetManager
-
   override fun onUpdate(
     context: Context,
     appWidgetManager: AppWidgetManager,
     appWidgetIds: IntArray
   ) {
-    this.appWidgetManager = appWidgetManager
-
     for (appWidgetId in appWidgetIds) {
-      updateAppWidget(context, appWidgetId)
+      updateAppWidget(context, appWidgetManager, appWidgetId)
     }
-  }
-
-  private fun updateAppWidget(context: Context, appWidgetId: Int) {
-    val openAppPendingIntent: PendingIntent = Intent(context, DetailActivity::class.java)
-      .let {
-        PendingIntent.getActivity(context, 0, it, 0)
-      }
-
-    // Set listener so Widget opens the app when clicked
-    val views = RemoteViews(context.packageName, R.layout.fair_day_widget)
-    views.setOnClickPendingIntent(R.id.widget_top_level_view, openAppPendingIntent)
-    appWidgetManager.updateAppWidget(appWidgetId, views)
-
-    // Start service to update widget
-    context.startService(
-      Intent(context.applicationContext, FairDayWidgetUpdateService::class.java).apply {
-        putExtra(EXTRA_WIDGET_ID, appWidgetId)
-      }
-    )
   }
 
   override fun onDeleted(context: Context, appWidgetIds: IntArray) {
     // When the user deletes the widget, delete the preference associated with it.
     for (appWidgetId in appWidgetIds) {
-      deleteTitleSharedPref(context, appWidgetId)
+      deleteAllWidgetPrefs(context, appWidgetId)
     }
   }
 
@@ -84,7 +65,7 @@ class FairDayWidgetProvider : AppWidgetProvider() {
     AddressUtil.AddressChangeListener,
     WeatherUtil.WeatherDetailsListener
   {
-    private var widgetId: Int = -1
+    private var appWidgetId: Int = -1
     private lateinit var weatherUtil: WeatherUtil
     private lateinit var addressUtil: AddressUtil
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -97,9 +78,8 @@ class FairDayWidgetProvider : AppWidgetProvider() {
     }
 
     @SuppressLint("MissingPermission")
-    override fun onStart(intent: Intent?, startId: Int) {
-      Log.d(TAG, "onStart: service started")
-      widgetId = intent?.getIntExtra(EXTRA_WIDGET_ID, -1) ?: -1
+    private fun loadCurrentLocation() {
+      Log.d(TAG, "loadCurrentLocation: loading weather for current location")
       fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
       weatherUtil = WeatherUtil(this).apply {
@@ -114,6 +94,23 @@ class FairDayWidgetProvider : AppWidgetProvider() {
         locationRequest,
         locationCallback,
         Looper.getMainLooper())
+    }
+
+    private fun loadUserDefinedLocation(locationName: String, lat: Float, lon: Float) {
+      Log.d(TAG, "loadUserDefinedLocation: loading weather for $locationName")
+      requestWeatherFor(locationName, lat, lon)
+    }
+
+    override fun onStart(intent: Intent?, startId: Int) {
+      Log.d(TAG, "onStart: service started")
+      appWidgetId = intent?.getIntExtra(EXTRA_WIDGET_ID, -1) ?: -1
+
+      val locationName = loadWidgetPrefString(this, appWidgetId, PREF_NAME_PREFIX_KEY)
+      val lat = loadWidgetPrefFloat(this, appWidgetId, PREF_LAT_PREFIX_KEY)
+      val lon = loadWidgetPrefFloat(this, appWidgetId, PREF_LON_PREFIX_KEY)
+
+      if (locationName == null || lat == null || lon == null) loadCurrentLocation()
+      else loadUserDefinedLocation(locationName, lat, lon)
     }
 
     private fun createLocationCallback() {
@@ -167,8 +164,8 @@ class FairDayWidgetProvider : AppWidgetProvider() {
         loadBackgroundGradient(this, weatherData)
       }
 
-      if (widgetId != -1) {
-        AppWidgetManager.getInstance(this).updateAppWidget(widgetId, views)
+      if (appWidgetId != -1) {
+        AppWidgetManager.getInstance(this).updateAppWidget(appWidgetId, views)
       } else {
         Log.d(TAG, "missing widget ID")
       }
@@ -180,7 +177,7 @@ class FairDayWidgetProvider : AppWidgetProvider() {
           applicationContext.getString(R.string.weather_view_condition_url_suffix)
 
       val conditionImageTarget =
-        AppWidgetTarget(applicationContext, R.id.widget_image, views, widgetId)
+        AppWidgetTarget(applicationContext, R.id.widget_image, views, appWidgetId)
 
       Glide
         .with(applicationContext)
@@ -200,7 +197,7 @@ class FairDayWidgetProvider : AppWidgetProvider() {
       val backgroundId = ConditionUtil.getConditionImageResId(weatherData.conditionIconId)
 
       val backgroundTarget =
-        AppWidgetTarget(applicationContext, R.id.widget_background, views, widgetId)
+        AppWidgetTarget(applicationContext, R.id.widget_background, views, appWidgetId)
 
       Glide
         .with(applicationContext)
@@ -213,15 +210,15 @@ class FairDayWidgetProvider : AppWidgetProvider() {
     override fun onAddressChanged(address: Address?) {
       if (address != null) {
         Log.d(TAG, "onAddressChanged: address received")
-        val entity = LocationEntity(
-          address.locality ?: "Unknown location",
-          address.latitude.toFloat(),
-          address.longitude.toFloat())
-
-        weatherUtil.requestFullWeatherFor(entity)
+        requestWeatherFor(address.locality, address.latitude.toFloat(), address.longitude.toFloat())
       } else {
         Log.d(TAG, "onAddressChanged: address was null")
       }
+    }
+
+    private fun requestWeatherFor(locationName: String?, lat: Float, lon: Float) {
+      val entity = LocationEntity(locationName ?: "Unknown location", lat, lon)
+      weatherUtil.requestFullWeatherFor(entity)
     }
   }
 
@@ -231,4 +228,38 @@ class FairDayWidgetProvider : AppWidgetProvider() {
     private val DEFAULT_LOCATION_UPDATE_INTERVAL_MS = TimeUnit.HOURS.toMillis(1)
     private val FASTEST_LOCATION_UPDATE_INTERVAL_MS = TimeUnit.MINUTES.toMillis(5)
   }
+}
+
+internal fun updateAppWidget(
+  context: Context,
+  appWidgetManager: AppWidgetManager,
+  appWidgetId: Int
+) {
+  val openAppPendingIntent: PendingIntent = Intent(context, DetailActivity::class.java)
+    .let {
+      PendingIntent.getActivity(context, 0, it, 0)
+    }
+
+  // Set listener so Widget opens the app when clicked
+  val views = RemoteViews(context.packageName, R.layout.fair_day_widget)
+  views.setOnClickPendingIntent(R.id.widget_top_level_view, openAppPendingIntent)
+  appWidgetManager.updateAppWidget(appWidgetId, views)
+
+  val intent = Intent(context.applicationContext, FairDayWidgetProvider.FairDayWidgetUpdateService::class.java).apply {
+    putExtra(FairDayWidgetProvider.EXTRA_WIDGET_ID, appWidgetId)
+  }
+
+  context.startService(intent)
+
+  // Start service to update widget
+//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//      context.startForegroundService(intent)
+//    } else {
+//      context.startService(intent)
+//    }
+//    context.startService(
+//      Intent(context.applicationContext, FairDayWidgetUpdateService::class.java).apply {
+//        putExtra(EXTRA_WIDGET_ID, appWidgetId)
+//      }
+//    )
 }
