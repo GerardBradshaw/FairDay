@@ -49,10 +49,6 @@
                 android:resource="@xml/fair_day_widget_info" />
         </receiver>
 
-        <service
-            android:name=".widget.FairDayWidgetProvider$UpdateService"
-            android:exported="false" />
-
         <activity
             android:name=".widget.FairDayWidgetConfigureActivity"
             android:exported="true">

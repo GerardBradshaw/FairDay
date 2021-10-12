@@ -35,7 +35,7 @@ class AddressUtil @Inject constructor(@IsTest private val isTest: Boolean) {
       val address: Address? = resultData?.getParcelable(Constants.KEY_RESULT_DATA)
       listener?.onAddressChanged(address)
 
-      if (resultCode == Constants.RESULT_SUCCESS) Log.i(TAG, "onReceiveResult: Address found")
+      if (resultCode == Constants.RESULT_SUCCESS) Log.i(TAG, "onReceiveResult: Address found & delivered to listener")
     }
   }
 

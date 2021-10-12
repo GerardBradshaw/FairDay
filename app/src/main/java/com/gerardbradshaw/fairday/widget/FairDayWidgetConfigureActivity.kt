@@ -35,7 +35,10 @@ class FairDayWidgetConfigureActivity : AppCompatActivity() {
   }
 
   private fun finishAndClose() {
-    updateAppWidgetContent(this, appWidgetId)
+    Log.d(TAG, "finishAndClose: config finished")
+
+    markWidgetAsConfigured(applicationContext, appWidgetId)
+    updateAppWidgetContent(applicationContext, appWidgetId)
 
     // Make sure we pass back the original appWidgetId
     val resultValue = Intent()
@@ -103,7 +106,7 @@ class FairDayWidgetConfigureActivity : AppCompatActivity() {
 internal const val PREF_NAME_PREFIX_KEY = "appwidget_name_"
 internal const val PREF_LAT_PREFIX_KEY = "appwidget_lat_"
 internal const val PREF_LON_PREFIX_KEY = "appwidget_lon_"
-const val PREF_IS_CONFIGURED_KEY = "is_configured_"
+const val PREF_IS_CONFIGURED_PREFIX_KEY = "is_configured_"
 private const val TAG = "GGG WidgetConfActivity"
 
 internal fun saveWidgetPrefString(context: Context, appWidgetId: Int, keyPrefix: String, value: String) {
@@ -136,6 +139,13 @@ internal fun deleteWidgetPref(context: Context, appWidgetId: Int, keyPrefix: Str
     remove(keyPrefix + appWidgetId)
     apply()
   }
+}
+
+internal fun markWidgetAsConfigured(context: Context, appWidgetId: Int) {
+  context.getSharedPreferences(Constants.PREFS_FILE_KEY, 0)
+    .edit()
+    .putBoolean(PREF_IS_CONFIGURED_PREFIX_KEY + appWidgetId, true)
+    .apply()
 }
 
 internal fun extractLocalityFromAddressComponents(
@@ -173,11 +183,6 @@ internal fun saveAllWidgetPrefs(
 
   saveWidgetPrefFloat(context, appWidgetId, PREF_LAT_PREFIX_KEY, latLng.latitude.toFloat())
   saveWidgetPrefFloat(context, appWidgetId, PREF_LON_PREFIX_KEY, latLng.longitude.toFloat())
-
-  context.getSharedPreferences(Constants.PREFS_FILE_KEY, 0)
-    .edit()
-    .putBoolean(PREF_IS_CONFIGURED_KEY + appWidgetId, true)
-    .apply()
 }
 
 internal fun deleteAllWidgetPrefs(context: Context, appWidgetId: Int) {
