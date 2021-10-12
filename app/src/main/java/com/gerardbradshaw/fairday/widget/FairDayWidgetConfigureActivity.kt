@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatActivity
 import com.gerardbradshaw.fairday.Constants
 import com.gerardbradshaw.fairday.R
@@ -24,6 +23,7 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 class FairDayWidgetConfigureActivity : AppCompatActivity() {
   private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
   private lateinit var autocompleteFragment: AutocompleteSupportFragment
+  private lateinit var binding: FairDayWidgetConfigureBinding
 
   private var useSelectedLocationButtonOnClickListener = View.OnClickListener {
     finishAndClose()
@@ -35,10 +35,7 @@ class FairDayWidgetConfigureActivity : AppCompatActivity() {
   }
 
   private fun finishAndClose() {
-    // It is the responsibility of the configuration activity to update the app widget
-    val appWidgetManager = AppWidgetManager.getInstance(this)
-    val views = RemoteViews(this.packageName, R.layout.fair_day_widget)
-    updateAppWidget(this, appWidgetManager, appWidgetId)
+    updateAppWidgetContent(this, appWidgetId)
 
     // Make sure we pass back the original appWidgetId
     val resultValue = Intent()
@@ -46,8 +43,6 @@ class FairDayWidgetConfigureActivity : AppCompatActivity() {
     setResult(RESULT_OK, resultValue)
     finish()
   }
-
-  private lateinit var binding: FairDayWidgetConfigureBinding
 
   public override fun onCreate(icicle: Bundle?) {
     super.onCreate(icicle)
@@ -81,6 +76,13 @@ class FairDayWidgetConfigureActivity : AppCompatActivity() {
     autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
       override fun onPlaceSelected(p0: Place) {
         Log.d(TAG, "onPlaceSelected: ${p0.address}")
+
+        autocompleteFragment.setText(
+          extractLocalityFromAddressComponents(
+            this@FairDayWidgetConfigureActivity,
+            p0.addressComponents)
+        )
+
         saveAllWidgetPrefs(this@FairDayWidgetConfigureActivity, appWidgetId, p0)
       }
 
@@ -98,39 +100,39 @@ class FairDayWidgetConfigureActivity : AppCompatActivity() {
   }
 }
 
-private const val PREFS_NAME = "com.gerardbradshaw.fairday.FairDayWidget"
 internal const val PREF_NAME_PREFIX_KEY = "appwidget_name_"
 internal const val PREF_LAT_PREFIX_KEY = "appwidget_lat_"
 internal const val PREF_LON_PREFIX_KEY = "appwidget_lon_"
+const val PREF_IS_CONFIGURED_KEY = "is_configured_"
 private const val TAG = "GGG WidgetConfActivity"
 
 internal fun saveWidgetPrefString(context: Context, appWidgetId: Int, keyPrefix: String, value: String) {
-  context.getSharedPreferences(PREFS_NAME, 0).edit().apply {
+  context.getSharedPreferences(Constants.PREFS_FILE_KEY, 0).edit().apply {
     putString(keyPrefix + appWidgetId, value)
     apply()
   }
 }
 
 internal fun saveWidgetPrefFloat(context: Context, appWidgetId: Int, keyPrefix: String, value: Float) {
-  context.getSharedPreferences(PREFS_NAME, 0).edit().apply {
+  context.getSharedPreferences(Constants.PREFS_FILE_KEY, 0).edit().apply {
     putFloat(keyPrefix + appWidgetId, value)
     apply()
   }
 }
 
 internal fun loadWidgetPrefString(context: Context, appWidgetId: Int, keyPrefix: String): String? {
-  val prefs = context.getSharedPreferences(PREFS_NAME, 0)
+  val prefs = context.getSharedPreferences(Constants.PREFS_FILE_KEY, 0)
   return prefs.getString(keyPrefix + appWidgetId, null)
 }
 
 internal fun loadWidgetPrefFloat(context: Context, appWidgetId: Int, keyPrefix: String): Float? {
-  val prefs = context.getSharedPreferences(PREFS_NAME, 0)
+  val prefs = context.getSharedPreferences(Constants.PREFS_FILE_KEY, 0)
   val prefValue = prefs.getFloat(keyPrefix + appWidgetId, 404f)
   return if (prefValue == 404f) null else prefValue
 }
 
 internal fun deleteWidgetPref(context: Context, appWidgetId: Int, keyPrefix: String) {
-  context.getSharedPreferences(PREFS_NAME, 0).edit().apply {
+  context.getSharedPreferences(Constants.PREFS_FILE_KEY, 0).edit().apply {
     remove(keyPrefix + appWidgetId)
     apply()
   }
@@ -171,10 +173,16 @@ internal fun saveAllWidgetPrefs(
 
   saveWidgetPrefFloat(context, appWidgetId, PREF_LAT_PREFIX_KEY, latLng.latitude.toFloat())
   saveWidgetPrefFloat(context, appWidgetId, PREF_LON_PREFIX_KEY, latLng.longitude.toFloat())
+
+  context.getSharedPreferences(Constants.PREFS_FILE_KEY, 0)
+    .edit()
+    .putBoolean(PREF_IS_CONFIGURED_KEY + appWidgetId, true)
+    .apply()
 }
 
 internal fun deleteAllWidgetPrefs(context: Context, appWidgetId: Int) {
   deleteWidgetPref(context, appWidgetId, PREF_NAME_PREFIX_KEY)
   deleteWidgetPref(context, appWidgetId, PREF_LAT_PREFIX_KEY)
+  deleteWidgetPref(context, appWidgetId, PREF_LON_PREFIX_KEY)
   deleteWidgetPref(context, appWidgetId, PREF_LON_PREFIX_KEY)
 }

@@ -159,4 +159,8 @@ dependencies {
 
     // ViewPager2
     implementation "androidx.viewpager2:viewpager2:$rootProject.viewpager2_version"
+
+    // Work
+    implementation "androidx.work:work-runtime-ktx:$work_version"
+    androidTestImplementation "androidx.work:work-testing:$work_version"
 }
