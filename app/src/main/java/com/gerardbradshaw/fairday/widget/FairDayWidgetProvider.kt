@@ -10,6 +10,7 @@ import android.location.Address
 import android.os.Looper
 import android.util.Log
 import android.widget.RemoteViews
+import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.AppWidgetTarget
 import com.gerardbradshaw.fairday.R
@@ -27,7 +28,7 @@ import java.util.*
 
 import androidx.work.*
 import com.gerardbradshaw.fairday.Constants
-import java.lang.RuntimeException
+import com.gerardbradshaw.fairday.SharedPrefManager
 
 /**
  * Implementation of App Widget functionality.
@@ -40,6 +41,7 @@ class FairDayWidgetProvider : AppWidgetProvider() {
     appWidgetIds: IntArray
   ) {
     for (appWidgetId in appWidgetIds) {
+      Toast.makeText(context, "Updating widget $appWidgetId", Toast.LENGTH_SHORT).show()
       if (isConfigured(context, appWidgetId)) {
         Log.d(TAG, "onUpdate: updating widget $appWidgetId")
         updateAppWidgetContent(context, appWidgetId)
@@ -62,13 +64,16 @@ class FairDayWidgetProvider : AppWidgetProvider() {
     }
   }
 
-  class UpdateWorker(
+  override fun onReceive(context: Context?, intent: Intent?) {
+    super.onReceive(context, intent)
+  }
+
+  class WidgetUpdater(
     private var appWidgetId: Int,
     private val appContext: Context) :
     AddressUtil.AddressChangeListener,
     WeatherUtil.WeatherDetailsListener
   {
-//    private var appWidgetId: Int = -1
     private lateinit var weatherUtil: WeatherUtil
     private lateinit var addressUtil: AddressUtil
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -76,20 +81,20 @@ class FairDayWidgetProvider : AppWidgetProvider() {
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationSettingsRequest: LocationSettingsRequest
 
-    fun doWork() {
-//      appWidgetId = workerParams.inputData.getInt(EXTRA_WIDGET_ID, -1)
+    fun update() {
       Log.d(TAG, "doWork: worker started on widget $appWidgetId")
 
       weatherUtil = WeatherUtil(appContext).apply {
-        setWeatherDetailsListener(this@UpdateWorker)
+        setWeatherDetailsListener(this@WidgetUpdater)
       }
 
-      val locationName = loadWidgetPrefString(appContext, appWidgetId, PREF_NAME_PREFIX_KEY)
-      val lat = loadWidgetPrefFloat(appContext, appWidgetId, PREF_LAT_PREFIX_KEY)
-      val lon = loadWidgetPrefFloat(appContext, appWidgetId, PREF_LON_PREFIX_KEY)
+      val errorFloat = 404f
+      val name = SharedPrefManager.getString(appContext, PREF_NAME_PREFIX_KEY + appWidgetId)
+      val lat = SharedPrefManager.getFloat(appContext, PREF_LAT_PREFIX_KEY + appWidgetId, errorFloat)
+      val lon = SharedPrefManager.getFloat(appContext, PREF_LON_PREFIX_KEY + appWidgetId, errorFloat)
 
-      if (locationName == null || lat == null || lon == null) loadCurrentLocation()
-      else loadUserDefinedLocation(locationName, lat, lon)
+      if (name == null || lat == errorFloat || lon == errorFloat) loadCurrentLocation()
+      else loadUserDefinedLocation(name, lat, lon)
     }
 
     @SuppressLint("MissingPermission")
@@ -119,7 +124,7 @@ class FairDayWidgetProvider : AppWidgetProvider() {
             super.onLocationResult(locationResult)
             Log.d(TAG, "onLocationResult: GPS location found. Now fetching address.")
             addressUtil = AddressUtil(false).also {
-              it.fetchAddress(locationResult.lastLocation, appContext, this@UpdateWorker)
+              it.fetchAddress(locationResult.lastLocation, appContext, this@WidgetUpdater)
             }
           } else {
             Log.e(TAG, "onLocationResult: locationResult is null")
@@ -167,7 +172,6 @@ class FairDayWidgetProvider : AppWidgetProvider() {
       if (appWidgetId != -1) {
         Log.d(TAG, "onWeatherReceived: binding view data to widget $appWidgetId")
         AppWidgetManager.getInstance(appContext).updateAppWidget(appWidgetId, views)
-        markUpdateTime(appContext, appWidgetId)
       } else {
         Log.d(TAG, "missing widget ID")
       }
@@ -236,28 +240,9 @@ class FairDayWidgetProvider : AppWidgetProvider() {
 }
 
 internal fun updateAppWidgetContent(context: Context, appWidgetId: Int) {
-  val updateWorker = FairDayWidgetProvider.UpdateWorker(appWidgetId, context)
-  updateWorker.doWork()
-
-//  val inputData = Data.Builder().putInt(EXTRA_WIDGET_ID, appWidgetId).build()
-//
-//  val updateWorkRequest: WorkRequest =
-//    OneTimeWorkRequestBuilder<FairDayWidgetProvider.UpdateWorker>()
-//      .setInputData(inputData)
-//      .build()
-//
-//  WorkManager.getInstance(context).enqueue(updateWorkRequest)
-}
-
-internal fun markUpdateTime(context: Context, appWidgetId: Int) {
-  Log.d(TAG, "markUpdateTime: marking widget $appWidgetId update time")
-  context.getSharedPreferences(Constants.PREFS_FILE_KEY, 0)
-    .edit()
-    .putLong(PREF_WIDGET_UPDATE_TIME + appWidgetId, Date().time)
-    .apply()
+  val updateWorker = FairDayWidgetProvider.WidgetUpdater(appWidgetId, context)
+  updateWorker.update()
 }
 
 private const val TAG = "GGG FDWP"
 private const val PACKAGE_NAME = "com.gerardbradshaw.fairday.widget.FairDayWidgetProvider"
-internal const val PREF_WIDGET_UPDATE_TIME = "is_updated_recently"
-const val EXTRA_WIDGET_ID = "$PACKAGE_NAME.EXTRA_WIDGET_ID"

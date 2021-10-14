@@ -1,6 +1,9 @@
 package com.gerardbradshaw.fairday.activities.utils
 
+import android.content.Intent
 import android.util.Log
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -16,7 +19,7 @@ import javax.inject.Inject
 class AutocompleteUtil @Inject constructor(private val activity: AppCompatActivity) {
   private val viewModel = ViewModelProvider(activity).get(BaseViewModel::class.java)
 
-  private val getPlaceFromSearch =
+  private var getPlaceFromSearch =
     activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
       val intent = it.data
 
@@ -37,6 +40,15 @@ class AutocompleteUtil @Inject constructor(private val activity: AppCompatActivi
         }
       }
     }
+
+  /**
+   * Must be called in onCreate() to register activity.
+   */
+  fun overrideActivityResult(callback: ActivityResultCallback<ActivityResult>) {
+    getPlaceFromSearch = activity.registerForActivityResult(
+      ActivityResultContracts.StartActivityForResult(),
+      callback)
+  }
 
   fun getPlaceFromAutocomplete() {
     initPlacesApi()

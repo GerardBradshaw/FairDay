@@ -7,7 +7,7 @@ object Constants {
 
   const val API_KEY_MAPS = BuildConfig.GOOGLE_MAPS_API_KEY
 
-  const val PREFS_FILE_KEY = "com.gerardbradshaw.fairday.PREFS_FILE_KEY"
+  const val PREFS_FILE_KEY = SharedPrefManager.PREFS_FILE_KEY
 
   const val EXTRA_IS_TEST = "$PACKAGE_NAME.EXTRA_IS_TEST"
   const val EXTRA_LOCATION_DATA = "$PACKAGE_NAME.EXTRA_LOCATION_DATA"

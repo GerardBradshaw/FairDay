@@ -8,6 +8,6 @@
     android:minHeight="40dp"
     android:previewImage="@drawable/ic_launcher_background"
     android:resizeMode="none"
-    android:updatePeriodMillis="3600000"
+    android:updatePeriodMillis="1800000"
     android:widgetCategory="home_screen" />
 
