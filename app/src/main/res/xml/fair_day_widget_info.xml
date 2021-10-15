@@ -6,7 +6,7 @@
     android:initialLayout="@layout/fair_day_widget"
     android:minWidth="100dp"
     android:minHeight="40dp"
-    android:previewImage="@drawable/ic_launcher_background"
+    android:previewImage="@drawable/img_widget_preview"
     android:resizeMode="none"
     android:updatePeriodMillis="1800000"
     android:widgetCategory="home_screen" />

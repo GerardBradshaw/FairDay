@@ -23,8 +23,8 @@
     <string name="weather_view_cd_location_pin_icon">Pin indicating current location</string>
 
     <!-- SYMBOLS -->
-    <string name="weather_view_symbol_high">"H: "</string>
-    <string name="weather_view_symbol_low">"L: "</string>
+    <string name="weather_view_symbol_high">"↑"</string>
+    <string name="weather_view_symbol_low">"↓"</string>
     <string name="weather_view_symbol_hyphen">-</string>
     <string name="weather_view_symbol_degree">°</string>
 

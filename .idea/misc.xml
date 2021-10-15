@@ -14,14 +14,23 @@
         <entry key="app/src/main/res/drawable/img_blank.xml" value="0.25244444444444447" />
         <entry key="app/src/main/res/layout/activity_detail.xml" value="0.1900900900900901" />
         <entry key="app/src/main/res/layout/activity_fair_day_widget_configure.xml" value="0.3355855855855856" />
-        <entry key="app/src/main/res/layout/fair_day_widget.xml" value="0.13629679112014553" />
+        <entry key="app/src/main/res/layout/activity_saved.xml" value="0.3355855855855856" />
+        <entry key="app/src/main/res/layout/dialog_libraries_used.xml" value="0.3355855855855856" />
+        <entry key="app/src/main/res/layout/fair_day_widget.xml" value="1.0" />
         <entry key="app/src/main/res/layout/fair_day_widget_configure.xml" value="0.3355855855855856" />
         <entry key="app/src/main/res/layout/list_item_location_result.xml" value="0.3355855855855856" />
+        <entry key="app/src/main/res/layout/list_item_saved_location.xml" value="0.3355855855855856" />
         <entry key="app/src/main/res/layout/list_item_weather_detail.xml" value="0.375" />
         <entry key="app/src/main/res/layout/popup_finding_location.xml" value="0.375" />
+        <entry key="app/src/main/res/layout/view_open_weather_credit.xml" value="0.19054054054054054" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.25585585585585585" />
         <entry key="weatherview/src/main/res/drawable/img_day_clear.xml" value="1.3392857142857142" />
+        <entry key="weatherview/src/main/res/layout/list_item_forecast.xml" value="0.3355855855855856" />
+        <entry key="weatherview/src/main/res/layout/view_conditions.xml" value="0.3355855855855856" />
+        <entry key="weatherview/src/main/res/layout/view_forecast.xml" value="0.3355855855855856" />
+        <entry key="weatherview/src/main/res/layout/view_headline.xml" value="0.3355855855855856" />
         <entry key="weatherview/src/main/res/layout/view_main.xml" value="0.3355855855855856" />
+        <entry key="weatherview/src/main/res/layout/view_temperature.xml" value="0.3355855855855856" />
       </map>
     </option>
   </component>

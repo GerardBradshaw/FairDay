@@ -43,6 +43,6 @@
     <string name="message_location_rationale_title">Please grant location access</string>
 
     <!-- WIDGET -->
-    <string name="app_widget_description">Fair Day widget showing weather at current location</string>
+    <string name="app_widget_description">See the weather on your home screen.</string>
 
 </resources>

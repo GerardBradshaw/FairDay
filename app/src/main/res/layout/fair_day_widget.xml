@@ -9,6 +9,7 @@
 
     <ImageView
         android:id="@+id/widget_background"
+        tools:src="@drawable/img_day_clear"
         android:layout_width="match_parent"
         android:scaleType="centerCrop"
         android:layout_height="match_parent"/>
@@ -21,6 +22,7 @@
         <TextView
             android:id="@+id/widget_location_name"
             style="@style/BasicWhiteTextWithShadowStyle"
+            tools:text="Mountain View"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
@@ -46,6 +48,7 @@
             <TextView
                 android:id="@+id/widget_current_temp"
                 style="@style/BasicWhiteTextWithShadowStyle"
+                tools:text="23"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/weather_view_symbol_hyphen"
