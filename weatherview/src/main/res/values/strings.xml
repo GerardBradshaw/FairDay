@@ -20,7 +20,7 @@
     <!-- CONTENT DESCRIPTIONS -->
     <string name="weather_view_cd_condition_description_prefix">\"Graphic of \"</string>
     <string name="weather_view_cd_condition_description_suffix">\" conditions\"</string>
-    <string name="weather_view_cd_location_pin_icon">Pin indicating current location</string>v
+    <string name="weather_view_cd_location_pin_icon">Pin indicating current location</string>
 
     <!-- SYMBOLS -->
     <string name="weather_view_symbol_high">"H: "</string>

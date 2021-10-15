@@ -26,26 +26,23 @@
     <string name="string_more_by_gerard">More by Gerard</string>
     <string name="string_open_source_libraries_used">Open-source libraries used</string>
     <string name="string_are_you_sure_you_want_to_remove">Are you sure you want to remove </string>
+    <string name="string_select_location">Select location</string>
+    <string name="string_search_for_location">Search for location</string>
+    <string name="string_use_current_location">Use current location</string>
+    <string name="string_widget_setup">widget setup</string>
+    <string name="string_finding_current_location">Finding current location</string>
+    <string name="string_cancel">Cancel</string>
 
     <!-- CONTENT DESCRIPTIONS -->
     <string name="cd_add_new_location_button">Add new location button</string>
     <string name="cd_condition_prefix">\"Graphic of \"</string>
-    <string name="weather_view_cd_condition_description_suffix">\" conditions\"</string>
-    <string name="weather_view_cd_location_pin_icon">Pin indicating current location</string>
     <string name="cd_open_weather_logo">Open Weather logo</string>
 
     <!-- LOCATION PERMISSION MESSAGES -->
     <string name="message_location_rationale_body">\ needs to know your location to determine the weather where you are. We will only have access to your approximate location (within a city block), which is never stored or transmitted outside of your device.</string>
     <string name="message_location_rationale_title">Please grant location access</string>
 
-    <!-- CONDITION ICON URL -->
-    <string name="weather_view_condition_url_prefix">https://openweathermap.org/img/wn/</string>
-    <string name="weather_view_condition_url_suffix">\@2x.png</string>
-
     <!-- WIDGET -->
-    <string name="string_select_location">Select location</string>
-    <string name="string_search_for_location">Search for location</string>
-    <string name="string_use_current_location">Use current location</string>
     <string name="app_widget_description">Fair Day widget showing weather at current location</string>
-  <string name="string_widget_setup">widget setup</string>
+
 </resources>

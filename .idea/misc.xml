@@ -18,8 +18,10 @@
         <entry key="app/src/main/res/layout/fair_day_widget_configure.xml" value="0.3355855855855856" />
         <entry key="app/src/main/res/layout/list_item_location_result.xml" value="0.3355855855855856" />
         <entry key="app/src/main/res/layout/list_item_weather_detail.xml" value="0.375" />
+        <entry key="app/src/main/res/layout/popup_finding_location.xml" value="0.375" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.25585585585585585" />
         <entry key="weatherview/src/main/res/drawable/img_day_clear.xml" value="1.3392857142857142" />
+        <entry key="weatherview/src/main/res/layout/view_main.xml" value="0.3355855855855856" />
       </map>
     </option>
   </component>

@@ -13,6 +13,7 @@ import androidx.activity.result.ActivityResultCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.gerardbradshaw.fairday.R
 import com.gerardbradshaw.fairday.SharedPrefManager
+import com.gerardbradshaw.fairday.activities.detail.DetailActivity
 import com.gerardbradshaw.fairday.activities.detail.utils.AddressUtil
 import com.gerardbradshaw.fairday.activities.detail.utils.GpsUtil
 import com.gerardbradshaw.fairday.activities.utils.AutocompleteUtil
@@ -40,8 +41,8 @@ class FairDayWidgetConfigureActivity :
 
   private var useCurrentLocationButtonOnClickListener = View.OnClickListener {
     deleteAllWidgetPrefs(this, appWidgetId)
+    binding.loadingFrame.visibility = View.VISIBLE
     gpsUtil.start()
-    // TODO show spinner
   }
 
   public override fun onCreate(icicle: Bundle?) {
@@ -52,6 +53,12 @@ class FairDayWidgetConfigureActivity :
       setContentView(root)
       searchForLocationButton.setOnClickListener(searchForLocationButtonOnClickListener)
       useCurrentLocationButton.setOnClickListener(useCurrentLocationButtonOnClickListener)
+      openFairDayButton.setOnClickListener {
+        startActivity(Intent(
+          this@FairDayWidgetConfigureActivity,
+          DetailActivity::class.java))
+        finishAndClose(RESULT_CANCELED)
+      }
     }
 
     val title = "${getString(R.string.app_name)} ${getString(R.string.string_widget_setup)}"

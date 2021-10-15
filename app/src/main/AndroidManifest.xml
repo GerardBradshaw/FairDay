@@ -5,7 +5,6 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
         android:name=".application.BaseApplication"
@@ -48,11 +47,6 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/fair_day_widget_info" />
         </receiver>
-
-        <service
-            android:name=".widget.FairDayWidgetProvider$UpdateService"
-            android:foregroundServiceType="location"
-            android:exported="false" />
 
         <activity
             android:name=".widget.FairDayWidgetConfigureActivity"
