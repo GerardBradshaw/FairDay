@@ -57,5 +57,15 @@ object SharedPrefManager {
     }
   }
 
+  /**
+   * Clears SharedPreferences. WARNING: All of it!
+   */
+  fun purge(context: Context) {
+    context.getSharedPreferences(Constants.PREFS_FILE_KEY, 0)
+      .edit()
+      .clear()
+      .apply()
+  }
+
   const val PREFS_FILE_KEY = "com.gerardbradshaw.fairday.PREFS_FILE_KEY"
 }

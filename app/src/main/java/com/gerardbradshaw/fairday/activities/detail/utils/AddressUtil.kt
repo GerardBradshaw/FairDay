@@ -13,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.gerardbradshaw.fairday.activities.detail.FetchAddressIntentService
 import com.gerardbradshaw.fairday.application.annotations.IsTest
 import com.gerardbradshaw.fairday.Constants
+import com.gerardbradshaw.fairday.R
+import com.google.android.libraries.places.api.model.AddressComponents
 import javax.inject.Inject
 
 class AddressUtil @Inject constructor(@IsTest private val isTest: Boolean) {
@@ -45,5 +47,23 @@ class AddressUtil @Inject constructor(@IsTest private val isTest: Boolean) {
 
   companion object {
     private const val TAG = "GGG AddressUtil"
+
+    @JvmStatic
+    fun extractLocalityFromAddressComponents(
+      context: Context,
+      components: AddressComponents?
+    ): String {
+      if (components != null) {
+        val componentsList = components.asList()
+        for (component in componentsList) {
+          for (type in component.types) {
+            if (type == "locality") {
+              return component.name
+            }
+          }
+        }
+      }
+      return context.getString(R.string.string_unknown_location)
+    }
   }
 }

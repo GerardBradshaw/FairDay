@@ -142,11 +142,11 @@ class GpsUtil @Inject constructor(
     this.listener = listener
   }
 
-  fun requestUpdates() {
+  private fun requestUpdates() {
     startLocationUpdates()
   }
 
-  fun stopRequestingUpdates() {
+  private fun stopRequestingUpdates() {
     requestLocationUpdatesStop()
   }
 
