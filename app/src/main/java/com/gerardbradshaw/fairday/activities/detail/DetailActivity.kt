@@ -26,6 +26,8 @@ import com.gerardbradshaw.weatherview.datamodels.WeatherData
 import com.gerardbradshaw.fairday.Constants
 import com.gerardbradshaw.fairday.application.BaseApplication
 import com.gerardbradshaw.fairday.R
+import com.gerardbradshaw.fairday.SharedPrefManager
+import com.gerardbradshaw.fairday.SharedPrefManager.PREF_KEY_GPS_REQUESTED
 import com.gerardbradshaw.fairday.activities.detail.utils.*
 import com.gerardbradshaw.fairday.activities.utils.AutocompleteUtil
 import com.gerardbradshaw.fairday.room.LocationEntity
@@ -87,20 +89,6 @@ class DetailActivity :
     super.onResume()
   }
 
-  private fun initListeners() {
-    weatherUtil.setWeatherDetailsListener(this)
-    gpsUtil.setOnGpsUpdateListener(this)
-
-    findViewById<OpenWeatherCreditView>(R.id.open_weather_credit_view).setOnClickListener {
-      Intent(Intent.ACTION_VIEW).also {
-        it.data = Uri.parse(Constants.URL_OPEN_WEATHER)
-        startActivity(it)
-      }
-    }
-
-    prefs.registerOnSharedPreferenceChangeListener(this)
-  }
-
   private val viewPagerPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
     override fun onPageSelected(position: Int) {
       pagerAdapter.getWeatherDataFor(position)?.let { updateBackgroundViews(it) }
@@ -122,7 +110,7 @@ class DetailActivity :
   }
 
   private fun initFields() {
-    prefs = PreferenceManager.getDefaultSharedPreferences(this)
+    prefs = SharedPrefManager.getDefaultSharedPrefs(this)
     backgroundImage = findViewById(R.id.background_image_view)
     instructionsTextView = findViewById(R.id.instructions_text_view)
     precipitationView = findViewById(R.id.weather_view)
@@ -156,6 +144,20 @@ class DetailActivity :
     }
   }
 
+  private fun initListeners() {
+    weatherUtil.setWeatherDetailsListener(this)
+    gpsUtil.setOnGpsUpdateListener(this)
+
+    findViewById<OpenWeatherCreditView>(R.id.open_weather_credit_view).setOnClickListener {
+      Intent(Intent.ACTION_VIEW).also {
+        it.data = Uri.parse(Constants.URL_OPEN_WEATHER)
+        startActivity(it)
+      }
+    }
+
+    prefs.registerOnSharedPreferenceChangeListener(this)
+  }
+
   private fun loadInstanceState(savedInstanceState: Bundle?) {
     Log.d(TAG, "loadInstanceState: no state loaded from bundle ($savedInstanceState)")
   }
@@ -182,7 +184,7 @@ class DetailActivity :
     menuInflater.inflate(R.menu.menu_action_bar_detail_activity, menu)
     supportActionBar?.setDisplayShowTitleEnabled(false)
 
-    onSharedPreferenceChanged(prefs, Constants.KEY_GPS_REQUESTED)
+    onSharedPreferenceChanged(prefs, PREF_KEY_GPS_REQUESTED)
 
     return super.onCreateOptionsMenu(menu)
   }
@@ -205,11 +207,17 @@ class DetailActivity :
   }
 
   private fun onPinButtonClicked() {
-    val isGpsRequestedOldPref = prefs.getBoolean(Constants.KEY_GPS_REQUESTED, false)
-    prefs.edit().putBoolean(Constants.KEY_GPS_REQUESTED, !isGpsRequestedOldPref).apply()
+    val isGpsRequestedOldPref = SharedPrefManager.getBoolean(
+      this,
+      PREF_KEY_GPS_REQUESTED,
+      false)
+
+    SharedPrefManager.putBoolean(this, PREF_KEY_GPS_REQUESTED, !isGpsRequestedOldPref)
 
     val isGpsEnabled = gpsUtil.toggleUpdateState()
-    if (!isGpsEnabled) pagerItemUtil.disableCurrentLocation()
+    if (!isGpsEnabled) {
+      pagerItemUtil.disableCurrentLocation()
+    }
   }
 
   private fun setPinIconState(state: PinState) {
@@ -242,7 +250,12 @@ class DetailActivity :
           val intentPos = it.data?.getIntExtra(EXTRA_PAGER_POSITION, -1) ?: -1
           if (intentPos == -1) return@registerForActivityResult
 
-          val offset = if (prefs.getBoolean(Constants.KEY_GPS_REQUESTED, false)) 1 else 0
+          val isGpsRequested = SharedPrefManager.getBoolean(
+            this,
+            PREF_KEY_GPS_REQUESTED,
+            false)
+
+          val offset = if (isGpsRequested) 1 else 0
           updatePagerPosition(intentPos + offset)
         }
       }
@@ -304,7 +317,7 @@ class DetailActivity :
   }
 
   override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-    if (sharedPreferences != null && key == Constants.KEY_GPS_REQUESTED) {
+    if (sharedPreferences != null && key == PREF_KEY_GPS_REQUESTED) {
       val isLocationOn = sharedPreferences.getBoolean(key, false)
       val pinState = if (isLocationOn) PinState.PIN_ENABLED else PinState.PIN_DISABLED
       setPinIconState(pinState)
@@ -385,7 +398,8 @@ class DetailActivity :
   }
 
   override fun onDataUpdate() {
-    pagerAdapter.getWeatherDataFor(viewPager.currentItem)?.let { updateBackgroundViews(it) }
+    val weatherData = pagerAdapter.getWeatherDataFor(viewPager.currentItem)
+    updateBackgroundViews(weatherData)
   }
 
 

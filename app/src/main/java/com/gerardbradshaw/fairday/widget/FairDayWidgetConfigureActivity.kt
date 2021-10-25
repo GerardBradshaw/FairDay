@@ -8,6 +8,7 @@ import android.location.Address
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -42,8 +43,10 @@ class FairDayWidgetConfigureActivity :
   private var useCurrentLocationButtonOnClickListener = View.OnClickListener {
     deleteAllWidgetPrefs(this, appWidgetId)
     binding.loadingFrame.visibility = View.VISIBLE
-    gpsUtil.start()
+    gpsUtil.forceStart()
   }
+
+  // ------------------------ INIT ------------------------
 
   public override fun onCreate(icicle: Bundle?) {
     super.onCreate(icicle)
@@ -82,15 +85,6 @@ class FairDayWidgetConfigureActivity :
     initAutocompleteFragment()
   }
 
-  override fun onGpsUpdate(address: Address?) {
-    if (address == null) {
-      Log.e(TAG, "onGpsUpdate: gps returned an empty address!")
-      finishAndClose(RESULT_CANCELED)
-    } else {
-      finishAndClose(saveAllWidgetPrefs(this, appWidgetId, address))
-    }
-  }
-
   private fun initAutocompleteFragment() {
     autocompleteFragment = AutocompleteUtil(this)
 
@@ -120,6 +114,39 @@ class FairDayWidgetConfigureActivity :
 
     autocompleteFragment.overrideActivityResult(autocompleteCallback)
   }
+
+
+  // ------------------------ EXTERNAL EVENTS ------------------------
+
+  override fun onGpsUpdate(address: Address?) {
+    if (address == null) {
+      Log.e(TAG, "onGpsUpdate: gps returned an empty address!")
+      Toast.makeText(this, "Service unavailable.", Toast.LENGTH_SHORT).show()
+      finishAndClose(RESULT_CANCELED)
+    } else {
+      finishAndClose(saveAllWidgetPrefs(this, appWidgetId, address))
+    }
+  }
+
+  @Suppress("DEPRECATION") // TODO remove
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    Log.d(TAG, "onActivityResult: ")
+    when (requestCode) {
+      GpsUtil.REQUEST_CODE_CHECK_SETTINGS -> {
+        gpsUtil.onActivityResult(requestCode, resultCode)
+        if (resultCode != Activity.RESULT_OK) {
+          Toast.makeText(this, "Please allow location access in the settings app.", Toast.LENGTH_LONG).show()
+          finishAndClose()
+        } else {
+          gpsUtil.forceStart()
+        }
+      }
+      else -> super.onActivityResult(requestCode, resultCode, data)
+    }
+  }
+
+
+  // ------------------------ FINISH ------------------------
 
   private fun finishAndClose(resultCode: Int = RESULT_OK) {
     if (resultCode == RESULT_OK) {

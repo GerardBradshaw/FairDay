@@ -11,9 +11,11 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.PreferenceManager
 import com.gerardbradshaw.fairday.Constants
+import com.gerardbradshaw.fairday.Constants.DEFAULT_LOCATION_UPDATE_INTERVAL_MS
+import com.gerardbradshaw.fairday.Constants.FASTEST_LOCATION_UPDATE_INTERVAL_MS
 import com.gerardbradshaw.fairday.R
+import com.gerardbradshaw.fairday.SharedPrefManager
 import com.gerardbradshaw.fairday.activities.detail.utils.PermissionUtil.Companion.isGranted
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
@@ -41,12 +43,6 @@ class GpsUtil @Inject constructor(
 
   var isGpsEnabled = false
     private set
-
-  private var isGpsRequestedSharedPref: Boolean
-    get() = PreferenceManager.getDefaultSharedPreferences(activity)
-      .getBoolean(Constants.KEY_GPS_REQUESTED, false)
-    set(value) = PreferenceManager.getDefaultSharedPreferences(activity).edit()
-      .putBoolean(Constants.KEY_GPS_REQUESTED, value).apply()
 
   private var listener: GpsUtilListener? = null
 
@@ -100,10 +96,20 @@ class GpsUtil @Inject constructor(
   /**
    * To be called by a registered [GpsUtilListener] to start location updates if it was
    * previously set to receive them. It is suggested that this method is run during the listening
-   * Activity / Fragment onCreate() or onResume().
+   * Activity / Fragment onCreate() or onResume(). [SharedPrefManager.PREF_KEY_GPS_REQUESTED] must
+   * be true.
    */
   fun start() {
-    if (isGpsRequestedSharedPref) startLocationUpdates()
+    if (SharedPrefManager.getBoolean(activity, SharedPrefManager.PREF_KEY_GPS_REQUESTED, false)) {
+      startLocationUpdates()
+    }
+  }
+
+  /**
+   * Same as [start] but does not require [SharedPrefManager.PREF_KEY_GPS_REQUESTED].
+   */
+  fun forceStart() {
+    startLocationUpdates()
   }
 
   /**
@@ -118,7 +124,7 @@ class GpsUtil @Inject constructor(
    * To be called by a registered [GpsUtilListener] to handle Android settings changes
    * related to permissions.
    *
-   * [requestCode], [resultCode], [data] are as per [Activity.onActivityResult].
+   * [requestCode] and [resultCode] are as per [Activity.onActivityResult].
    */
   fun onActivityResult(requestCode: Int, resultCode: Int) {
     if (requestCode == REQUEST_CODE_CHECK_SETTINGS) {
@@ -182,7 +188,7 @@ class GpsUtil @Inject constructor(
   }
 
   private fun onRationaleDismissed() {
-    isGpsRequestedSharedPref = false
+    SharedPrefManager.putBoolean(activity, SharedPrefManager.PREF_KEY_GPS_REQUESTED, false)
   }
 
   private fun onRationaleAccepted() {
@@ -226,7 +232,7 @@ class GpsUtil @Inject constructor(
 
   private fun onSettingsChangeUnavailable() {
     toastLocationErrorAndLog("onSettingsChangeUnavailable: location settings change unavailable")
-    isGpsRequestedSharedPref = false
+    SharedPrefManager.putBoolean(activity, SharedPrefManager.PREF_KEY_GPS_REQUESTED, false)
     stopRequestingUpdates()
   }
 
@@ -264,9 +270,6 @@ class GpsUtil @Inject constructor(
   companion object {
     private const val TAG = "GGG GpsUtil"
     private const val LOCATION_PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION
-
-    private val DEFAULT_LOCATION_UPDATE_INTERVAL_MS =  TimeUnit.MINUTES.toMillis(30)
-    private val FASTEST_LOCATION_UPDATE_INTERVAL_MS = TimeUnit.MINUTES.toMillis(5)
 
     const val REQUEST_CODE_CHECK_SETTINGS = 101
   }
