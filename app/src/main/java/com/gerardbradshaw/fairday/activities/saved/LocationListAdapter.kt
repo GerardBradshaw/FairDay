@@ -58,8 +58,6 @@ class LocationListAdapter(private val context: Context):
     val textView: TextView = itemView.findViewById(R.id.list_item_saved_location_text_view)
   }
 
-
-
   interface LocationClickedListener {
     fun onLocationClicked(position: Int)
   }

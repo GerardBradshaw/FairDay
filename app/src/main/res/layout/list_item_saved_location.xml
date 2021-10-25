@@ -31,10 +31,11 @@
                 android:id="@+id/list_item_saved_location_text_view"
                 style="@style/SmallDetailStyle"
                 android:layout_width="0dp"
-                android:paddingStart="12dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:paddingStart="12dp"
+                android:textAppearance="@style/BasicWhiteTextWithShadowStyle"
+                android:textSize="18sp"
                 tools:text="San Francisco"/>
 
         </LinearLayout>
